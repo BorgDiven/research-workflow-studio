@@ -26,3 +26,42 @@ body.has-active-workspace{height:100dvh;min-height:0;display:flex;flex-direction
 .has-active-workspace>.mode-nav{height:54px}
 .has-active-workspace.workspace-immersive>.workspace{height:auto;min-height:0;margin-bottom:10px}
 .has-active-workspace.workspace-immersive>.mode-nav{height:54px}
+
+/* Two desktop rows: project context, then views and selection. */
+.has-active-workspace>.app-header{height:56px;min-height:56px;padding:0 18px;gap:14px}
+.has-active-workspace .studio-brand b{font-size:15px;letter-spacing:-.4px}
+.has-active-workspace .project-switch{min-width:180px;max-width:290px;flex:1 1 250px;padding:2px 24px 2px 14px;gap:3px}
+.has-active-workspace .project-switch .eyebrow{display:none}
+.project-goal-preview{display:none}
+.has-active-workspace .project-goal-preview{display:block;font-size:10px;line-height:1.3;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:100%}
+.has-active-workspace .project-switch strong{font-size:13px;max-width:100%}
+.header-project-phase{border:1px solid #e2d9c5;border-radius:6px;padding:6px 9px;background:#fffaf0;color:#846739;min-height:32px;font-size:11px;white-space:nowrap;max-width:150px;overflow:hidden;text-overflow:ellipsis;flex-shrink:0}
+.header-project-phase.is-confirmed{color:#347a5a;background:#eff8f2;border-color:#c5dfcf}
+.header-project-progress{font-size:10px;color:var(--muted);max-width:200px;min-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.has-active-workspace .header-actions{gap:6px;margin-left:auto;flex-shrink:0}
+.has-active-workspace .header-actions .button{min-height:32px;font-size:11px;padding:6px 9px}
+.has-active-workspace #live-status{max-width:135px;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;font-size:10px;padding:5px 7px}
+.has-active-workspace>.mode-nav{height:48px;min-height:48px;padding:5px 18px;gap:5px}
+.has-active-workspace .mode-button{padding:7px 10px;gap:6px}
+.has-active-workspace .mode-button strong{font-size:13px}
+.has-active-workspace .context-picker{gap:7px}
+.has-active-workspace .context-picker select{max-width:190px;padding:7px;font-size:11px}
+.has-active-workspace .workspace-controls{gap:5px;padding-left:9px;margin-left:8px}
+.has-active-workspace .workspace-controls .button{min-height:32px;padding:6px 8px}
+.has-active-workspace .stage-heading{height:44px;padding:6px 14px}
+.has-active-workspace .stage-heading h1{font-size:16px}
+.has-active-workspace .stage-heading .button{min-height:31px;padding:6px 9px;font-size:11px}
+.has-active-workspace .stage-content{height:calc(100% - 44px)}
+.has-active-workspace>.app-footer{height:25px;padding:0 20px}
+.project-context-popover{position:fixed;inset:62px 18px auto auto;margin:0;width:480px;max-width:calc(100vw - 36px);max-height:calc(100dvh - 90px);padding:18px;border:1px solid var(--line);border-radius:12px;color:var(--ink);background:#fff;box-shadow:0 16px 48px #283d6525;overflow:auto}
+.project-context-popover::backdrop{background:transparent}
+.project-context-popover .project-strip{height:auto;min-height:0;max-height:none;margin:0;padding:0;border:0;display:flex;flex-direction:column;align-items:stretch;gap:14px}
+.project-context-popover .project-strip>.back-projects{text-align:left;align-self:flex-start}
+.project-context-popover .project-brief{min-width:0;flex:auto}
+.project-context-popover .project-purpose-line{align-items:flex-start;height:auto}
+.project-context-popover .project-purpose-line button{white-space:normal;text-overflow:clip;display:block;line-height:1.7;text-align:left}
+.project-context-popover .project-facts-line{flex-direction:column;align-items:flex-start;gap:4px;margin-top:12px;white-space:normal}
+.project-context-popover .project-phase-control{width:100%;max-width:none;flex:none;border:1px solid var(--line);border-radius:8px;padding:10px 12px;text-align:left}
+.project-context-popover .project-phase-control>span{right:12px}
+.project-context-popover .project-strip-actions{display:flex;justify-content:flex-start;align-items:center;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:10px}
+@media(max-width:1240px){.has-active-workspace>.app-header{gap:10px}.has-active-workspace .studio-brand b{font-size:13px}.has-active-workspace .project-switch{min-width:155px;max-width:235px}.has-active-workspace #live-status{max-width:72px}.has-active-workspace .context-picker label{display:none}.has-active-workspace .context-picker select{max-width:165px}}

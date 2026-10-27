@@ -20,10 +20,13 @@
   function refresh(){
     const p=project();renderHome();
     $('#project-home').hidden=surface!=='home';$('#project-strip').hidden=surface==='home'||!p;$('.project-switch').hidden=surface==='home'||!p;
+    $('#header-project-phase').hidden=surface==='home'||!p;
+    $('#header-project-progress').hidden=surface==='home'||!p;
+    if(surface==='home')$('#project-context-popover').hidePopover();
     $$('.header-actions [data-requires-project]').forEach(x=>x.hidden=!p||surface==='home');
     const working=surface==='workbench'&&!!p;$('.mode-nav').hidden=!working;$('#workspace').hidden=!working;$('#empty-workspace').hidden=true;
     document.body.dataset.projectSurface=surface;window.dispatchEvent(new CustomEvent('rws:surface-change',{detail:{surface,hasWorkbench:working}}));
-    if(p){renderStrip();renderFoundation();window.RPWorkbench.setProjectStages(p.activeStages||[]);$('.immersive-status').textContent=p.demo?'合成试装':'共享记录';}
+    if(p){renderStrip();renderFoundation();window.RPWorkbench.setProjectStages(p.activeStages||[]);$('.immersive-status').textContent=p.demo?'合成试装':'共享记录';const summary=M.projectSummary(p,D);$('#active-project-goal').textContent=summary.goal;$('.project-switch').title=p.name+' — '+summary.goal;$('#header-project-phase').textContent=summary.stageText;$('#header-project-phase').title='当前推进：'+summary.stageText+' · 点击设置阶段';$('#header-project-phase').classList.toggle('is-confirmed',!!p.stagesConfirmedAt);$('#header-project-progress').textContent=summary.progressText;$('#header-project-progress').title=summary.progressText+'；'+summary.pendingText;}
     if(surface==='home')$('#status').textContent='共享后端项目列表';
   }
   function renderHome(){

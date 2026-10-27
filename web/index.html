@@ -8,10 +8,12 @@
 <body>
   <header class="app-header">
     <button class="brand studio-brand" data-studio="home" aria-label="Research Workflow Studio 项目与研究工作区"><b>Research Workflow <em>Studio</em></b></button>
-    <button class="project-switch" data-studio="projects"><span class="eyebrow" id="active-project-domain">研究项目</span><strong id="active-project-title">选择项目</strong><span class="switch-caret">⌄</span></button>
-    <div class="header-actions"><span class="demo-badge" id="live-status" role="status">正在连接…</span><button class="button" data-studio="refresh">刷新</button><button class="button" data-studio="context" data-requires-project>准备研究对话</button><button class="button primary" data-studio="guide" data-requires-project>当前位置与建议</button></div>
+    <button class="project-switch" data-studio="projects"><span class="eyebrow" id="active-project-domain">研究项目</span><strong id="active-project-title">选择项目</strong><span id="active-project-goal" class="project-goal-preview"></span><span class="switch-caret">⌄</span></button>
+    <button id="header-project-phase" class="header-project-phase" data-studio="stages" hidden></button>
+    <span id="header-project-progress" class="header-project-progress" hidden></span>
+    <div class="header-actions"><button class="button" popovertarget="project-context-popover" data-requires-project>项目概况</button><span class="demo-badge" id="live-status" role="status">正在连接…</span><button class="button" data-studio="refresh">刷新</button><button class="button" data-studio="context" data-requires-project aria-label="准备研究对话">研究对话</button><button class="button primary" data-studio="guide" data-requires-project aria-label="当前位置与建议">下一步</button></div>
   </header>
-  <section id="project-strip" class="project-strip" aria-label="项目上下文"></section>
+  <div id="project-context-popover" class="project-context-popover" popover="auto"><section id="project-strip" class="project-strip" aria-label="项目上下文"></section></div>
   <section id="project-home" class="project-home" aria-label="我的研究项目"></section>
   <section id="empty-workspace" class="empty-workspace" hidden aria-label="新项目工作区"></section>
   <nav class="mode-nav" aria-label="工作台视图">
@@ -40,5 +42,5 @@
   <div class="toast" id="toast" role="status"></div>
   <dialog id="studio-dialog" class="studio-dialog" aria-labelledby="studio-dialog-title"><header><div><h2 id="studio-dialog-title"></h2></div><button class="button" data-studio="close-dialog">关闭</button></header><div class="studio-dialog-body"></div></dialog>
   <dialog id="guidance-dialog" class="guidance-dialog" aria-labelledby="guidance-title"><header><div><h2 id="guidance-title">当前位置与建议</h2></div><button class="button" data-studio="close-guide">关闭</button></header><div id="guidance-body"></div></dialog>
-  <script src="live-model.js"></script><script src="data.js"></script><script src="live-api.js"></script><script src="evidence.js"></script><script src="results-model.js"></script><script src="results.js"></script><script src="app.js"></script><script src="studio-model.js"></script><script src="studio.js"></script><script src="contracts.js"></script><script src="amendments.js"></script><script src="materials.js"></script><script src="workspace.js"></script>
+  <script src="live-model.js"></script><script src="data.js"></script><script src="live-api.js"></script><script src="evidence.js"></script><script src="results-model.js"></script><script src="results.js"></script><script src="graph-layout.js"></script><script src="app.js"></script><script src="studio-model.js"></script><script src="studio.js"></script><script src="contracts.js"></script><script src="amendments.js"></script><script src="materials.js"></script><script src="workspace.js"></script>
 </body></html>
