@@ -15,4 +15,6 @@ The build creates a fresh temporary database from `tools/seed_showcase.py`, expo
 
 Visitors can select nodes, focus a region, switch views, filter comparisons, and inspect evidence and frozen reports. The demo does not save server records, connect to an AI client, or execute experiments. The installed application keeps its normal backend and MCP behavior.
 
+The homepage connects three research pain points to concrete demo actions: trace a question to its evidence, inspect the context an AI client can read, and compare methods on shared samples. These entries navigate the actual workbench and display a short guide after the demo acknowledges the action. Context inspection opens the packaged read-only context; it does not invoke an AI model. Parent/frame messages require the same origin and the expected window source.
+
 The `Public website` GitHub Actions workflow tests, builds, and deploys the static output to GitHub Pages when relevant files on `main` change. Pages must use GitHub Actions as its publishing source. No custom domain is required.

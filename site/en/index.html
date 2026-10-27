@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f4f7fb">
-  <meta name="description" content="Human direction. AI collaboration. Connect questions, experiments, and evidence in a research workspace that keeps your thinking visible and your work reusable.">
-  <title>Research Workflow Studio — Make research visible</title>
+  <meta name="description" content="Connect research questions, code, experiments, and evidence so you and AI know why the work matters, where it stands, and what comes next. Try Research Workflow Studio live.">
+  <title>Research Workflow Studio — Connect your ideas, code, and results</title>
   <link rel="canonical" href="https://borgdiven.github.io/research-workflow-studio/en/">
   <link rel="alternate" hreflang="zh-CN" href="https://borgdiven.github.io/research-workflow-studio/">
   <link rel="alternate" hreflang="en" href="https://borgdiven.github.io/research-workflow-studio/en/">
@@ -31,7 +31,9 @@
     <section class="hero content-width" aria-labelledby="hero-title">
       <div class="hero-copy">
         <p class="eyebrow"><span class="direction-dot" aria-hidden="true"></span>Human direction. AI collaboration.</p>
-        <h1 id="hero-title">Make research visible.<br><span>Keep experiments connected.</span></h1>
+        <h1 id="hero-title"><span class="hero-problem">Ideas in chats. Code in branches. Results in folders.</span><span class="hero-answer">Putting it all together is another job.</span></h1>
+        <p class="hero-description">Connect questions, code, experiments, and evidence so you and AI can see<br class="desktop-break"> why you're doing the work, where it stands, and what comes next.</p>
+        <p class="human-direction">You set the direction and draw the conclusions. AI helps record and move the work forward.</p>
       </div>
       <div class="hero-actions">
         <a class="button button-primary" href="#demo">Try it live <span aria-hidden="true">↓</span></a>
@@ -43,15 +45,15 @@
     <section class="benefits content-width" aria-label="Why Research Workflow Studio">
       <article class="benefit benefit-trace">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 5v6a6 6 0 0 0 6 6h8M5 6h14"/><circle cx="5" cy="5" r="2.5"/><circle cx="19" cy="6" r="2.5"/><circle cx="19" cy="17" r="2.5"/></svg>
-        <div><h2>Trace your thinking</h2><p>Questions, experiments, evidence. One connected story.</p></div>
+        <div class="benefit-content"><p class="benefit-pain">More experiments. Harder to follow the reasoning.</p><h2>Know what led to each experiment</h2><ol class="benefit-steps"><li>Define the question</li><li>Link experiments and results</li><li>Revisit decisions through evidence</li></ol><button class="tour-link" type="button" data-demo-tour="trace" aria-controls="workbench-demo">Follow a research thread <span aria-hidden="true">↗</span></button></div>
       </article>
       <article class="benefit benefit-continue">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15m-5-5 5 5-5 5M4 5v3m0 8v3"/><circle cx="4" cy="12" r="2.5"/></svg>
-        <div><h2>Give AI the context</h2><p>The big picture, your progress, and what comes next.</p></div>
+        <div class="benefit-content"><p class="benefit-pain">A new chat means explaining everything again.</p><h2>Help AI pick up where you left off</h2><ol class="benefit-steps"><li>Select your research</li><li>Read context, progress, and tasks</li><li>Agree on the next step</li></ol><button class="tour-link" type="button" data-demo-tour="context" aria-controls="workbench-demo">See the context AI gets <span aria-hidden="true">↗</span></button></div>
       </article>
       <article class="benefit benefit-reuse">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 8a7 7 0 0 1 12 0l2 3m0-6v6h-6M18 16a7 7 0 0 1-12 0l-2-3m0 6v-6h6"/></svg>
-        <div><h2>Build on your work</h2><p>Reuse code. Reference evidence. Compare results.</p></div>
+        <div class="benefit-content"><p class="benefit-pain">The run is done. Sorting and comparing aren't.</p><h2>Put existing results to work</h2><ol class="benefit-steps"><li>Choose samples and conditions</li><li>Compare versions</li><li>Cite evidence in a report</li></ol><button class="tour-link" type="button" data-demo-tour="compare" aria-controls="workbench-demo">Compare results across methods <span aria-hidden="true">↗</span></button></div>
       </article>
     </section>
 
@@ -68,6 +70,7 @@
           </div>
           <a class="open-demo" href="../demo/index.html?projectId=showcase-shapes" target="_blank" rel="noopener" aria-label="Open full demo in a new tab">Open demo <span aria-hidden="true">↗</span></a>
         </div>
+        <aside id="demo-guide" class="demo-guide" hidden tabindex="-1" aria-labelledby="demo-guide-title" aria-live="polite"><div><h3 id="demo-guide-title"></h3><p id="demo-guide-text"></p></div><button type="button" data-demo-guide-close aria-label="Close interaction guide"><span aria-hidden="true">×</span></button></aside>
         <iframe id="workbench-demo" src="../demo/index.html?projectId=showcase-shapes" title="Research Workflow Studio interactive demo: explore fictional research, code, and outputs" loading="eager" allowfullscreen></iframe>
       </div>
       <p class="demo-hint"><span aria-hidden="true">↳</span> Click a node. Follow the research. Explore the code and results. <span class="demo-language">Interactive demo currently in Chinese.</span></p>

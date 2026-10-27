@@ -31,7 +31,7 @@
     updateURL = true;
   }
   if (updateURL) history.replaceState(null, '', location.pathname + '?' + params + location.hash);
-  let ready = false, queued = null, lastView = null, initial = true;
+  let ready = false, queued = null, running = false, sequence = 0, lastView = null, initial = true;
   const post = message => { if (window.parent !== window) window.parent.postMessage(message, location.origin); };
   function publishView() {
     if (!ready) return;
@@ -49,45 +49,100 @@
     const context = document.querySelector('#context-text');
     if (context) context.readOnly = true;
   }
-  function waitForData(projectId) {
-    return new Promise(resolve => {
-      const loaded = event => {
-        if (event.detail.snapshot.projectId === projectId) {
-          window.removeEventListener('rws:data', loaded);
-          queueMicrotask(resolve);
-        }
-      };
-      window.addEventListener('rws:data', loaded);
+  function waitFor(predicate, message, action = () => {}) {
+    // Observe real dialog/project changes, not network responses or guessed
+    // delays. The bound also lets a failed context request release the queue.
+    return new Promise((resolve, reject) => {
+      let timer;
+      const finish = error => { observer.disconnect(); clearTimeout(timer); error ? reject(error) : resolve(); };
+      const check = () => { try { if (predicate()) finish(); } catch (error) { finish(error); } };
+      const observer = new MutationObserver(check);
+      observer.observe(document.body, {childList:true, subtree:true, attributes:true});
+      timer = setTimeout(() => finish(new Error(message)), 5000);
+      try { action(); check(); } catch (error) { finish(error); }
     });
   }
-  async function navigate(view) {
-    if (!ready) { queued = view; return; }
+  function click(selector) {
+    const button = document.querySelector(selector);
+    if (!button || button.disabled) throw new Error('演示控件尚未准备好，请重试。');
+    button.click();
+  }
+  function closeOverlays() {
+    if (document.querySelector('#studio-dialog')?.open) click('[data-studio="close-dialog"]');
+    if (document.querySelector('#guidance-dialog')?.open) click('[data-studio="close-guide"]');
+    if (document.querySelector('#reader')?.open) click('[data-action="close-reader"]');
+    document.querySelector('#project-context-popover')?.hidePopover();
+  }
+  function selectResearch() {
+    const research = window.RP_DATA.hypotheses.find(row => row.ref.id === 'H5' && row.isCurrent);
+    if (!research) throw new Error('演示研究条目未能载入，请重试。');
+    window.RPWorkbench.selectHypothesis(research.id);
+    if (window.RPWorkbench.getContext().hypothesisId !== research.id) throw new Error('演示研究尚未选中，请重试。');
+    return research.id;
+  }
+  async function navigate(view, select = false) {
+    if (window.RWSUI.isBusy()) await waitFor(() => !window.RWSUI.isBusy(), '项目仍在切换，请重试。');
+    closeOverlays();
     if (view === 'home') {
-      document.querySelector('[data-studio="home"]').click();
+      click('[data-studio="home"]');
       return;
     }
     if (document.body.dataset.projectSurface === 'home' || window.RP_DATA.projectId !== 'showcase-shapes') {
-      const button = document.querySelector('[data-studio="switch-project"][data-project="showcase-shapes"]');
-      if (!button || window.RWSUI.isBusy()) return;
-      const loaded = waitForData('showcase-shapes');
-      button.click();
-      await loaded;
+      await waitFor(() => document.body.dataset.projectSurface === 'workbench' && window.RP_DATA.projectId === 'showcase-shapes' && !window.RWSUI.isBusy(),
+        '演示项目未能打开，请重试。', () => click('[data-studio="switch-project"][data-project="showcase-shapes"]'));
     }
     const wb = window.RPWorkbench;
     if (view === 'outputs') {
-      const research = window.RP_DATA.hypotheses.find(row => row.ref.id === 'H5' && row.isCurrent);
-      if (research) wb.selectHypothesis(research.id);
+      selectResearch();
       window.RWSResults.reset();
       wb.setView('outputs');
       const comparison = window.RP_DATA.comparisons.find(row => row.ref.id === 'CMP-SHAPES');
       const scope = document.querySelector('[data-results-field="scope"]');
-      if (comparison && scope) { scope.value = comparison.id; scope.dispatchEvent(new Event('change', {bubbles:true})); }
-    } else wb.setView(view);
+      if (!comparison || !scope) throw new Error('三方法对比未能打开，请重试。');
+      scope.value = comparison.id;
+      scope.dispatchEvent(new Event('change', {bubbles:true}));
+      if (document.querySelector('[data-results-field="scope"]')?.value !== comparison.id) throw new Error('对比视图未能切换，请重试。');
+    } else {
+      wb.setView(view);
+      if (select) { wb.overview?.(); selectResearch(); }
+    }
+    if (wb.getContext().view !== view) throw new Error('演示视图未能切换，请重试。');
     labels(); publishView();
   }
+  async function runQueue() {
+    if (!ready || running) return;
+    running = true;
+    try {
+      while (queued) {
+        const request = queued;
+        queued = null;
+        const reply = type => post({type, tour:request.tour, ...(Number.isSafeInteger(request.requestId) ? {requestId:request.requestId} : {})});
+        try {
+          await navigate(request.view, request.tour === 'trace' || request.tour === 'context');
+          if (request.sequence !== sequence) continue;
+          if (request.tour === 'context') {
+            await waitFor(() => document.querySelector('#studio-dialog')?.open && !!document.querySelector('#context-text')?.value,
+              '上下文未能打开，请重试。', () => click('.header-actions [data-studio="context"]'));
+          }
+          if (request.tour && request.sequence === sequence) reply('rws-demo-tour-ready');
+        } catch (error) {
+          if (request.sequence === sequence) {
+            if (request.tour) reply('rws-demo-tour-error');
+            window.RWSUI?.notify(error.message || '演示暂未打开，请重试。');
+          }
+        }
+      }
+    } finally { running = false; }
+  }
+  function enqueue(request) {
+    queued = {...request, sequence:++sequence};
+    runQueue();
+  }
   window.addEventListener('message', event => {
-    if (event.source !== window.parent || event.origin !== location.origin || !event.data || event.data.type !== 'rws-demo-navigate' || !['home','research','code','outputs'].includes(event.data.view)) return;
-    navigate(event.data.view);
+    if (event.source !== window.parent || event.origin !== location.origin || !event.data) return;
+    const message = event.data;
+    if (message.type === 'rws-demo-navigate' && ['home','research','code','outputs'].includes(message.view)) enqueue({view:message.view});
+    if (message.type === 'rws-demo-tour' && ['trace','context','compare'].includes(message.tour)) enqueue({tour:message.tour, view:message.tour === 'compare' ? 'outputs' : 'research', requestId:message.requestId});
   });
   window.addEventListener('rp:context-change', () => queueMicrotask(() => { labels(); publishView(); }));
   window.addEventListener('rws:surface-change', () => queueMicrotask(() => { labels(); publishView(); }));
@@ -100,7 +155,7 @@
     labels();
     if (!ready) { ready = true; post({type:'rws-demo-ready'}); }
     publishView();
-    if (queued) { const next = queued; queued = null; navigate(next); }
+    runQueue();
   }));
   document.addEventListener('DOMContentLoaded', () => {
     const bar = document.createElement('aside');

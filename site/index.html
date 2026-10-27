@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#f4f7fb">
-  <meta name="description" content="人掌方向，AI 协作。把科研问题、实验与证据连起来，让思路可追溯，让 AI 能接续，让成果能复用。">
-  <title>Research Workflow Studio — 让科研思路看得见</title>
+  <meta name="description" content="把研究问题、代码、实验和证据连起来，让你和 AI 都知道：为什么做、做到哪、接下来做什么。在线体验 Research Workflow Studio。">
+  <title>Research Workflow Studio — 把想法、代码与结果连成研究</title>
   <link rel="canonical" href="https://borgdiven.github.io/research-workflow-studio/">
   <link rel="alternate" hreflang="zh-CN" href="https://borgdiven.github.io/research-workflow-studio/">
   <link rel="alternate" hreflang="en" href="https://borgdiven.github.io/research-workflow-studio/en/">
@@ -31,7 +31,9 @@
     <section class="hero content-width" aria-labelledby="hero-title">
       <div class="hero-copy">
         <p class="eyebrow"><span class="direction-dot" aria-hidden="true"></span>人掌方向，AI 协作。</p>
-        <h1 id="hero-title">让科研思路看得见。<br><span>让每次实验接得上。</span></h1>
+        <h1 id="hero-title"><span class="hero-problem">想法在聊天里，代码在分支里，结果在文件夹里。</span><span class="hero-answer">把它们连成研究，还得再做一遍。</span></h1>
+        <p class="hero-description">把研究问题、代码、实验和证据连起来，让你和 AI 都知道：<br class="desktop-break">为什么做、做到哪、接下来做什么。</p>
+        <p class="human-direction">方向与结论由你掌握，AI 协助记录和推进。</p>
       </div>
       <div class="hero-actions">
         <a class="button button-primary" href="#demo">在线体验 <span aria-hidden="true">↓</span></a>
@@ -43,15 +45,15 @@
     <section class="benefits content-width" aria-label="为什么使用 Research Workflow Studio">
       <article class="benefit benefit-trace">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 5v6a6 6 0 0 0 6 6h8M5 6h14"/><circle cx="5" cy="5" r="2.5"/><circle cx="19" cy="6" r="2.5"/><circle cx="19" cy="17" r="2.5"/></svg>
-        <div><h2>思路可追溯</h2><p>问题、实验、证据，连成一条研究脉络。</p></div>
+        <div class="benefit-content"><p class="benefit-pain">实验越做越多，研究脉络越来越难找</p><h2>让每次实验都有来路</h2><ol class="benefit-steps"><li>写下目标与问题</li><li>关联实验和结果</li><li>沿证据回看判断</li></ol><button class="tour-link" type="button" data-demo-tour="trace" aria-controls="workbench-demo">追一条研究思路 <span aria-hidden="true">↗</span></button></div>
       </article>
       <article class="benefit benefit-continue">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15m-5-5 5 5-5 5M4 5v3m0 8v3"/><circle cx="4" cy="12" r="2.5"/></svg>
-        <div><h2>AI 能接续</h2><p>知道全局、当前进展与下一步。</p></div>
+        <div class="benefit-content"><p class="benefit-pain">换个对话，又要从头交代</p><h2>让 AI 接上当前工作</h2><ol class="benefit-steps"><li>选中研究</li><li>读取背景、进展与待办</li><li>确认下一步</li></ol><button class="tour-link" type="button" data-demo-tour="context" aria-controls="workbench-demo">看看 AI 会拿到什么 <span aria-hidden="true">↗</span></button></div>
       </article>
       <article class="benefit benefit-reuse">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 8a7 7 0 0 1 12 0l2 3m0-6v6h-6M18 16a7 7 0 0 1-12 0l-2-3m0 6v-6h6"/></svg>
-        <div><h2>成果能复用</h2><p>复用代码，引用证据，随时对比。</p></div>
+        <div class="benefit-content"><p class="benefit-pain">实验跑完，整理和对比才刚开始</p><h2>让已有成果继续派上用场</h2><ol class="benefit-steps"><li>选择样本与条件</li><li>跨版本比较</li><li>引用证据到报告</li></ol><button class="tour-link" type="button" data-demo-tour="compare" aria-controls="workbench-demo">比较不同方法的结果 <span aria-hidden="true">↗</span></button></div>
       </article>
     </section>
 
@@ -68,6 +70,7 @@
           </div>
           <a class="open-demo" href="demo/index.html?projectId=showcase-shapes" target="_blank" rel="noopener" aria-label="在新标签页独立打开完整演示">独立打开 <span aria-hidden="true">↗</span></a>
         </div>
+        <aside id="demo-guide" class="demo-guide" hidden tabindex="-1" aria-labelledby="demo-guide-title" aria-live="polite"><div><h3 id="demo-guide-title"></h3><p id="demo-guide-text"></p></div><button type="button" data-demo-guide-close aria-label="关闭操作提示"><span aria-hidden="true">×</span></button></aside>
         <iframe id="workbench-demo" src="demo/index.html?projectId=showcase-shapes" title="Research Workflow Studio 交互演示：浏览虚构研究、代码与产出" loading="eager" allowfullscreen></iframe>
       </div>
       <p class="demo-hint"><span aria-hidden="true">↳</span> 点击节点，展开研究；切换视图，查看代码与成果。</p>
