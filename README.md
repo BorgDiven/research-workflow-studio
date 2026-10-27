@@ -6,7 +6,7 @@
 
 **A visual, human-guided research workflow — from questions to reusable code, evidence and reports.**
 
-[简体中文](README.zh-CN.md) · [Quick start](#quick-start) · [MCP](#connect-your-ai-client) · [Development templates](templates/README.md) · [Data contract](CONTRACT.md)
+[Website & interactive demo](https://borgdiven.github.io/research-workflow-studio/) · [English website](https://borgdiven.github.io/research-workflow-studio/en/) · [简体中文](README.zh-CN.md) · [Quick start](#quick-start) · [MCP](#connect-your-ai-client)
 
 Research rarely follows a straight line. You explore a question, inspect intermediate outputs, reuse a control, change a method and compare again. Research Workflow Studio keeps those relationships visible without treating every case as a new code version or every result as a new research claim.
 

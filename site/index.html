@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f7fb">
+  <meta name="description" content="人掌方向，AI 协作。把科研问题、实验与证据连起来，让思路可追溯，让 AI 能接续，让成果能复用。">
+  <title>Research Workflow Studio — 让科研思路看得见</title>
+  <link rel="canonical" href="https://borgdiven.github.io/research-workflow-studio/">
+  <link rel="alternate" hreflang="zh-CN" href="https://borgdiven.github.io/research-workflow-studio/">
+  <link rel="alternate" hreflang="en" href="https://borgdiven.github.io/research-workflow-studio/en/">
+  <link rel="alternate" hreflang="x-default" href="https://borgdiven.github.io/research-workflow-studio/">
+  <link rel="stylesheet" href="styles.css">
+  <script src="homepage.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#demo">跳到交互演示</a>
+  <header class="site-header page-width">
+    <a class="brand" href="./" aria-label="Research Workflow Studio 首页">
+      <svg class="brand-mark" viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M7 8h12a6 6 0 0 1 0 12H7m12 0 7 7M7 8v19" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><circle cx="7" cy="8" r="3.5" fill="#346bff"/><circle cx="7" cy="20" r="3.5" fill="#168a87"/><circle cx="25" cy="26" r="3.5" fill="#7859d8"/></svg>
+      <span>Research Workflow <strong>Studio</strong></span>
+    </a>
+    <nav class="header-links" aria-label="网站导航">
+      <a href="https://github.com/BorgDiven/research-workflow-studio" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+      <span class="nav-divider" aria-hidden="true"></span>
+      <a class="language-link" href="en/" lang="en" hreflang="en" aria-label="Switch to English">EN <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero content-width" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="direction-dot" aria-hidden="true"></span>人掌方向，AI 协作。</p>
+        <h1 id="hero-title">让科研思路看得见。<br><span>让每次实验接得上。</span></h1>
+      </div>
+      <div class="hero-actions">
+        <a class="button button-primary" href="#demo">在线体验 <span aria-hidden="true">↓</span></a>
+        <a class="button button-secondary" href="#start">开始使用 <span aria-hidden="true">↗</span></a>
+        <span class="hero-note">开源 · 本地优先 · 为研究而建</span>
+      </div>
+    </section>
+
+    <section class="benefits content-width" aria-label="为什么使用 Research Workflow Studio">
+      <article class="benefit benefit-trace">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 5v6a6 6 0 0 0 6 6h8M5 6h14"/><circle cx="5" cy="5" r="2.5"/><circle cx="19" cy="6" r="2.5"/><circle cx="19" cy="17" r="2.5"/></svg>
+        <div><h2>思路可追溯</h2><p>问题、实验、证据，连成一条研究脉络。</p></div>
+      </article>
+      <article class="benefit benefit-continue">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 12h15m-5-5 5 5-5 5M4 5v3m0 8v3"/><circle cx="4" cy="12" r="2.5"/></svg>
+        <div><h2>AI 能接续</h2><p>知道全局、当前进展与下一步。</p></div>
+      </article>
+      <article class="benefit benefit-reuse">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 8a7 7 0 0 1 12 0l2 3m0-6v6h-6M18 16a7 7 0 0 1-12 0l-2-3m0 6v-6h6"/></svg>
+        <div><h2>成果能复用</h2><p>复用代码，引用证据，随时对比。</p></div>
+      </article>
+    </section>
+
+    <section class="demo-section page-width" id="demo" aria-labelledby="demo-title">
+      <div class="connection" aria-hidden="true"><svg viewBox="0 0 1200 42" preserveAspectRatio="none"><path d="M195 0v11q0 10 10 10h385q10 0 10 10v11M600 0v42M1005 0v11q0 10-10 10H610q-10 0-10 10v11"/></svg><span></span></div>
+      <div class="demo-caption"><h2 id="demo-title">你的研究，在这里接起来。</h2><span>虚构示例 · 只读体验</span></div>
+      <div class="workbench">
+        <div class="workbench-toolbar">
+          <div class="view-switcher" role="toolbar" aria-label="切换演示视图">
+            <button type="button" data-demo-view="home" aria-pressed="false">项目主页</button>
+            <button type="button" data-demo-view="research" aria-pressed="true">研究</button>
+            <button type="button" data-demo-view="code" aria-pressed="false">代码与执行</button>
+            <button type="button" data-demo-view="outputs" aria-pressed="false">产出与对比</button>
+          </div>
+          <a class="open-demo" href="demo/index.html?projectId=showcase-shapes" target="_blank" rel="noopener" aria-label="在新标签页独立打开完整演示">独立打开 <span aria-hidden="true">↗</span></a>
+        </div>
+        <iframe id="workbench-demo" src="demo/index.html?projectId=showcase-shapes" title="Research Workflow Studio 交互演示：浏览虚构研究、代码与产出" loading="eager" allowfullscreen></iframe>
+      </div>
+      <p class="demo-hint"><span aria-hidden="true">↳</span> 点击节点，展开研究；切换视图，查看代码与成果。</p>
+    </section>
+
+    <section class="start-section content-width" aria-label="开始使用">
+      <details id="start" class="quickstart">
+        <summary><span><span class="start-dot" aria-hidden="true"></span>把下一项研究，放进自己的工作台。</span><span class="summary-action">开始使用 <span class="expand-mark" aria-hidden="true">+</span></span></summary>
+        <div class="quickstart-content">
+          <div class="quickstart-description"><h2>几行命令，本地开始。</h2><p>Python 3.9+ · 零运行时依赖</p><p>运行后打开 <a href="http://127.0.0.1:8831" target="_blank" rel="noopener">127.0.0.1:8831 ↗</a></p><a class="guide-link" href="https://github.com/BorgDiven/research-workflow-studio/blob/main/README.md#connect-your-ai-client" target="_blank" rel="noopener noreferrer">接入你的 AI 客户端 <span aria-hidden="true">↗</span></a></div>
+          <div class="command-panel"><div class="command-bar"><span>终端 · 带虚构示例的工作台</span><button type="button" data-copy-target="install-command" data-copied="已复制" data-copy-failed="请手动复制">复制命令</button></div><pre><code id="install-command" tabindex="0">git clone https://github.com/BorgDiven/research-workflow-studio.git
+cd research-workflow-studio
+mkdir -p .local
+python3 tools/seed_showcase.py --db "$PWD/.local/showcase.sqlite3"
+python3 launch.py serve --db "$PWD/.local/showcase.sqlite3" --port 8831</code></pre></div>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <footer class="site-footer content-width"><span>Research Workflow Studio</span><nav aria-label="资源链接"><a href="https://github.com/BorgDiven/research-workflow-studio/blob/main/README.zh-CN.md#开始使用" target="_blank" rel="noopener noreferrer">安装指南 ↗</a><a href="https://github.com/BorgDiven/research-workflow-studio/blob/main/README.md#connect-your-ai-client" target="_blank" rel="noopener noreferrer">MCP 指南 ↗</a><a href="https://github.com/BorgDiven/research-workflow-studio" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="https://github.com/BorgDiven/research-workflow-studio/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License ↗</a></nav></footer>
+  <p class="sr-only" id="copy-status" role="status" aria-live="polite"></p>
+</body>
+</html>

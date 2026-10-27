@@ -4,6 +4,8 @@
 
 **由人掌握方向、AI 协助记录与推进的研究工作流：把问题、代码、证据和报告连接起来。**
 
+[官网与在线体验](https://borgdiven.github.io/research-workflow-studio/) · [English website](https://borgdiven.github.io/research-workflow-studio/en/) · [代码模板](templates/README.md) · [数据约定](CONTRACT.md)
+
 它是一个本地网页工作台，配套 Python 后端、SQLite 数据库和 MCP 服务。MCP 是模型读写工作台记录的接口：模型可以创建项目和研究节点、读取上下文、登记实现与材料、整理评估和报告；实际写代码、运行程序仍使用开发工具。研究判断、项目基础修改和来源纠正由人决定。
 
 ## 开始使用

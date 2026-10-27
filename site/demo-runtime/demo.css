@@ -1,0 +1,9 @@
+/* Public demo additions. Production styles are copied without modification. */
+body[data-demo] { --demo-notice-height: 38px; }
+.public-demo-notice { min-height: var(--demo-notice-height); display: flex; align-items: center; gap: 12px; padding: 8px 20px; background: #ecf3ef; color: #334f44; border-bottom: 1px solid #cfdfd5; font: 12px/1.4 system-ui,sans-serif; }
+.public-demo-notice strong { white-space: nowrap; font-size: 11px; letter-spacing: .04em; }
+.public-demo-notice span { flex: 1; }
+.public-demo-notice a, .public-demo-notice button { flex: 0 0 auto; color: inherit; background: transparent; font: inherit; text-decoration: none; }
+.public-demo-notice button { border: 1px solid #bfd1c5; border-radius: 5px; padding: 4px 8px; cursor: pointer; }
+body[data-demo] [data-studio="new-project"], body[data-demo] [data-studio="new-research"], body[data-demo] [data-studio="edit-research"], body[data-demo] [data-studio="new-experiment"], body[data-demo] [data-studio="edit"], body[data-demo] [data-studio="stages"], body[data-demo] [data-studio="apply-draft"], body[data-demo] [data-studio="dismiss-draft"], body[data-demo] [data-studio="reuse-artifact"], body[data-demo] [data-studio="remove-usage"], body[data-demo] [data-studio="confirm-remove-usage"], body[data-demo] [data-studio="add-material"], body[data-demo] [data-contract="new"], body[data-demo] [data-contract="edit"], body[data-demo] [data-contract="implement"], body[data-demo] [data-contract="add-port"], body[data-demo] [data-contract="remove-port"], body[data-demo] [data-amendment="apply"], body[data-demo] [data-amendment="dismiss"], body[data-demo] [data-results="save"], body[data-demo] [data-results="analysis"], body[data-demo] [data-results="report"] { display: none !important; }
+@media(max-width:700px) { .public-demo-notice { padding: 8px 12px; gap:8px; flex-wrap:wrap; } .public-demo-notice span { min-width: 200px; } }
