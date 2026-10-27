@@ -22,14 +22,16 @@ It is a **local desktop web workbench with a Python backend, SQLite storage and 
 
 Saved comparisons are working selections. Analyses explain observations and their limits. Reports preserve the exact evidence and project context used at the time; new results do not rewrite old reports.
 
-<details>
-<summary>See the desktop workspace (synthetic demonstration)</summary>
+Desktop previews below use synthetic demonstration data.
 
+**Research**
 ![Research tree with project foundation](docs/assets/research-view.png)
-![Code roles and reusable implementations](docs/assets/code-view.png)
-![Evidence comparison](docs/assets/comparison-view.png)
 
-</details>
+**Code & execution**
+![Code roles and reusable implementations](docs/assets/code-view.png)
+
+**Outputs & comparison**
+![Evidence comparison](docs/assets/comparison-view.png)
 
 ## Quick start
 

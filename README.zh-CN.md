@@ -28,6 +28,17 @@ python3 launch.py serve --db "$PWD/.local/demo.sqlite3" --port 8831
 
 对比集合用于探索；分析说明观察、解释、范围和限制；报告固定当时选中的证据和项目基础。相同材料可以被多个研究或报告引用，来源不变。
 
+以下桌面预览使用合成演示数据。
+
+**研究**
+![项目基础与研究关系](docs/assets/research-view.png)
+
+**代码与执行**
+![可复用实现与代码角色](docs/assets/code-view.png)
+
+**产出与对比**
+![按输入和条件对齐的产出对比](docs/assets/comparison-view.png)
+
 ## 接入 AI
 
 在支持 stdio MCP 的客户端中配置 `python3 /绝对路径/research-workflow-studio/launch.py mcp --db /绝对路径/studio.sqlite3 --web-url http://127.0.0.1:8831`。网页和 MCP 必须指向同一数据库，客户端需要重新连接。完整配置见 [英文 README](README.md#connect-your-ai-client)。
