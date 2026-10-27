@@ -159,13 +159,13 @@
     const l=layout.research,edges=researchEdges(),all=[...D.hypotheses,...D.tasks],plans=new Map(),slots=new Map(),stages=['idea','formal','ablation'];
     const dimensions={global:{w:184,h:124,gx:24,gy:18},focus:{w:204,h:144,gx:28,gy:22},mini:{w:152,h:112,gx:20,gy:16}},foundationWidth=l.focus==='foundation'?300:l.focus?142:228;
     board.style.setProperty('--foundation-width',foundationWidth+'px');board.classList.toggle('is-overview',!l.focus);
-    const counts=stages.map(stage=>all.filter(n=>n.stage===stage).length),minimums=counts.map(count=>count?212:120),spare=Math.max(0,vp.clientWidth-foundationWidth-70-minimums.reduce((a,b)=>a+b,0)),weight=counts.reduce((a,b)=>a+Math.sqrt(b),0);
+    const emptyWidth=l.focus?180:144,counts=stages.map(stage=>all.filter(n=>n.stage===stage).length),minimums=counts.map(count=>count?212:emptyWidth),spare=Math.max(0,vp.clientWidth-foundationWidth-70-minimums.reduce((a,b)=>a+b,0)),weight=counts.reduce((a,b)=>a+Math.sqrt(b),0);
     stages.forEach(stage=>{
       const index=stages.indexOf(stage),group=$('#research-region-'+stage),mode=l.focus?(l.focus===stage?'focus':'mini'):'global',d=dimensions[mode],members=all.filter(n=>n.stage===stage),budget=minimums[index]+(weight?spare*Math.sqrt(counts[index])/weight:0)-28,plan=topologyPlan(members,edges,d.w,d.h,d.gx,d.gy,mode==='mini'?d.w:budget,'vertical');
       group.style.setProperty('--node-width',d.w+'px');group.style.setProperty('--node-height',d.h+'px');
       plan.positions.forEach(p=>slots.set(p.id,{...p,stage,height:d.h}));plans.set(stage,plan);
     });
-    const widths=stages.map((stage,i)=>Math.max(counts[i]?180:120,plans.get(stage).width+28));
+    const widths=stages.map((stage,i)=>Math.max(counts[i]?180:emptyWidth,plans.get(stage).width+28));
     stages.forEach((stage,i)=>$('#research-region-'+stage).style.width=widths[i]+'px');
     board.style.width=Math.max(vp.clientWidth,foundationWidth+70+widths.reduce((a,b)=>a+b,0))+'px';
     D.tasks.forEach(task=>{const parent=edges.find(([,to])=>to===task.id)?.[0],source=slots.get(parent),target=slots.get(task.id);if(source&&target){const sourceHeader=$('#research-region-'+source.stage+' .region-header').offsetHeight,targetHeader=$('#research-region-'+target.stage+' .region-header').offsetHeight;target.y=Math.max(0,source.y+source.height/2+sourceHeader-targetHeader-target.height/2);}});
