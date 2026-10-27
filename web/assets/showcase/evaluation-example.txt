@@ -1,0 +1,5 @@
+# ILLUSTRATIVE PSEUDOCODE — NO METRICS WERE COMPUTED
+def summarize_pairs(predictions, references, protocol):
+    match_exact_case_and_task(predictions, references)
+    return table_for_each_case(protocol), explicitly_missing_cases()
+# Displayed IoU and boundary errors are human-chosen demonstration values.

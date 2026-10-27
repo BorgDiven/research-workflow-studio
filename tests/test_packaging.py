@@ -1,5 +1,7 @@
 """Installed wheel assets follow their recorded location, not a global guess."""
 from pathlib import Path, PurePosixPath
+import json
+import re
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
@@ -23,6 +25,25 @@ class PackagedResourceTests(unittest.TestCase):
         with patch('rws.server.__file__', str(self.module)), patch('rws.server.metadata.distribution') as installed:
             self.assertEqual(default_web_root(), web)
             installed.assert_not_called()
+
+    def test_data_file_mapping_covers_public_frontend_assets(self):
+        root = Path(__file__).resolve().parents[1]
+        config = (root / 'pyproject.toml').read_text(encoding='utf-8')
+        section = config.split('[tool.setuptools.data-files]', 1)[1].split('\n[', 1)[0]
+        mapped = set()
+        for destination, patterns in re.findall(r'^"([^"]+)"\s*=\s*(\[.*\])$', section, re.M):
+            for pattern in json.loads(patterns):
+                for source in root.glob(pattern):
+                    self.assertTrue(source.is_file(), 'Package data glob selected a directory: ' + str(source))
+                    mapped.add((source.relative_to(root).as_posix(), destination + '/' + source.name))
+        web = root / 'web'
+        required = [p for p in web.iterdir() if p.suffix in ('.html', '.css', '.js')]
+        for directory in ('assets', 'docs', 'examples'):
+            required.extend(p for p in (web / directory).rglob('*') if p.is_file())
+        for source in required:
+            relative = source.relative_to(root).as_posix()
+            self.assertIn((relative, 'share/research-workflow-studio/' + relative), mapped,
+                          'Frontend asset missing from its served package location: ' + relative)
 
     def test_user_install_uses_exact_distribution_record(self):
         web = self.root / 'custom-user-base' / 'share' / 'research-workflow-studio' / 'web'

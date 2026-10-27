@@ -14,11 +14,11 @@
 git clone https://github.com/BorgDiven/research-workflow-studio.git
 cd research-workflow-studio
 mkdir -p .local
-python3 tools/seed_demo.py --db "$PWD/.local/demo.sqlite3"
-python3 launch.py serve --db "$PWD/.local/demo.sqlite3" --port 8831
+python3 tools/seed_showcase.py --db "$PWD/.local/showcase.sqlite3"
+python3 launch.py serve --db "$PWD/.local/showcase.sqlite3" --port 8831
 ```
 
-打开 http://127.0.0.1:8831。演示内容明确标注为合成数据，不运行模型、不代表科研结论。建立自己的空工作台时，换一个数据库文件并省略 `seed_demo.py`。
+打开 http://127.0.0.1:8831。演示包含虚构项目主页、分叉研究树、四类代码、几何图形、曲线与固定报告。可重复导入，拒绝向含其他项目的数据库写入；不运行模型、不代表科研结论。建立自己的空工作台时，换一个数据库文件并省略 `seed_showcase.py`。
 
 ## 三个视图，共用同一份记录
 
@@ -28,7 +28,11 @@ python3 launch.py serve --db "$PWD/.local/demo.sqlite3" --port 8831
 
 对比集合用于探索；分析说明观察、解释、范围和限制；报告固定当时选中的证据和项目基础。相同材料可以被多个研究或报告引用，来源不变。
 
-以下桌面预览使用合成演示数据。
+以下动图和桌面预览使用独立的虚构项目、程序生成的几何图形及人为设定的示例指标，不含真实研究数据。
+
+[观看完整操作演示](https://github.com/BorgDiven/research-workflow-studio/releases/download/v0.3.3/workspace-tour.mp4)
+
+![从项目主页进入研究、代码与执行及产出对比](docs/assets/workspace-tour.gif)
 
 **研究**
 ![项目基础与研究关系](docs/assets/research-view.png)
@@ -53,6 +57,6 @@ python3 launch.py serve --db "$PWD/.local/demo.sqlite3" --port 8831
 
 四类可复用模板见 [templates](templates/README.md)。代码实现绑定规则版本、Git commit、入口及检查证据；案例、指令、普通参数放在外部输入中。检查器默认只做静态检查，`--execute` 才会实际执行本地代码。
 
-当前是 0.3.2 单用户早期版本，没有多用户协作权限、自动实验调度或手机布局。可以通过 [Tailscale 私有访问](docs/deployment.md) 跨电脑使用；公开仓库不包含真实研究数据库和材料。历史来源纠正保留原记录，旧报告不会被新数据改写。
+当前是 0.3.3 单用户早期版本，没有多用户协作权限、自动实验调度或手机布局。可以通过 [Tailscale 私有访问](docs/deployment.md) 跨电脑使用；公开仓库不包含真实研究数据库和材料。历史来源纠正保留原记录，旧报告不会被新数据改写。
 
 [数据约定](CONTRACT.md) · [架构](docs/architecture.md) · [后续方向](docs/roadmap.md) · [贡献](CONTRIBUTING.md)

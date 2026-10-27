@@ -28,3 +28,20 @@ test('unequal or undeclared task conditioning remains a real comparison dimensio
   for(const key of keys){const make=(id,taskKey,value)=>M.describe({id,ref:ref('artifact',id),raw:{sampleId:'s',...(taskKey===undefined?{}:{taskKey}),config:{[key]:value}}},data);assert.equal(Object.hasOwn(make('same','task','task').config,key),false);assert.equal(make('unequal','task','different conditioning').config[key],'different conditioning');assert.equal(make('undeclared',undefined,'task').config[key],'task');}
 });
 test('canonical semantic names have readable Chinese labels',()=>{assert.equal(M.semanticNames['final-image'],'最终图像');assert.equal(M.semanticNames['clean-estimate'],'预测干净图像');assert.equal(M.semanticNames['velocity-field'],'速度场');assert.equal(M.semanticNames['input-image'],'输入图像');});
+
+test('single-sample browsing retains comparable method columns and makes absent results explicit',()=>{
+  const items=fixture(),bird=items.find(x=>x.sampleId==='bird'),view={mode:'single',observation:{step:1},filters:{caseKeys:[bird.caseKey],config:{cfg:4}}},grid=M.matrix(items,view);
+  assert.equal(grid.rows.length,1);assert.equal(grid.columns.length,2);assert.equal(grid.items.length,1);assert.equal(grid.cells.size,1);
+  const adaptive=grid.columns.find(c=>c.item.codeLabel==='Adaptive method');
+  assert.ok(adaptive);assert.equal(grid.cells.get(grid.cellKey(bird.caseKey,adaptive.key)),undefined);
+  assert.equal(M.selectedEvidence(grid,{},items.map(x=>x.id)).length,1);
+  assert.equal(M.matrix([bird],view).columns.length,1);
+  const restricted=M.matrix(items,{...view,filters:{...view.filters,codeIds:[bird.codeId]}});
+  assert.equal(restricted.columns.length,1);assert.equal(restricted.columns[0].item.codeLabel,'Baseline method');
+});
+test('missing single-sample columns respect fixed conditions and survive a pinned comparison round trip',()=>{
+  const items=fixture(),bird=items.find(x=>x.sampleId==='bird'),changed={...items[1],id:'different-cfg',config:{cfg:6}},view={mode:'single',axis:'observation',observation:{step:1},filters:{caseKeys:[bird.caseKey],config:{cfg:4}}},grid=M.matrix([...items,changed],view);
+  assert.equal(grid.columns.length,2);assert.ok(grid.columns.every(c=>c.item.config.cfg===4&&c.item.observation.step===1));
+  const pinned=[...new Map([...grid.items,...grid.columns.map(c=>c.item)].map(x=>[x.id,x])).values()],reopened=M.matrix(pinned,view);
+  assert.deepEqual(reopened.columns.map(c=>c.key),grid.columns.map(c=>c.key));assert.deepEqual(reopened.rows.map(r=>r.key),[bird.caseKey]);assert.equal(reopened.cells.size,1);
+});

@@ -22,7 +22,11 @@ It is a **local desktop web workbench with a Python backend, SQLite storage and 
 
 Saved comparisons are working selections. Analyses explain observations and their limits. Reports preserve the exact evidence and project context used at the time; new results do not rewrite old reports.
 
-Desktop previews below use synthetic demonstration data.
+The walkthrough and desktop previews use a separate fictional project with generated geometric shapes and manually specified example metrics. No private research data or model execution is involved.
+
+[Watch the project-to-workspace walkthrough](https://github.com/BorgDiven/research-workflow-studio/releases/download/v0.3.3/workspace-tour.mp4)
+
+![Project home, research, code selection and output comparison](docs/assets/workspace-tour.gif)
 
 **Research**
 ![Research tree with project foundation](docs/assets/research-view.png)
@@ -41,11 +45,11 @@ Requires **Python 3.9+**. Runtime has no third-party Python or JavaScript depend
 git clone https://github.com/BorgDiven/research-workflow-studio.git
 cd research-workflow-studio
 mkdir -p .local
-python3 tools/seed_demo.py --db "$PWD/.local/demo.sqlite3"
-python3 launch.py serve --db "$PWD/.local/demo.sqlite3" --port 8831
+python3 tools/seed_showcase.py --db "$PWD/.local/showcase.sqlite3"
+python3 launch.py serve --db "$PWD/.local/showcase.sqlite3" --port 8831
 ```
 
-Open **http://127.0.0.1:8831**. The demo uses explicitly synthetic records and illustration assets; it does not run a model or measure image quality. Seeding refuses to overwrite existing demo projects.
+Open **http://127.0.0.1:8831**. The showcase includes a project home, branching research questions, all four code roles, geometric illustrations, curves and fixed reports. Seeding is repeatable and refuses databases containing unrelated projects. It does not run a model or measure image quality.
 
 For your own empty workspace, choose a different database path and skip the seed command:
 
@@ -108,7 +112,7 @@ The service binds to loopback. It supports an explicitly configured **Tailscale 
 
 ## Development and status
 
-Version **0.3.2** is an early, single-user workbench. It has no collaborative multi-user permissions, cloud synchronization, automatic experiment scheduler or mobile layout. Supplied check evidence is recorded, not independently certified. Review changes and keep a database backup when upgrading.
+Version **0.3.3** is an early, single-user workbench. It has no collaborative multi-user permissions, cloud synchronization, automatic experiment scheduler or mobile layout. Supplied check evidence is recorded, not independently certified. Review changes and keep a database backup when upgrading.
 
 ```sh
 python3 -m unittest discover -s tests

@@ -1,0 +1,5 @@
+# ILLUSTRATIVE PSEUDOCODE — NO SCIENTIFIC ANALYSIS WAS EXECUTED
+def compare_evidence(frozen_comparison, metric_table):
+    return dict(observations=describe_selected_items(),
+                interpretation=state_conditional_reading(),
+                limitations=list_missing_inputs_and_demo_limits())

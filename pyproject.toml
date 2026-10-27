@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "research-workflow-studio"
-version = "0.3.2"
+version = "0.3.3"
 description = "Human-guided research workflows with durable records, evidence reuse and controlled MCP tools"
 requires-python = ">=3.9"
 dependencies = []
@@ -25,6 +25,7 @@ packages = ["rws"]
 
 [tool.setuptools.data-files]
 "share/research-workflow-studio/web" = ["web/*.html", "web/*.css", "web/*.js"]
-"share/research-workflow-studio/web/assets" = ["web/assets/*"]
+"share/research-workflow-studio/web/assets" = ["web/assets/*.png", "web/assets/*.svg", "web/assets/*.txt"]
+"share/research-workflow-studio/web/assets/showcase" = ["web/assets/showcase/*.svg", "web/assets/showcase/*.txt"]
 "share/research-workflow-studio/web/docs" = ["web/docs/*"]
 "share/research-workflow-studio/web/examples" = ["web/examples/*"]

@@ -25,7 +25,7 @@
   }
   function refLink(ref,label){
     if(!ref)return '';const e=get(ref),type=ref.type==='research'?'hypothesis':ref.type==='usage'?'link':ref.type;
-    return `<button class="evidence-link" data-action="inspect" data-type="${esc(type)}" data-id="${A.key(ref)}" ${!e?'disabled title="此固定快照未包含该记录"':''}>${esc(label||e?.effectiveRecord?.title||e?.record.title||ref.id)} <small>${ref.projectId!==D.projectId?'来源：'+esc(D.projects.find(p=>p.id===ref.projectId)?.name||ref.projectId)+' · ':''}${esc(ref.id)} · r${ref.version}</small></button>`;
+    return `<button type="button" class="evidence-link" data-action="inspect" data-type="${esc(type)}" data-id="${A.key(ref)}" ${!e?'disabled title="此固定快照未包含该记录"':''}>${esc(label||e?.effectiveRecord?.title||e?.record.title||ref.id)} <small>${ref.projectId!==D.projectId?'来源：'+esc(D.projects.find(p=>p.id===ref.projectId)?.name||ref.projectId)+' · ':''}${esc(ref.id)} · r${ref.version}</small></button>`;
   }
   function provenance(ref){const p=D.projects.find(p=>p.id===ref.projectId);return `<div class="canonical-source ${ref.projectId!==D.projectId?'external-source':''}"><strong>${ref.projectId!==D.projectId?'来源项目：':'项目：'}${esc(p?.name||ref.projectId)}</strong><span>${esc(names[ref.type]||ref.type)} · ${esc(ref.id)} · 固定记录 r${ref.version}</span></div>`;}
   function collectionMarkup(token){

@@ -1,0 +1,5 @@
+# ILLUSTRATIVE PSEUDOCODE — THE REPORT IS AN AUTHORED DEMO DOCUMENT
+def render_report(exact_evidence_refs, analysis_ref, foundation_version):
+    return document_with_fixed_inputs(exact_evidence_refs, analysis_ref,
+                                      foundation_version)
+# Reopening the report must not silently include later evidence.

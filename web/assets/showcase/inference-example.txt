@@ -1,0 +1,6 @@
+# ILLUSTRATIVE PSEUDOCODE — NOT AN EXECUTABLE OR VERIFIED IMPLEMENTATION
+# The case and ordinary settings are inputs, never part of the method identity.
+def segment_shapes(cases, config, rule):
+    for case in cases:
+        yield illustrate(case, rule=rule, settings=config)
+# The showcase registers hand-constructed SVG illustrations, not these outputs.

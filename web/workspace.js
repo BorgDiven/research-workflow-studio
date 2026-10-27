@@ -20,7 +20,7 @@
     if(event.target.closest('#project-context-popover [data-studio],#project-context-popover [data-amendment]'))document.querySelector('#project-context-popover').hidePopover();
   });
   document.addEventListener('keydown',event=>{
-    if(event.key!=='Escape'||document.querySelector('dialog[open]'))return;
+    if(event.defaultPrevented||event.key!=='Escape'||document.querySelector('dialog[open]'))return;
     if(immersive){event.preventDefault();setImmersive(false);button.focus({preventScroll:true});}
   });
   window.addEventListener('rws:surface-change',event=>{

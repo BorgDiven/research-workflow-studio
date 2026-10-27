@@ -29,15 +29,18 @@
   function options(items,getKey,getLabel){const map=new Map();items.forEach(x=>{const key=getKey(x);if(!map.has(key))map.set(key,{key,label:getLabel(x)});});return [...map.values()];}
   function matrix(items,view={}){
     const filter=view.filters||{},config=filter.config||{},axis=view.axis||'implementation';
-    let kept=items.filter(x=>(!view.semantics?.length||view.semantics.includes(x.semantic))&&(!view.sampleIds?.length||view.sampleIds.includes(x.sampleId))&&(!filter.caseKeys?.length||filter.caseKeys.includes(x.caseKey))&&(!filter.codeIds?.length||filter.codeIds.includes(x.codeId))&&Object.entries(config).every(([k,v])=>stable(x.config[k])===stable(v))&&Object.entries(view.observation||{}).every(([k,v])=>x.observation[k]===v));
+    const scope=items.filter(x=>(!view.semantics?.length||view.semantics.includes(x.semantic))&&(!filter.codeIds?.length||filter.codeIds.includes(x.codeId))&&Object.entries(config).every(([k,v])=>stable(x.config[k])===stable(v))&&Object.entries(view.observation||{}).every(([k,v])=>x.observation[k]===v));
+    let kept=scope.filter(x=>(!view.sampleIds?.length||view.sampleIds.includes(x.sampleId))&&(!filter.caseKeys?.length||filter.caseKeys.includes(x.caseKey)));
     if(view.mode==='single'){const selected=filter.caseKeys?.[0]||kept[0]?.caseKey;kept=kept.filter(x=>x.caseKey===selected);}
-    const rows=options(kept,x=>x.caseKey,x=>x.caseLabel).map(row=>({...row,item:kept.find(x=>x.caseKey===row.key)})),columns=new Map(),cells=new Map();
-    for(const item of kept){
+    const rows=options(kept,x=>x.caseKey,x=>x.caseLabel).map(row=>({...row,item:kept.find(x=>x.caseKey===row.key)})),columns=new Map(),cells=new Map(),visible=new Set(kept);
+    // Case selection filters rows; comparable columns come from the same filtered material scope.
+    for(const item of scope){
       // Every non-case condition remains in the column identity. A changed setting
       // cannot silently become a repeat of a different setting.
       const columnKey=stable([item.methodKey,item.config,item.observation,item.semantic]);
       const title=axis==='observation'?observationLabel(item.observation):axis.startsWith('config:')?axis.slice(7)+' = '+String(item.config[axis.slice(7)]??'未登记'):item.codeLabel;
       if(!columns.has(columnKey))columns.set(columnKey,{key:columnKey,title,item});
+      if(!visible.has(item))continue;
       const cellKey=stable([item.caseKey,columnKey]);if(!cells.has(cellKey))cells.set(cellKey,[]);cells.get(cellKey).push(item);
     }
     const ordered=[...columns.values()];if(axis==='observation')ordered.sort((a,b)=>(a.item.observation.step??a.item.observation.time??Infinity)-(b.item.observation.step??b.item.observation.time??Infinity));else if(axis.startsWith('config:')){const key=axis.slice(7);ordered.sort((a,b)=>String(a.item.config[key]??'').localeCompare(String(b.item.config[key]??''),undefined,{numeric:true}));}
