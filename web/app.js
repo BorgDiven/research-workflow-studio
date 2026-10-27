@@ -145,9 +145,9 @@
   }
   function renderResearch(){
     const saved=rememberPanel('#research-content','#research-viewport'),before=captureRects('research'),foundationScroll=$('#project-foundation')?.scrollTop||0,l=layout.research;
-    const h=currentH(),item=get('tasks',state.taskId)||h,e=currentExp(),exploring=item.kind==='exploration',ev=evaluationsForExp(e),an=analysesForExp(e),rp=reportsForExp(e),nodes=[...D.hypotheses,...D.tasks],foundationFocus=l.focus==='foundation';
+    const h=currentH(),item=get('tasks',state.taskId)||h,e=currentExp(),exploring=item.kind==='exploration',ev=evaluationsForExp(e),an=analysesForExp(e),rp=reportsForExp(e),nodes=[...D.hypotheses,...D.tasks],foundationFocus=l.focus==='foundation',foundationExpanded=!l.focus||foundationFocus;
     const judgment=h.judgment?.label||h.status;
-    $('#research-content').innerHTML=`<div class="research-layout" data-focus="${l.focus||''}"><div id="research-viewport" class="research-main"><div id="research-board" class="research-board"><aside class="foundation-pane ${foundationFocus?'is-focus-target':''}" data-layout-key="foundation">${regionHeader('项目基础',null,'foundation','research')}<span class="foundation-version" data-foundation-revision></span><div class="foundation-compact-summary" ${foundationFocus?'hidden':''}><p data-foundation-summary></p><button class="button small" data-studio="overview">项目说明</button></div><div id="project-foundation" class="foundation-column" aria-label="项目基础" ${foundationFocus?'':'hidden'}></div></aside>${[['idea','研究探索'],['formal','正式实验'],['ablation','消融']].map(([stage,name])=>{
+    $('#research-content').innerHTML=`<div class="research-layout" data-focus="${l.focus||''}"><div id="research-viewport" class="research-main"><div id="research-board" class="research-board"><aside class="foundation-pane ${foundationFocus?'is-focus-target':''}" data-layout-key="foundation">${regionHeader('项目基础',null,'foundation','research')}<span class="foundation-version" data-foundation-revision></span><div class="foundation-compact-summary" ${foundationExpanded?'hidden':''}><p data-foundation-summary></p><button class="button small" data-studio="overview">项目说明</button></div><div id="project-foundation" class="foundation-column" aria-label="项目基础" ${foundationExpanded?'':'hidden'}></div></aside>${[['idea','研究探索'],['formal','正式实验'],['ablation','消融']].map(([stage,name])=>{
       const members=nodes.filter(n=>n.stage===stage),mode=l.focus?(l.focus===stage?'focus':'mini'):'global';
       return `<section class="research-group ${mode==='focus'?'is-focus-target':''} ${projectStages.has(stage)?'is-project-active':''}" data-stage="${stage}" data-scale="${mode}" data-empty="${!members.length}" id="research-region-${stage}">${regionHeader(name,members.length,stage,'research')}<div class="research-group-body"><div class="research-tree">${members.map(researchNode).join('')}</div></div></section>`;
     }).join('')}<svg id="research-edges" class="relation-svg" aria-label="研究推进关系"></svg></div></div>${researchInspector(item,h,e,ev,an,rp)}</div>`;
@@ -157,15 +157,15 @@
   function layoutResearch(){
     const board=$('#research-board'),vp=$('#research-viewport');if(!board||!vp?.clientWidth)return;
     const l=layout.research,edges=researchEdges(),all=[...D.hypotheses,...D.tasks],plans=new Map(),slots=new Map(),stages=['idea','formal','ablation'];
-    const dimensions={global:{w:184,h:124,gx:24,gy:18},focus:{w:204,h:144,gx:28,gy:22},mini:{w:152,h:112,gx:20,gy:16}},foundationWidth=l.focus==='foundation'?300:l.focus?142:152;
+    const dimensions={global:{w:184,h:124,gx:24,gy:18},focus:{w:204,h:144,gx:28,gy:22},mini:{w:152,h:112,gx:20,gy:16}},foundationWidth=l.focus==='foundation'?300:l.focus?142:228;
     board.style.setProperty('--foundation-width',foundationWidth+'px');board.classList.toggle('is-overview',!l.focus);
-    const counts=stages.map(stage=>all.filter(n=>n.stage===stage).length),minimums=counts.map(count=>count?212:106),spare=Math.max(0,vp.clientWidth-foundationWidth-70-minimums.reduce((a,b)=>a+b,0)),weight=counts.reduce((a,b)=>a+Math.sqrt(b),0);
+    const counts=stages.map(stage=>all.filter(n=>n.stage===stage).length),minimums=counts.map(count=>count?212:120),spare=Math.max(0,vp.clientWidth-foundationWidth-70-minimums.reduce((a,b)=>a+b,0)),weight=counts.reduce((a,b)=>a+Math.sqrt(b),0);
     stages.forEach(stage=>{
       const index=stages.indexOf(stage),group=$('#research-region-'+stage),mode=l.focus?(l.focus===stage?'focus':'mini'):'global',d=dimensions[mode],members=all.filter(n=>n.stage===stage),budget=minimums[index]+(weight?spare*Math.sqrt(counts[index])/weight:0)-28,plan=topologyPlan(members,edges,d.w,d.h,d.gx,d.gy,mode==='mini'?d.w:budget,'vertical');
       group.style.setProperty('--node-width',d.w+'px');group.style.setProperty('--node-height',d.h+'px');
       plan.positions.forEach(p=>slots.set(p.id,{...p,stage,height:d.h}));plans.set(stage,plan);
     });
-    const widths=stages.map((stage,i)=>Math.max(counts[i]?180:106,plans.get(stage).width+28));
+    const widths=stages.map((stage,i)=>Math.max(counts[i]?180:120,plans.get(stage).width+28));
     stages.forEach((stage,i)=>$('#research-region-'+stage).style.width=widths[i]+'px');
     board.style.width=Math.max(vp.clientWidth,foundationWidth+70+widths.reduce((a,b)=>a+b,0))+'px';
     D.tasks.forEach(task=>{const parent=edges.find(([,to])=>to===task.id)?.[0],source=slots.get(parent),target=slots.get(task.id);if(source&&target){const sourceHeader=$('#research-region-'+source.stage+' .region-header').offsetHeight,targetHeader=$('#research-region-'+target.stage+' .region-header').offsetHeight;target.y=Math.max(0,source.y+source.height/2+sourceHeader-targetHeader-target.height/2);}});
@@ -176,6 +176,8 @@
       items.forEach(p=>{const el=$('#research-'+p.id);el.style.left=p.x+'px';el.style.top=p.y+'px';el.dataset.rank=p.rank;el.dataset.component=p.component;});
       body.style.height=(height*scale+24)+'px';group.dataset.fit=scale<.99?'scaled':'natural';
     });
+    const columnHeight=Math.max(vp.clientHeight-28,...stages.map(stage=>{const group=$('#research-region-'+stage);return group.querySelector('.region-header').offsetHeight+parseFloat(group.querySelector('.research-group-body').style.height)+2;}));
+    board.style.height=(columnHeight+28)+'px';
     const svg=$('#research-edges');svg.setAttribute('width',board.scrollWidth);svg.setAttribute('height',board.scrollHeight);drawResearch();
   }
   const marker=(id,color)=>`<defs><marker id="${id}" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L7,3.5 L0,7" fill="${color}"/></marker></defs>`;
