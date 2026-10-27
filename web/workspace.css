@@ -1,0 +1,28 @@
+/* One active canvas. Layout details remain owned by each view. */
+.workspace{height:calc(100dvh - 204px);min-height:400px;margin:0 18px;perspective:none}
+.workspace .stage{inset:0;width:100%;height:100%;transform:none;transition:none}
+.workspace .stage[hidden]{display:none!important}
+.workspace .stage.active{animation:workspace-enter .28s cubic-bezier(.2,.8,.2,1) both}
+.stage-heading{height:50px;padding:8px 18px}.stage-content{height:calc(100% - 50px)}
+.mode-nav{padding:7px 20px;gap:5px;height:64px}.mode-button{padding:9px 12px;gap:8px;border-radius:9px}.mode-button strong{font-size:14px}
+.context-picker{gap:8px;min-width:0}.context-picker select{max-width:220px;font-size:12px}.context-picker label{font-size:11px}#context-status{max-width:88px;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
+.workspace-controls{display:flex;gap:6px;margin-left:13px;padding-left:13px;border-left:1px solid var(--line);flex-shrink:0}.workspace-controls .button{min-height:34px;padding:7px 10px;font-size:11px}
+.workspace-controls [aria-pressed=true]{background:#eeeafa;border-color:#c9bde5;color:#76609a}
+.app-footer{height:32px;padding:0 22px}.project-strip{margin:0 20px}
+.workspace-immersive{height:100dvh;overflow:hidden}.workspace-immersive>.app-header,.workspace-immersive>.project-strip,.workspace-immersive>.app-footer{display:none!important}
+.workspace-immersive>.mode-nav{height:58px;background:#fafbfe;border-bottom:1px solid var(--line);padding-left:18px;padding-right:18px}
+.workspace-immersive>.workspace{height:calc(100dvh - 70px);min-height:0;margin:6px 10px}.workspace-immersive .stage{border-radius:12px}
+.workspace-immersive .workspace-controls [data-workspace=fullscreen]{color:#fff;background:var(--ink);border-color:var(--ink)}
+.workspace-controls .button:focus-visible{outline:3px solid #a795dc;outline-offset:2px}
+@keyframes workspace-enter{from{opacity:.65;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-reduced-motion:reduce){.workspace .stage.active{animation:none}}
+
+.immersive-status{display:none}.workspace-immersive .immersive-status{display:inline-block;font-size:10px;color:#8a789b;flex-shrink:0;margin-left:8px}
+
+/* The viewport supplies available space, never the size of a research node. */
+body.has-active-workspace{height:100dvh;min-height:0;display:flex;flex-direction:column;overflow:hidden}
+.has-active-workspace>.app-header,.has-active-workspace>.project-strip,.has-active-workspace>.mode-nav,.has-active-workspace>.app-footer{flex-shrink:0}
+.has-active-workspace>.workspace{height:auto;min-height:0;flex:1 1 0;position:relative}
+.has-active-workspace>.mode-nav{height:54px}
+.has-active-workspace.workspace-immersive>.workspace{height:auto;min-height:0;margin-bottom:10px}
+.has-active-workspace.workspace-immersive>.mode-nav{height:54px}

@@ -1,0 +1,42 @@
+{
+  "requestId": "example-inference",
+  "datasetId": "synthetic-signals-v1",
+  "cases": [
+    {
+      "sampleId": "signal-a",
+      "task": "inspect-signal",
+      "input": {
+        "values": [
+          -2,
+          1,
+          4
+        ]
+      },
+      "referenceValues": [
+        -2,
+        4,
+        8
+      ]
+    },
+    {
+      "sampleId": "signal-b",
+      "task": "inspect-signal",
+      "input": {
+        "values": [
+          0,
+          3
+        ]
+      },
+      "referenceValues": [
+        1,
+        7
+      ]
+    }
+  ],
+  "config": {
+    "scale": 2.0,
+    "offset": 1.0,
+    "diagnosticSteps": 1
+  },
+  "inputs": []
+}

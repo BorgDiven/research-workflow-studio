@@ -1,0 +1,70 @@
+{
+  "schemaVersion": "rws.block-contract/v1",
+  "entrypoint": "block.py:run",
+  "fixture": "fixtures.json",
+  "spec": {
+    "title": "Stored signal reference evaluation",
+    "purpose": "Measure per-case mean absolute error against supplied references using an explicit, reusable protocol.",
+    "inputs": [
+      {
+        "name": "predictions",
+        "kind": "series",
+        "multiple": true,
+        "semantic": "final-output"
+      },
+      {
+        "name": "reference-cases",
+        "kind": "dataset",
+        "multiple": true,
+        "description": "The selected dataset provides each case referenceValues."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "metrics",
+        "kind": "metric",
+        "multiple": true,
+        "semantic": "evaluation-metric"
+      }
+    ],
+    "configSchema": {
+      "type": "object",
+      "properties": {},
+      "additionalProperties": false
+    },
+    "capabilities": [
+      "evaluate-stored-series",
+      "report-missing-coverage"
+    ],
+    "schemaVersion": 1,
+    "kind": "evaluation",
+    "status": "ready",
+    "dependencies": [],
+    "acceptanceChecks": [
+      {
+        "id": "contract-valid",
+        "description": "Contract and local entrypoint are valid."
+      },
+      {
+        "id": "two-inputs",
+        "description": "Two distinct single-case fixtures retain their case identities and complete."
+      },
+      {
+        "id": "batch-equivalence",
+        "description": "A batch produces the same per-case content as the two individual requests."
+      },
+      {
+        "id": "input-immutability",
+        "description": "Execution does not mutate the supplied request or referenced artifacts."
+      },
+      {
+        "id": "declared-outputs",
+        "description": "Every artifact matches an output port and exact input IDs."
+      },
+      {
+        "id": "expected-values",
+        "description": "Selected fixture outputs match explicit expected content."
+      }
+    ]
+  }
+}

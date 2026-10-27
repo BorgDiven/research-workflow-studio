@@ -1,0 +1,164 @@
+{
+  "schemaVersion": "rws.import.v1",
+  "demo": true,
+  "kind": "training_output",
+  "projectId": "demo-image-edit",
+  "notice": "训练曲线格式示例；所有数值人为编排，未运行训练或评估。",
+  "sources": {
+    "datasets": [
+      {
+        "id": "training-images",
+        "version": "demo-v1",
+        "split": "train",
+        "sampleIds": [
+          "train-sample-001",
+          "train-sample-002"
+        ]
+      }
+    ],
+    "codes": [
+      {
+        "id": "code-training",
+        "version": "demo-v1",
+        "kind": "training"
+      }
+    ],
+    "runs": [
+      {
+        "id": "run-training-01",
+        "kind": "training",
+        "codeRef": {
+          "projectId": "demo-image-edit",
+          "type": "code",
+          "id": "code-training",
+          "version": "demo-v1"
+        },
+        "inputDatasetRef": {
+          "projectId": "demo-image-edit",
+          "type": "dataset",
+          "id": "training-images",
+          "version": "demo-v1"
+        },
+        "sampleIds": [
+          "train-sample-001",
+          "train-sample-002"
+        ],
+        "actualConfig": {
+          "learningRate": 0.0001,
+          "batchSize": 2,
+          "seed": 42
+        },
+        "status": "completed_demo"
+      }
+    ],
+    "protocols": [],
+    "artifacts": [],
+    "overviews": [
+      {
+        "id": "overview-demo-r1",
+        "projectId": "demo-image-edit",
+        "status": "confirmed_demo",
+        "goal": "演示图像研究项目的结果接入与来源记录；不是实际研究结论。",
+        "approach": "先登记固定材料，再比较与分析；建议由用户决定。"
+      }
+    ],
+    "tasks": [
+      {
+        "id": "task-inspect-training",
+        "projectId": "demo-image-edit",
+        "title": "检查已有训练曲线",
+        "status": "planned_demo",
+        "overviewRevision": "overview-demo-r1"
+      }
+    ],
+    "conversations": [
+      {
+        "id": "conversation-demo-02",
+        "projectId": "demo-image-edit",
+        "title": "演示训练检查对话",
+        "taskId": "task-inspect-training",
+        "status": "illustrative_only"
+      }
+    ]
+  },
+  "record": {
+    "id": "training-output-01",
+    "origin": "illustrative_import",
+    "producerRef": {
+      "projectId": "demo-image-edit",
+      "type": "run",
+      "id": "run-training-01"
+    },
+    "input": {
+      "kind": "dataset_subset",
+      "datasetRef": {
+        "projectId": "demo-image-edit",
+        "type": "dataset",
+        "id": "training-images",
+        "version": "demo-v1"
+      },
+      "split": "train",
+      "sampleIds": [
+        "train-sample-001",
+        "train-sample-002"
+      ]
+    },
+    "results": [
+      {
+        "id": "series-training-loss",
+        "type": "series",
+        "name": "training_loss",
+        "producerRef": {
+          "projectId": "demo-image-edit",
+          "type": "run",
+          "id": "run-training-01"
+        },
+        "xAxis": {
+          "name": "optimizer_step",
+          "unit": "step"
+        },
+        "yAxis": {
+          "name": "mean_squared_error",
+          "unit": "dimensionless"
+        },
+        "measurement": {
+          "reduction": "mean_per_training_batch",
+          "loggedEverySteps": 100,
+          "smoothing": "none"
+        },
+        "points": [
+          {
+            "x": 0,
+            "y": 0.91
+          },
+          {
+            "x": 100,
+            "y": 0.62
+          },
+          {
+            "x": 200,
+            "y": 0.48
+          },
+          {
+            "x": 300,
+            "y": 0.41
+          }
+        ]
+      }
+    ],
+    "context": {
+      "overviewRevision": "overview-demo-r1",
+      "taskRef": {
+        "projectId": "demo-image-edit",
+        "type": "task",
+        "id": "task-inspect-training"
+      },
+      "conversationRef": {
+        "projectId": "demo-image-edit",
+        "type": "conversation",
+        "id": "conversation-demo-02"
+      }
+    },
+    "scientificJudgment": "unreviewed"
+  }
+}

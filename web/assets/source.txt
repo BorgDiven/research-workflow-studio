@@ -1,0 +1,18 @@
+RP Lite desktop preview — illustrative image provenance
+Created: 2026-10-23
+Method: built-in image_gen, photorealistic-natural.
+Asset: demo-sheet.png
+Dimensions: 2172 × 724 pixels. Grid: 4 columns × 2 rows; each cell 543 × 362 pixels (3:2).
+The original generated file was copied without image transformation.
+
+IMPORTANT: All eight cells are AI-generated UI illustration assets. They are not outputs from RP Lite inference runs, not recovered research images, not evaluation inputs from real experiments, and not evidence of any method's performance. Labels such as C0, C1, C2 and metric values in the prototype refer only to mock records. The source identity of this asset is image_gen, not those mock code versions/runs.
+
+Sprite mapping (zero-based):
+row 0 col 0: red mug source illustration
+row 0 col 1, 2, 3: blue mug comparison illustrations
+row 1 col 0: yellow backpack source illustration
+row 1 col 1, 2, 3: green backpack comparison illustrations
+No text, gutters or added borders. Repeated scenes maintain similar camera/composition; small background differences are illustrative only.
+
+Prompt:
+Use case: photorealistic-natural. Asset type: a single photographic sprite contact sheet for a research-management UI prototype, NOT actual scientific results. Generate ONE image in a precise seamless TWO ROWS by FOUR COLUMNS grid, eight equally sized rectangular photographs. Total canvas aspect ratio exactly 3:1, preferably 3072x1024; each cell 768x512, 3:2. Grid boundaries at exactly x=25%,50%,75%, y=50%. Absolutely NO gutters, borders, labels, text, captions, watermark, frames or background outside the grid. Each photograph must fill its entire cell. TOP ROW, four near-identical fixed-camera editorial photographs: a ceramic mug centered on a clean white desk beside a small stack of books, softly lit window in the background. First cell: RED mug. Second, third, fourth cells: BLUE mug. Keep mug placement, desk, books, window and natural soft daylight essentially the same across this row, with only tiny background-detail variation among columns 2–4. BOTTOM ROW, four near-identical fixed-camera natural photographs: a canvas backpack centered on a wooden park bench, softly blurred trees behind it, beautiful natural daylight. First cell: YELLOW backpack. Second, third, fourth cells: GREEN backpack. Keep backpack identity, placement, bench, trees and framing essentially the same across this row, with only tiny background-detail variation among columns 2–4. No people, no logos, no additional subjects. Crisp detailed premium photographic quality. Each cell must independently compose a complete scene, not share continuous scenery with adjacent cells. This is a tightly registered 4x2 sprite sheet; do not rearrange grid, do not merge cells, do not add padding.

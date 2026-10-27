@@ -1,0 +1,22 @@
+__pycache__/
+*.pyc
+.venv/
+*.sqlite
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+.DS_Store
+
+# Local research and release working state
+.local/
+materials/
+build/
+dist/
+*.egg-info/
+.env
+.env.*
+!.env.example
+task_plan.md
+findings.md
+progress.md

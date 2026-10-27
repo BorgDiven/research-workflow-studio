@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="light"><title>Research Workflow Studio · 项目与研究工作区</title>
+  <link rel="icon" href="data:,"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="evidence.css"><link rel="stylesheet" href="studio.css"><link rel="stylesheet" href="canvas-layout.css"><link rel="stylesheet" href="workspace.css"><link rel="stylesheet" href="live.css"><link rel="stylesheet" href="workbench-v3.css">
+</head>
+<body>
+  <header class="app-header">
+    <button class="brand studio-brand" data-studio="home" aria-label="Research Workflow Studio 项目与研究工作区"><b>Research Workflow <em>Studio</em></b></button>
+    <button class="project-switch" data-studio="projects"><span class="eyebrow" id="active-project-domain">研究项目</span><strong id="active-project-title">选择项目</strong><span class="switch-caret">⌄</span></button>
+    <div class="header-actions"><span class="demo-badge" id="live-status" role="status">正在连接…</span><button class="button" data-studio="refresh">刷新</button><button class="button" data-studio="context" data-requires-project>准备研究对话</button><button class="button primary" data-studio="guide" data-requires-project>当前位置与建议</button></div>
+  </header>
+  <section id="project-strip" class="project-strip" aria-label="项目上下文"></section>
+  <section id="project-home" class="project-home" aria-label="我的研究项目"></section>
+  <section id="empty-workspace" class="empty-workspace" hidden aria-label="新项目工作区"></section>
+  <nav class="mode-nav" aria-label="工作台视图">
+    <button class="mode-button" data-action="view" data-view="research"><span class="mode-number">01</span><span><strong>研究</strong></span></button>
+    <button class="mode-button" data-action="view" data-view="code"><span class="mode-number">02</span><span><strong>代码与执行</strong></span></button>
+    <button class="mode-button" data-action="view" data-view="outputs"><span class="mode-number">03</span><span><strong>产出与对比</strong></span></button>
+    <div class="context-picker"><label for="research-context">正在查看</label><select id="research-context" aria-label="当前研究条目"></select><label for="experiment-context">实验</label><select id="experiment-context" aria-label="当前实验"></select><span id="context-status"></span></div>
+    <span class="immersive-status" title="浏览器与 MCP 共用记录">共享记录</span><div class="workspace-controls" aria-label="画布布局"><button class="button" data-action="layout-return" hidden>返回全局</button><button class="button" id="workspace-fullscreen" data-workspace="fullscreen" aria-pressed="false">全屏工作区</button></div>
+  </nav>
+  <main id="workspace" class="workspace" aria-label="研究工作区">
+    <section id="stage-research" class="stage research-stage" aria-label="研究视图">
+      <div class="stage-heading"><div><h1>研究关系</h1></div><div class="stage-actions"><button class="button" data-studio="new-research">登记研究</button><button class="button" data-studio="edit-research">编辑研究</button><button class="button" data-studio="new-experiment">登记实验</button><button class="button" data-action="inspect-context">查看研究条目</button></div></div>
+      <div class="stage-content" id="research-content"></div>
+    </section>
+    <section id="stage-code" class="stage code-stage" aria-label="代码与执行视图">
+      <div class="stage-heading"><div><h1>代码与执行</h1></div><div class="stage-actions"><button class="button primary" data-contract="new">定义代码块</button><button class="button" data-studio="context">查看当前上下文</button></div></div>
+      <div class="stage-content" id="code-content"></div>
+    </section>
+    <section id="stage-outputs" class="stage output-stage" aria-label="产出与对比视图">
+      <div class="stage-heading"><div><h1>产出与对比</h1></div><button class="button" data-action="context-report">打开相关报告</button></div>
+      <div class="stage-content" id="outputs-content"></div>
+    </section>
+  </main>
+  <footer class="app-footer"><span id="status" aria-live="polite"></span><span>共享记录 · <a href="docs/index.html" target="_blank" rel="noopener">设计与接口文档 ↗</a></span></footer>
+  <dialog id="reader" aria-label="研究材料详情"><div class="reader-header"><span id="reader-label">材料详情</span><div><button class="button" id="reader-back" data-action="reader-back" hidden>返回上一层</button><button class="button" data-action="close-reader">关闭</button></div></div><div class="reader-body"></div></dialog>
+  <div class="toast" id="toast" role="status"></div>
+  <dialog id="studio-dialog" class="studio-dialog" aria-labelledby="studio-dialog-title"><header><div><h2 id="studio-dialog-title"></h2></div><button class="button" data-studio="close-dialog">关闭</button></header><div class="studio-dialog-body"></div></dialog>
+  <dialog id="guidance-dialog" class="guidance-dialog" aria-labelledby="guidance-title"><header><div><h2 id="guidance-title">当前位置与建议</h2></div><button class="button" data-studio="close-guide">关闭</button></header><div id="guidance-body"></div></dialog>
+  <script src="live-model.js"></script><script src="data.js"></script><script src="live-api.js"></script><script src="evidence.js"></script><script src="results-model.js"></script><script src="results.js"></script><script src="app.js"></script><script src="studio-model.js"></script><script src="studio.js"></script><script src="contracts.js"></script><script src="amendments.js"></script><script src="materials.js"></script><script src="workspace.js"></script>
+</body></html>

@@ -1,0 +1,198 @@
+{
+  "schemaVersion": "rws.block-fixtures/v1",
+  "request": {
+    "requestId": "example-analysis",
+    "datasetId": "synthetic-signals-v1",
+    "cases": [
+      {
+        "sampleId": "signal-a",
+        "task": "inspect-signal",
+        "input": {
+          "values": [
+            -2,
+            1,
+            4
+          ]
+        },
+        "referenceValues": [
+          -2,
+          4,
+          8
+        ]
+      },
+      {
+        "sampleId": "signal-b",
+        "task": "inspect-signal",
+        "input": {
+          "values": [
+            0,
+            3
+          ]
+        },
+        "referenceValues": [
+          1,
+          7
+        ]
+      }
+    ],
+    "config": {},
+    "inputs": [
+      {
+        "id": "fixture-inference/signal-a/final-output",
+        "sampleId": "signal-a",
+        "caseIdentity": {
+          "datasetId": "synthetic-signals-v1",
+          "sampleId": "signal-a",
+          "task": "inspect-signal"
+        },
+        "kind": "series",
+        "semantic": "final-output",
+        "config": {
+          "scale": 2.0,
+          "offset": 1.0,
+          "diagnosticSteps": 1
+        },
+        "producer": {
+          "requestId": "fixture-inference",
+          "entrypoint": "block.py:run"
+        },
+        "inputIds": [],
+        "content": {
+          "kind": "series",
+          "name": "Synthetic signal",
+          "xAxis": {
+            "label": "Sample position",
+            "unit": "index"
+          },
+          "yAxis": {
+            "label": "Signal",
+            "unit": "arbitrary"
+          },
+          "points": [
+            [
+              0,
+              -3
+            ],
+            [
+              1,
+              3
+            ],
+            [
+              2,
+              9
+            ]
+          ]
+        },
+        "synthetic": true
+      },
+      {
+        "id": "fixture-inference/signal-b/final-output",
+        "sampleId": "signal-b",
+        "caseIdentity": {
+          "datasetId": "synthetic-signals-v1",
+          "sampleId": "signal-b",
+          "task": "inspect-signal"
+        },
+        "kind": "series",
+        "semantic": "final-output",
+        "config": {
+          "scale": 2.0,
+          "offset": 1.0,
+          "diagnosticSteps": 1
+        },
+        "producer": {
+          "requestId": "fixture-inference",
+          "entrypoint": "block.py:run"
+        },
+        "inputIds": [],
+        "content": {
+          "kind": "series",
+          "name": "Synthetic signal",
+          "xAxis": {
+            "label": "Sample position",
+            "unit": "index"
+          },
+          "yAxis": {
+            "label": "Signal",
+            "unit": "arbitrary"
+          },
+          "points": [
+            [
+              0,
+              1
+            ],
+            [
+              1,
+              7
+            ]
+          ]
+        },
+        "synthetic": true
+      }
+    ]
+  },
+  "expectedArtifacts": [
+    {
+      "sampleId": "signal-a",
+      "semantic": "signal-summary",
+      "content": {
+        "kind": "table",
+        "columns": [
+          {
+            "key": "statistic",
+            "type": "string"
+          },
+          {
+            "key": "value",
+            "type": "number"
+          }
+        ],
+        "rows": [
+          {
+            "statistic": "minimum",
+            "value": -3
+          },
+          {
+            "statistic": "maximum",
+            "value": 9
+          },
+          {
+            "statistic": "mean",
+            "value": 3
+          }
+        ]
+      }
+    },
+    {
+      "sampleId": "signal-b",
+      "semantic": "signal-summary",
+      "content": {
+        "kind": "table",
+        "columns": [
+          {
+            "key": "statistic",
+            "type": "string"
+          },
+          {
+            "key": "value",
+            "type": "number"
+          }
+        ],
+        "rows": [
+          {
+            "statistic": "minimum",
+            "value": 1
+          },
+          {
+            "statistic": "maximum",
+            "value": 7
+          },
+          {
+            "statistic": "mean",
+            "value": 4
+          }
+        ]
+      }
+    }
+  ]
+}

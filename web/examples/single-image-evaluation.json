@@ -1,0 +1,330 @@
+{
+  "schemaVersion": "rws.import.v1",
+  "demo": true,
+  "kind": "evaluation",
+  "notice": "结构示例；图片路径不指向实际文件，所有数值人为编排。未执行评估、未导入真实后端，不构成研究证据。",
+  "projectId": "demo-image-edit",
+  "sources": {
+    "datasets": [
+      {
+        "id": "paired-images",
+        "version": "demo-v1",
+        "split": "validation",
+        "sampleIds": [
+          "sample-001",
+          "sample-002",
+          "sample-003"
+        ]
+      }
+    ],
+    "codes": [
+      {
+        "id": "code-baseline",
+        "version": "demo-v1",
+        "kind": "inference"
+      },
+      {
+        "id": "code-psnr",
+        "version": "demo-v1",
+        "kind": "evaluation"
+      }
+    ],
+    "runs": [
+      {
+        "id": "run-baseline-01",
+        "kind": "inference",
+        "codeRef": {
+          "projectId": "demo-image-edit",
+          "type": "code",
+          "id": "code-baseline",
+          "version": "demo-v1"
+        },
+        "inputDatasetRef": {
+          "projectId": "demo-image-edit",
+          "type": "dataset",
+          "id": "paired-images",
+          "version": "demo-v1"
+        },
+        "sampleIds": [
+          "sample-001",
+          "sample-002",
+          "sample-003"
+        ],
+        "actualConfig": {
+          "cfg": 4,
+          "steps": 20,
+          "seed": 42
+        },
+        "status": "completed_demo"
+      }
+    ],
+    "protocols": [
+      {
+        "id": "protocol-psnr",
+        "version": "demo-v1",
+        "inputType": "prediction_reference_image_pairs",
+        "matching": "explicit_sample_ids",
+        "preprocessing": {
+          "colorSpace": "RGB",
+          "pixelRange": [
+            0,
+            1
+          ],
+          "dataRange": 1,
+          "resize": "none",
+          "alignment": "paired images must have identical shape"
+        },
+        "metrics": [
+          {
+            "name": "psnr",
+            "unit": "dB",
+            "direction": "higher",
+            "scope": "sample",
+            "aggregation": "arithmetic_mean_of_successful_sample_scores"
+          }
+        ],
+        "missingPolicy": "exclude failed sample from mean and report coverage; never substitute zero"
+      }
+    ],
+    "artifacts": [
+      {
+        "id": "prediction-001",
+        "type": "image",
+        "sampleId": "sample-001",
+        "producer": {
+          "projectId": "demo-image-edit",
+          "type": "run",
+          "id": "run-baseline-01"
+        },
+        "location": {
+          "uri": "demo-unresolved://predictions/sample-001.png",
+          "availability": "illustrative_reference_only"
+        },
+        "config": {
+          "cfg": 4,
+          "steps": 20,
+          "seed": 42
+        }
+      },
+      {
+        "id": "reference-001",
+        "type": "image",
+        "sampleId": "sample-001",
+        "producer": {
+          "projectId": "demo-image-edit",
+          "type": "dataset",
+          "id": "paired-images",
+          "version": "demo-v1"
+        },
+        "location": {
+          "uri": "demo-unresolved://references/sample-001.png",
+          "availability": "illustrative_reference_only"
+        }
+      },
+      {
+        "id": "prediction-002",
+        "type": "image",
+        "sampleId": "sample-002",
+        "producer": {
+          "projectId": "demo-image-edit",
+          "type": "run",
+          "id": "run-baseline-01"
+        },
+        "location": {
+          "uri": "demo-unresolved://predictions/sample-002.png",
+          "availability": "illustrative_reference_only"
+        },
+        "config": {
+          "cfg": 4,
+          "steps": 20,
+          "seed": 42
+        }
+      },
+      {
+        "id": "reference-002",
+        "type": "image",
+        "sampleId": "sample-002",
+        "producer": {
+          "projectId": "demo-image-edit",
+          "type": "dataset",
+          "id": "paired-images",
+          "version": "demo-v1"
+        },
+        "location": {
+          "uri": "demo-unresolved://references/sample-002.png",
+          "availability": "illustrative_reference_only"
+        }
+      },
+      {
+        "id": "prediction-003",
+        "type": "image",
+        "sampleId": "sample-003",
+        "producer": {
+          "projectId": "demo-image-edit",
+          "type": "run",
+          "id": "run-baseline-01"
+        },
+        "location": {
+          "uri": "demo-unresolved://predictions/sample-003.png",
+          "availability": "illustrative_reference_only"
+        },
+        "config": {
+          "cfg": 4,
+          "steps": 20,
+          "seed": 42
+        }
+      },
+      {
+        "id": "reference-003",
+        "type": "image",
+        "sampleId": "sample-003",
+        "producer": {
+          "projectId": "demo-image-edit",
+          "type": "dataset",
+          "id": "paired-images",
+          "version": "demo-v1"
+        },
+        "location": {
+          "uri": "demo-unresolved://references/sample-003.png",
+          "availability": "illustrative_reference_only"
+        }
+      }
+    ],
+    "overviews": [
+      {
+        "id": "overview-demo-r1",
+        "projectId": "demo-image-edit",
+        "status": "confirmed_demo",
+        "goal": "演示图像研究项目的结果接入与来源记录；不是实际研究结论。",
+        "approach": "先登记固定材料，再比较与分析；建议由用户决定。"
+      }
+    ],
+    "tasks": [
+      {
+        "id": "task-import-evaluation",
+        "projectId": "demo-image-edit",
+        "title": "登记已有评估结果",
+        "status": "planned_demo",
+        "overviewRevision": "overview-demo-r1"
+      }
+    ],
+    "conversations": [
+      {
+        "id": "conversation-demo-01",
+        "projectId": "demo-image-edit",
+        "title": "演示评估接入对话",
+        "taskId": "task-import-evaluation",
+        "status": "illustrative_only"
+      }
+    ]
+  },
+  "record": {
+    "id": "evaluation-single-01",
+    "origin": "illustrative_import",
+    "codeRef": {
+      "projectId": "demo-image-edit",
+      "type": "code",
+      "id": "code-psnr",
+      "version": "demo-v1"
+    },
+    "protocolRef": {
+      "projectId": "demo-image-edit",
+      "type": "protocol",
+      "id": "protocol-psnr",
+      "version": "demo-v1"
+    },
+    "input": {
+      "kind": "single_pair",
+      "datasetRef": {
+        "projectId": "demo-image-edit",
+        "type": "dataset",
+        "id": "paired-images",
+        "version": "demo-v1"
+      },
+      "split": "validation",
+      "sampleIds": [
+        "sample-001"
+      ],
+      "pairs": [
+        {
+          "sampleId": "sample-001",
+          "predictionRef": {
+            "projectId": "demo-image-edit",
+            "type": "artifact",
+            "id": "prediction-001"
+          },
+          "referenceRef": {
+            "projectId": "demo-image-edit",
+            "type": "artifact",
+            "id": "reference-001"
+          }
+        }
+      ]
+    },
+    "configuration": {
+      "dataRange": 1,
+      "channelReduction": "all_RGB_pixels",
+      "sampleReduction": "per_image_then_arithmetic_mean"
+    },
+    "sampleStatuses": [
+      {
+        "sampleId": "sample-001",
+        "status": "success"
+      }
+    ],
+    "results": [
+      {
+        "id": "metric-sample-psnr",
+        "type": "metric",
+        "name": "psnr",
+        "unit": "dB",
+        "direction": "higher",
+        "scope": "sample",
+        "protocolRef": {
+          "projectId": "demo-image-edit",
+          "type": "protocol",
+          "id": "protocol-psnr",
+          "version": "demo-v1"
+        },
+        "values": [
+          {
+            "sampleId": "sample-001",
+            "value": 30.0
+          }
+        ]
+      },
+      {
+        "id": "metric-summary-psnr",
+        "type": "metric",
+        "name": "psnr",
+        "unit": "dB",
+        "direction": "higher",
+        "scope": "dataset_summary",
+        "aggregation": "arithmetic_mean_of_successful_sample_scores",
+        "includedSampleIds": [
+          "sample-001"
+        ],
+        "value": 30.0
+      }
+    ],
+    "coverage": {
+      "requested": 1,
+      "succeeded": 1,
+      "failed": 0
+    },
+    "context": {
+      "overviewRevision": "overview-demo-r1",
+      "taskRef": {
+        "projectId": "demo-image-edit",
+        "type": "task",
+        "id": "task-import-evaluation"
+      },
+      "conversationRef": {
+        "projectId": "demo-image-edit",
+        "type": "conversation",
+        "id": "conversation-demo-01"
+      }
+    },
+    "scientificJudgment": "unreviewed"
+  }
+}

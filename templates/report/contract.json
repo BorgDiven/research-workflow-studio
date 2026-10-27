@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "rws.block-contract/v1",
+  "entrypoint": "block.py:run",
+  "fixture": "fixtures.json",
+  "spec": {
+    "title": "Evidence composition report",
+    "purpose": "Compose exact stored evidence and supplied interpretation into per-case Markdown documents without running inference or recomputing metrics.",
+    "inputs": [
+      {
+        "name": "signals",
+        "kind": "series",
+        "multiple": true,
+        "required": false,
+        "semantic": "final-output"
+      },
+      {
+        "name": "metrics",
+        "kind": "metric",
+        "multiple": true,
+        "required": false,
+        "semantic": "evaluation-metric"
+      },
+      {
+        "name": "analysis",
+        "kind": "table",
+        "multiple": true,
+        "required": false,
+        "semantic": "signal-summary"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "documents",
+        "kind": "attachment",
+        "multiple": true,
+        "semantic": "report-document"
+      }
+    ],
+    "configSchema": {
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1,
+          "default": "Synthetic evidence report"
+        }
+      },
+      "additionalProperties": false
+    },
+    "capabilities": [
+      "compose-existing-evidence"
+    ],
+    "schemaVersion": 1,
+    "kind": "report",
+    "status": "ready",
+    "dependencies": [],
+    "acceptanceChecks": [
+      {
+        "id": "contract-valid",
+        "description": "Contract and local entrypoint are valid."
+      },
+      {
+        "id": "two-inputs",
+        "description": "Two distinct single-case fixtures retain their case identities and complete."
+      },
+      {
+        "id": "batch-equivalence",
+        "description": "A batch produces the same per-case content as the two individual requests."
+      },
+      {
+        "id": "input-immutability",
+        "description": "Execution does not mutate the supplied request or referenced artifacts."
+      },
+      {
+        "id": "declared-outputs",
+        "description": "Every artifact matches an output port and exact input IDs."
+      },
+      {
+        "id": "expected-values",
+        "description": "Selected fixture outputs match explicit expected content."
+      }
+    ]
+  }
+}
