@@ -4,15 +4,21 @@
   const stable=value=>JSON.stringify(sort(value));
   function sort(value){if(Array.isArray(value))return value.map(sort);if(value&&typeof value==='object')return Object.fromEntries(Object.keys(value).sort().map(k=>[k,sort(value[k])]));return value;}
   const reference=ref=>ref?[ref.projectId,ref.type,ref.id,ref.version]:null;
-  const semanticNames={final_image:'最终图像',predicted_clean:'预测干净图像',predicted_clean_image:'预测干净图像',velocity:'速度场',velocity_field:'速度场',attention_map:'注意力图',loss_curve:'损失曲线',metric:'评估指标',metrics:'评估指标',image:'图像',series:'曲线',table:'表格',attachment:'附件','image-set':'图像'};
+  const semanticNames={'final-image':'最终图像','clean-estimate':'预测干净图像','velocity-field':'速度场','input-image':'输入图像',final_image:'最终图像',predicted_clean:'预测干净图像',predicted_clean_image:'预测干净图像',velocity:'速度场',velocity_field:'速度场',attention_map:'注意力图',loss_curve:'损失曲线',metric:'评估指标',metrics:'评估指标',image:'图像',series:'曲线',table:'表格',attachment:'附件','image-set':'图像'};
   function describe(artifact,data){
     const r=artifact.raw||artifact,producer=data.envelopes?.[data.key?.(r.producerRef)]||null;
     const run=data.runs?.find(x=>same(x.ref,r.producerRef)),runRecord=producer?.effectiveRecord||producer?.record||run?.raw||{},codeRef=runRecord.codeRef,code=data.codes?.find(c=>sameExact(c.ref,codeRef));
-    const dataset=r.datasetRef||null,sample=r.sampleId??null,task=r.taskKey??r.config?.prompt??runRecord.config?.prompt??null,inputIdentity=r.inputRefs?.length?r.inputRefs.map(reference).sort((a,b)=>stable(a).localeCompare(stable(b))):null;
+    // An explicit artifact configuration (even {}) is the actual recorded
+    // configuration; a producer may describe a multi-configuration group.
+    const actualConfig=Object.hasOwn(r,'config')?r.config:runRecord.config;
+    const dataset=r.datasetRef||null,sample=r.sampleId??null,task=r.taskKey??actualConfig?.prompt??null,inputIdentity=r.inputRefs?.length?r.inputRefs.map(reference).sort((a,b)=>stable(a).localeCompare(stable(b))):null;
     // Legacy sample labels are local identities; they are never joined across projects.
     const identity=sample===null?['unresolved',reference(artifact.ref)]:[dataset?reference(dataset):inputIdentity?['inputs',inputIdentity]:['project',artifact.ref.projectId],sample,task];
-    const config={...(runRecord.config||{}),...(r.config||{})};
+    const config={...(actualConfig||{})};
     for(const k of ['sampleId','sample_id','case','case_id','prompt','input','input_path','output','output_path','taskKey','task_key'])delete config[k];
+    // Only a declared task identity proves these values describe the case.
+    // Unequal conditioning remains a real comparison condition.
+    for(const k of ['target_positive','instruction','edit_instruction','target_prompt'])if(typeof r.taskKey==='string'&&config[k]===r.taskKey)delete config[k];
     const observation=r.observation||{},semantic=r.semantic||r.content?.kind||r.kind||'attachment';
     return {artifact,id:artifact.id,ref:artifact.ref,caseKey:stable(identity),sampleId:sample,taskKey:task,caseLabel:sample===null?'样本未登记':String(sample)+(task?' · '+task:''),caseSource:dataset?dataset.id+' · r'+dataset.version:artifact.sourceProject||artifact.ref.projectId,unresolved:sample===null,semantic,config,observation,observationKey:stable(observation),codeRef,codeId:code?.id||stable(reference(codeRef)),codeLabel:code?.title||'实现未核定',codeVersion:code?.version||'',code,methodKey:stable(reference(codeRef)||['unresolved',reference(r.producerRef)||reference(artifact.ref)])};
   }
