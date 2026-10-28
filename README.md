@@ -100,6 +100,7 @@ A specification declares purpose, input/output semantics, configurable values, d
 ## Data that stays understandable
 
 - **Question ≠ implementation lineage.** A baseline can support several questions without changing its origin.
+- **Declare purpose before running.** Link a question to a code specification or existing implementation, then navigate both ways. Planned purpose, actual use and reused evidence remain distinguishable; see [the relationship contract](docs/contract-v3.md#declare-which-research-the-implementation-serves).
 - **Artifact origin stays fixed.** Reusing an image in another experiment or project adds a reference, not a new producer.
 - **An execution may cover several cases or settings.** Each artifact carries its actual configuration and output semantics. Execution details are available without another visible grouping layer.
 - **Final output ≠ diagnostic output.** A predicted clean image, velocity field, curve and metric table can be compared as the corresponding kind of evidence.
@@ -112,7 +113,7 @@ The service binds to loopback. It supports an explicitly configured **Tailscale 
 
 ## Development and status
 
-Version **0.3.3** is an early, single-user workbench. It has no collaborative multi-user permissions, cloud synchronization, automatic experiment scheduler or mobile layout. Supplied check evidence is recorded, not independently certified. Review changes and keep a database backup when upgrading.
+Version **0.3.4** is an early, single-user workbench. It has no collaborative multi-user permissions, cloud synchronization, automatic experiment scheduler or mobile layout. Supplied check evidence is recorded, not independently certified. Review changes and keep a database backup when upgrading.
 
 ```sh
 python3 -m unittest discover -s tests

@@ -1,4 +1,14 @@
-# Version 0.3.1 validation
+# Version 0.3.4 validation
+
+- 126 Python tests passed, including purpose links before execution, exact code/spec versions, cross-project references, legacy records, preserved report snapshots and fresh stdio MCP reads/writes.
+- 120 JavaScript tests passed. They cover bidirectional research/code navigation, reused and multi-producer evidence, report generators reached through artifacts or comparison snapshots, explicit experiment precedence, planned-input labels and read-only demo controls.
+- Actual browser checks with fictional records passed at 1440×800 and 1280×720 CSS pixels: research-to-code and reverse navigation, selection toggle, draft-only specification links, bounded bottom details and no document horizontal overflow. No captured JavaScript errors in the checked static preview.
+- A research purpose note saved through the live HTTP UI was read back by a separate fresh stdio MCP process against the same isolated database. Production records were not used for mutation tests.
+- Independent source review confirmed that purpose declarations do not manufacture execution/evidence, and report relationship traversal stays inside its fixed snapshot.
+
+These are bounded software checks, not scientific/model-quality validation or an exhaustive audit of every dataset. Existing long-lived MCP clients need to reconnect to load a newly installed server and schema.
+
+## Previous validation: 0.3.1
 
 - 103 Python tests passed: records, contracts, actual artifact configuration, source corrections, old report snapshots, HTTP permissions, managed materials, Tailscale origins, package resources, templates and all 28 advertised MCP operations through a fresh stdio process.
 - 60 JavaScript tests passed, including actual form handlers saved through the Python service, exact case identities, missing/repeated results, scope, snapshots, amendment deep links and 1,212-entry pagination.

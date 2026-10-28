@@ -406,7 +406,7 @@
     },
     {
       "name": "rws_research_save",
-      "description": "Save a research question or optional hypothesis; does not decide scientific validity.",
+      "description": "Save a research question or optional hypothesis. implementationLinks declares intended uses of exact spec/code revisions before execution; these links are not evidence and do not decide scientific validity.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -434,6 +434,61 @@
               "id": {
                 "type": "string",
                 "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+              },
+              "implementationLinks": {
+                "type": "array",
+                "maxItems": 32,
+                "description": "Declared research purposes, not actual execution or evidence. Pin a specification before implementation, or reference existing code. Omission preserves existing links; [] clears them.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "targetRef": {
+                      "type": "object",
+                      "properties": {
+                        "projectId": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "spec",
+                            "code"
+                          ]
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "version": {
+                          "type": "integer",
+                          "minimum": 1
+                        }
+                      },
+                      "required": [
+                        "projectId",
+                        "type",
+                        "id",
+                        "version"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "role": {
+                      "enum": [
+                        "implementation",
+                        "control",
+                        "diagnostic"
+                      ]
+                    },
+                    "note": {
+                      "type": "string",
+                      "maxLength": 1000
+                    }
+                  },
+                  "required": [
+                    "targetRef",
+                    "role"
+                  ],
+                  "additionalProperties": false
+                }
               },
               "judgment": {
                 "description": "Human scientific decision. Explicit null removes it only with human authority; omission preserves the previous decision.",
@@ -617,6 +672,61 @@
                   "id": {
                     "type": "string",
                     "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+                  },
+                  "implementationLinks": {
+                    "type": "array",
+                    "maxItems": 32,
+                    "description": "Declared research purposes, not actual execution or evidence. Pin a specification before implementation, or reference existing code. Omission preserves existing links; [] clears them.",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "targetRef": {
+                          "type": "object",
+                          "properties": {
+                            "projectId": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "spec",
+                                "code"
+                              ]
+                            },
+                            "id": {
+                              "type": "string"
+                            },
+                            "version": {
+                              "type": "integer",
+                              "minimum": 1
+                            }
+                          },
+                          "required": [
+                            "projectId",
+                            "type",
+                            "id",
+                            "version"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "role": {
+                          "enum": [
+                            "implementation",
+                            "control",
+                            "diagnostic"
+                          ]
+                        },
+                        "note": {
+                          "type": "string",
+                          "maxLength": 1000
+                        }
+                      },
+                      "required": [
+                        "targetRef",
+                        "role"
+                      ],
+                      "additionalProperties": false
+                    }
                   },
                   "judgment": {
                     "description": "Human scientific decision. Explicit null removes it only with human authority; omission preserves the previous decision.",

@@ -64,7 +64,7 @@ class MCPConnection:
                 "protocolVersion": version,
                 "capabilities": {"tools": {"listChanged": False}},
                 "serverInfo": {"name": "research-workflow-studio", "version": __version__},
-                "instructions": "先用 rws_get_context 定位项目与当前步骤，再登记用户授权的研究记录。编写代码前先用 rws_code_find 查找复用，再用 rws_spec_save 定义方法级输入、输出、配置和验收；实现必须绑定 ready spec 的精确版本、固定 Git commit 与 checkEvidence。case 和参数属于 run.sampleSelection/config，不能为每张图片复制方法代码。产物区分 semantic、observation 和实际 producerRef；比较与报告固定引用已有结果，不移动其来源。checkEvidence 是客户端提交的检查记录，不代表 MCP 已执行验证。所有写入提供 requestId，修改现有项目需 expectedRevision。MCP 从不执行程序；项目基础、阶段、科学判断与来源修正批准均由人完成。工作台地址：" + self.web_url}}
+                "instructions": "先用 rws_get_context 定位项目与当前步骤，再登记用户授权的研究记录。编写代码前先用 rws_code_find 查找复用，再用 rws_spec_save 定义方法级输入、输出、配置和验收；用 rws_research_save 的 implementationLinks 关联精确版本的 spec 或已有 code，标明 implementation（研究实现）、control（对照）或 diagnostic（诊断）用途。用途关联不是已执行或完成证据，省略保留原关联，[] 清空。随后实现并登记：实现必须绑定 ready spec 的精确版本、固定 Git commit 与 checkEvidence。case 和参数属于 run.sampleSelection/config，不能为每张图片复制方法代码。产物区分 semantic、observation 和实际 producerRef；比较与报告固定引用已有结果，不移动其来源。checkEvidence 是客户端提交的检查记录，不代表 MCP 已执行验证。所有写入提供 requestId，修改现有项目需 expectedRevision。MCP 从不执行程序；项目基础、阶段、科学判断与来源修正批准均由人完成。工作台地址：" + self.web_url}}
         if not self.initialized or not self.ready:
             return rpc_error(request_id, -32002, "Initialize and send notifications/initialized first")
         if method == "tools/list":

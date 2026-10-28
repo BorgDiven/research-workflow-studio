@@ -1,0 +1,8 @@
+/* Preserve the actual workbench geometry, colors, selection and focus states. */
+.foundation-card p, .foundation-document p { white-space: pre-line; }
+.preview-experiment-context { margin: 10px 0; display: grid; gap: 5px; }
+.preview-experiment-context > small { color: var(--muted); font-size: 11px; }
+.preview-experiment-context > strong { font-size: 12px; line-height: 1.5; }
+.preview-experiment-context > p { margin: 0 0 5px; font-size: 12px; line-height: 1.6; }
+.preview-method-links { display: grid; gap: 5px; }
+.preview-method-links .evidence-link { margin: 0; text-align: left; white-space: normal; }

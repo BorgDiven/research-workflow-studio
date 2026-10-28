@@ -44,6 +44,35 @@ Each input/output descriptor requires `name` and `kind`; it may also contain `se
 
 ## 2. Register a fixed implementation, then reuse it
 
+### Declare which research the implementation serves
+
+Before implementing a new method, save its specification, then update the research with `rws_research_save.record.implementationLinks`. This is the single store of declared purpose: it belongs to research, not immutable code. An existing implementation can be linked directly. A draft specification can be linked before code or a run exists.
+
+```json
+{
+  "id": "research-question",
+  "implementationLinks": [
+    {
+      "targetRef": {"projectId": "example", "type": "spec", "id": "method-contract", "version": 1},
+      "role": "implementation",
+      "note": "Implement the method being investigated by this question."
+    },
+    {
+      "targetRef": {"projectId": "example", "type": "code", "id": "baseline", "version": 1},
+      "role": "control"
+    }
+  ]
+}
+```
+
+Send this record inside the usual write arguments with `projectId`, `expectedRevision`, and `requestId`. `targetRef` requires an explicit, existing version of a `spec` or `code`, including cross-project references. Roles are `implementation`, `control`, or `diagnostic`; these describe the research use, independently of the code's computation kind. At most 32 links are accepted, each optional `note` at most 1000 characters. A target/role pair cannot repeat. Omit `implementationLinks` to preserve existing links; send the complete replacement list, or `[]` to clear it.
+
+The interface connects a specification to implementations pinning that **exact** specification revision. Updating a specification does not retarget old declarations. This is planned purpose, not proof of execution or evidence supporting a hypothesis. Actual use still follows experiment → run → code; reused evidence follows experiment → usage → artifact → producer run → code. An implementation can serve multiple research questions without copying it or moving any output.
+
+`rws_get_context` separately summarizes declared implementations. Read their exact references when implementing; declarations do not enter completed execution facts. Existing research without these optional links remains valid. No purpose association is automatically inferred or written into historical records.
+
+### Record the implementation identity
+
 Use `rws_code_find` with `{projectId, query?, kind?, specRef?, limit?}` before creating another implementation. It returns `{items, total, limit, notice}`. `items` are exact record envelopes. Query searches title, description, capabilities, and entrypoint. The default limit is 50; the maximum is 200. To search another project, select its project ID; a found reference can be reused across projects.
 
 `rws_code_register.record` retains the existing required `title`, `kind`, `version`, and `source`. A contracted implementation additionally requires:

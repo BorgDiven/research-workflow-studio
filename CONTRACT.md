@@ -2,6 +2,8 @@
 
 Python 3.9+ standard library, SQLite, HTTP and stdio MCP. See [contract-first additions](docs/contract-v3.md) for version 0.3. Research execution takes place in the user's development tools; Studio records facts and suggestions.
 
+Research can declare optional `implementationLinks` to exact specification or code versions, with implementation/control/diagnostic roles. These purpose links are separate from actual execution and evidence use; see the [purpose-link contract](docs/contract-v3.md#declare-which-research-the-implementation-serves). Research type, execution state and human scientific judgment remain separate.
+
 ## Shared service
 
 `rws.core.Store(db_path)` exposes `call(name, arguments, actor="model")`, `snapshot(project_id=None)` and `tool_definitions()`. `RwsError` carries `code`, `message`, optional `details`. Core is sole business writer. HTTP and stdio MCP use the same store.

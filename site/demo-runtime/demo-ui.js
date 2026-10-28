@@ -2,7 +2,7 @@
 (() => {
   'use strict';
   const mutations = {
-    studio: ['new-project','new-research','edit-research','new-experiment','edit','stages','apply-draft','dismiss-draft','reuse-artifact','remove-usage','confirm-remove-usage','add-material'],
+    studio: ['new-project','new-research','edit-research','new-experiment','edit','stages','apply-draft','dismiss-draft','reuse-artifact','remove-usage','confirm-remove-usage','add-material','link-implementation','add-implementation-link','remove-implementation-link'],
     contract: ['new','edit','implement','add-port','remove-port'],
     amendment: ['apply','dismiss'], results: ['save','analysis','report'],
   };

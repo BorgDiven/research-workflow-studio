@@ -55,10 +55,12 @@ python3 launch.py serve --db "$PWD/.local/showcase.sqlite3" --port 8831
 
 工作台的 MCP 不提供任意 shell、文件读取或 GPU 启动接口；登记一条运行记录不等于运行程序。模型提出的基础修改与来源纠正需要独立的人工确认。
 
+研究详情中的“关联代码”可定位实现，代码详情中的“用于哪些研究”可返回问题。编辑研究时，可以先关联代码规范或已有实现，标明研究实现、对照或诊断用途；不必先生成一次运行。计划用途、实际使用和证据复用分别显示，同一份代码和产物可以服务多个研究。[字段与 MCP 写入示例](docs/contract-v3.md#declare-which-research-the-implementation-serves)
+
 ## 开发和使用边界
 
 四类可复用模板见 [templates](templates/README.md)。代码实现绑定规则版本、Git commit、入口及检查证据；案例、指令、普通参数放在外部输入中。检查器默认只做静态检查，`--execute` 才会实际执行本地代码。
 
-当前是 0.3.3 单用户早期版本，没有多用户协作权限、自动实验调度或手机布局。可以通过 [Tailscale 私有访问](docs/deployment.md) 跨电脑使用；公开仓库不包含真实研究数据库和材料。历史来源纠正保留原记录，旧报告不会被新数据改写。
+当前是 0.3.4 单用户早期版本，没有多用户协作权限、自动实验调度或手机布局。可以通过 [Tailscale 私有访问](docs/deployment.md) 跨电脑使用；公开仓库不包含真实研究数据库和材料。历史来源纠正保留原记录，旧报告不会被新数据改写。
 
 [数据约定](CONTRACT.md) · [架构](docs/architecture.md) · [后续方向](docs/roadmap.md) · [贡献](CONTRIBUTING.md)

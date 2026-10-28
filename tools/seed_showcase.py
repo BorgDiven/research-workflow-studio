@@ -97,12 +97,15 @@ def render_report(exact_evidence_refs, analysis_ref, foundation_version):
         (directory / (kind + '-example.txt')).write_text(source, encoding='utf-8')
 
 
-def seed(db, assets_dir=None):
+def seed(db, assets_dir=None, *, preview_models=False):
     store = Store(db)
     try:
         known = store.call('rws_project_list', {})['result']
         if any(p['id'] not in PROJECTS or not p.get('demo') for p in known):
             raise ValueError('Showcase seed requires an empty database or only its own demo projects. No records were changed.')
+        preview_name = '轮廓模型研究 · 设计预览'
+        if any(p['id'] == MAIN_PROJECT and (p['name'] == preview_name) != preview_models for p in known):
+            raise ValueError('Use a separate database for the model preview and the public showcase. No records were changed.')
         build_assets(assets_dir or Path(__file__).resolve().parents[1] / 'web/assets/showcase')
         revisions, refs = {}, {}
         sequence = 0
@@ -110,7 +113,7 @@ def seed(db, assets_dir=None):
         def write(op, pid=None, _actor='model', **args):
             nonlocal sequence
             sequence += 1
-            args['requestId'] = 'showcase-v1-%04d' % sequence
+            args['requestId'] = ('model-preview-v1-' if preview_models else 'showcase-v1-') + '%04d' % sequence
             if pid:
                 args.update(projectId=pid, expectedRevision=revisions[pid])
             response = store.call(op, args, actor=_actor)
@@ -118,6 +121,8 @@ def seed(db, assets_dir=None):
             return response['result']
 
         def rec(op, pid, rid, **fields):
+            if preview_models and pid == MAIN_PROJECT and op in ('rws_run_register', 'rws_artifact_register'):
+                fields['config'] = dict(fields.get('config', {}), base_model='轮廓模型 A', model_version='a1')
             result = write(op, pid, record=dict(id=rid, **fields))
             refs[(pid, rid)] = result['ref']
             return result['ref']
@@ -133,7 +138,7 @@ def seed(db, assets_dir=None):
             write('rws_project_stages_set', pid, _actor='human', activeStages=stages)
 
         for pid, name, goal in [
-            (MAIN_PROJECT, '合成图形稳健性研究 · 演示', '探索噪声、局部对比与尺度对几何轮廓示意结果的影响，展示从观察到对照、消融和报告的半自动流程。'),
+            (MAIN_PROJECT, preview_name if preview_models else '合成图形稳健性研究 · 演示', '探索噪声、局部对比与尺度对几何轮廓示意结果的影响，展示从观察到对照、消融和报告的半自动流程。'),
             ('showcase-signals', '周期信号诊断 · 演示', '用人为编排的曲线展示观察、异常定位与证据整理。'),
             ('showcase-materials', '材料复用工作室 · 演示', '用虚构案例演示项目准备与材料复用，不包含真实研究记录。'),
         ]:
@@ -141,13 +146,21 @@ def seed(db, assets_dir=None):
                   domain='独立虚构演示', demo=True)
 
         pid = MAIN_PROJECT
-        foundation(pid, {
+        main_foundation = {
             'goal': '如何在噪声变化下保留几何图形轮廓？先观察边界，再比较规则，最后检查各模块贡献。',
             'foundations': '圆、三角形、六边形三类 SVG；阈值规则为基线。图形从零绘制，不依赖真实数据集或基础模型。',
             'approach': '基线观察 → 边界探针与局部对比两条探索 → 同条件比较 → 模块消融。发现可以产生下一轮问题，结论仍由人确认。',
             'resources': '固定三个样本与示意噪声等级；对比阈值、局部对比、多尺度三种规则。统一指标只用于演示表格。',
             'consensus': '已确认的是演示材料的归属与覆盖范围；没有真实方法优劣结论。六边形的多尺度结果故意留空。',
-        }, ['formal'])
+        }
+        if preview_models:
+            main_foundation.update({
+                'foundations': '起点：轮廓模型 A / a1\n从原始流程的边界变化提出研究问题。\n\n扩展：轮廓模型 B / b1\n在正式实验中引入，通用性待验证。',
+                'approach': '原始流程观察 → 局部对比 / 边界探针 → 同条件比较 → 通用性与消融。\n研究问题和观察推动假设演进。',
+                'resources': '圆、三角形、六边形三类合成 SVG；固定样本与示意噪声等级，比较阈值、局部对比、多尺度规则。所有图形和数值均人为编排，没有执行任何模型。',
+                'consensus': '当前材料只演示模型 A 的证据组织，不代表模型 A 已复现或方法有效。模型 B 尚无产物；六边形的多尺度示意单元仍缺失。',
+            })
+        foundation(pid, main_foundation, ['formal'])
 
         research_defs = [
             ('H1', '噪声下的轮廓发生了什么？', '观察三类图形的边界变化，为后续对照建立共同起点。', 'exploration', 'idea', [], None),
@@ -161,6 +174,12 @@ def seed(db, assets_dir=None):
             ('H9', '哪些观察值得继续验证？', '结合敏感性与消融计划，整理下一轮研究问题和证据缺口。', 'exploration', 'ablation', ['H6', 'H8'], None),
         ]
         for rid, title, question, kind, stage, parents, hypothesis in research_defs:
+            if preview_models and rid == 'H1':
+                question = '从模型 A / a1 的原始阈值流程观察三类轮廓在噪声下的变化，为局部对比和探针探索提出问题；当前材料仅是合成示意。'
+            if preview_models and rid == 'H5':
+                title = '多尺度规则能跨条件保持稳健吗？'
+                question = '依据前两条探索，先在模型 A 上比较三种规则，再计划在模型 B 上检验同一假设；两种模型各用自己的原始对照。'
+                hypothesis = '多尺度规则可能在不同轮廓与模型条件下减少边界变化；需要各条件的对照证据，当前虚构材料不能验证该假设。'
             fields = dict(title=title, question=question, kind=kind, stage=stage,
                           parentRefs=[refs[(pid, parent)] for parent in parents])
             if hypothesis:
@@ -174,11 +193,21 @@ def seed(db, assets_dir=None):
                        preprocessing={'canvas': '640x420', 'alignment': 'exact sample and task'},
                        aggregation='各样本单独展示；不补齐缺失单元。', missingPolicy='显式留空并记录覆盖范围。',
                        description='指标名称用于展示统一评估结构；所有值手工设定，未计算。')
-        for index, (rid, title, *_rest) in enumerate(research_defs, 1):
-            rec('rws_experiment_save', pid, 'E%d' % index, title=title + ' · 演示实验',
-                researchRef=refs[(pid, rid)], protocolRef=protocol,
-                config={'noise_level': 0.25, 'resolution': 256, 'threshold': 0.4},
-                status='completed' if index <= 6 else 'planned')
+        def experiments():
+            for index, (rid, title, *_rest) in enumerate(research_defs, 1):
+                config = {'noise_level': 0.25, 'resolution': 256, 'threshold': 0.4}
+                if preview_models:
+                    config.update(base_model='轮廓模型 A', model_version='a1')
+                    if rid == 'H5':
+                        title = '模型 A · 三种规则的同条件比较'
+                        config.update(comparison_code_refs=[refs[(pid, cid)] for cid in ('C0', 'C1', 'C2')],
+                                      comparison_role='模型 A 内的方法比较',
+                                      reference_source='精确引用模型 A 的合成示意材料；全部为布局演示，没有执行模型。')
+                rec('rws_experiment_save', pid, 'E%d' % index, title=title + ' · 演示实验',
+                    researchRef=refs[(pid, rid)], protocolRef=protocol, config=config,
+                    status='completed' if index <= 6 else 'planned')
+        if not preview_models:
+            experiments()
         dataset = rec('rws_dataset_register', pid, 'DS-SHAPES', title='三类几何图形 · 合成演示集',
                       version='demo-v1', sampleIds=list(SAMPLES), split='illustration', description=NOTICE)
 
@@ -212,7 +241,26 @@ def seed(db, assets_dir=None):
                         'format': 'illustrative-pseudocode', 'execution': 'none'},
                 parentRefs=[refs[(pid, parent)] for parent in parents])
 
+        # Declare purpose before any run is registered. A draft contract can
+        # already serve a research question; that does not create evidence.
+        purpose_links = {
+            'H1': [('C0', 'control')],
+            'H2': [('C0', 'control'), ('C1', 'implementation')],
+            'H3': [('C-PROBE', 'diagnostic')],
+            'H4': [('SPEC-ANALYSIS', 'diagnostic')],
+            'H5': [('C0', 'control'), ('C1', 'implementation'), ('C2', 'implementation')],
+            'H7': [('SPEC-INFERENCE', 'implementation')],
+        }
+        for rid, targets in purpose_links.items():
+            rec('rws_research_save', pid, rid, implementationLinks=[
+                {'targetRef': refs[(pid, target)], 'role': role,
+                 'note': '虚构研究用途；是否已有材料请查看实际使用与引用。'}
+                for target, role in targets])
+
         base_config = {'noise_level': 0.25, 'resolution': 256, 'threshold': 0.4}
+        if preview_models:
+            experiments()
+            base_config.update(base_model='轮廓模型 A', model_version='a1')
         outputs, methods = {}, [('C0', 'base', '阈值规则'), ('C1', 'local', '局部对比'), ('C2', 'multi', '多尺度')]
         for cid, method, label in methods:
             run = rec('rws_run_register', pid, 'R-' + method.upper(), title=label + ' · 虚构来源记录',
@@ -308,12 +356,12 @@ def seed(db, assets_dir=None):
                                      '图像、曲线和指标可按同一案例定位；这些差异均为编排。'],
                        interpretation='本示例只展示如何组织对比和限定结论。不能据此认定某种规则更稳健。',
                        limitations=[NOTICE, '多尺度六边形缺失；示例不含模型运行或统计显著性检验。'],
-                       scope={'sampleIds': list(SAMPLES), 'description': '仅限本演示中的 3×3 单元，8 格已准备。'},
+                       scope={'sampleIds': list(SAMPLES), 'description': ('仅限模型 A 的合成示意材料；不包含模型 B，不能判断通用性。' if preview_models else '') + '仅限本演示中的 3×3 单元，8 格已准备。'},
                        coverage={'expected': 9, 'observed': 8, 'missingSampleIds': ['hexagon']})
         report = rec('rws_report_create_revision', pid, 'REPORT-SHAPES', title='轮廓研究阶段记录 · 演示报告',
                      inputRefs=all_images + curves + [table], analysisRefs=[analysis], evaluationRefs=evaluations,
                      researchRefs=[refs[(pid, 'H5')], refs[(pid, 'H6')]], comparisonRefs=[comparison],
-                     generatorCodeRef=refs[(pid, 'C-REPORT')], markdown='''# 合成图形稳健性研究 · 演示报告
+                     generatorCodeRef=refs[(pid, 'C-REPORT')], markdown=('> 范围：仅展示轮廓模型 A / a1 的合成材料组织。轮廓模型 B / b1 尚无产物，未包含在本报告证据中；不能判断通用性。\n\n' if preview_models else '') + '''# 合成图形稳健性研究 · 演示报告
 
 > 全部材料、研究问题、方法身份和数值均为虚构演示。没有执行模型或计算评测指标。
 
@@ -333,6 +381,15 @@ def seed(db, assets_dir=None):
 
 若开展真实研究，应先由人确认实际方法与数据、评估约定和资源，再执行实验。归一化和尺度消融仍只是演示计划。
 ''')
+
+        if preview_models:
+            rec('rws_experiment_save', pid, 'E-MODEL-B', title='模型 B · 同一假设的适用性验证',
+                researchRef=refs[(pid, 'H5')], protocolRef=protocol, status='planned',
+                config={'base_model': '轮廓模型 B', 'model_version': 'b1',
+                        'comparison_code_refs': [refs[(pid, cid)] for cid in ('C0', 'C2')],
+                        'comparison_role': '在新模型上检验同一假设',
+                        'reference_source': '需准备模型 B 自己的原始对照与多尺度结果；暂无产物，不使用模型 A 的图片替代。',
+                        'noise_level': 0.25, 'resolution': 256, 'threshold': 0.4})
 
         signals = 'showcase-signals'
         foundation(signals, {'foundations': '从零编排的正弦样式数列，不采集设备或个人数据。',

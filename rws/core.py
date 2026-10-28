@@ -27,7 +27,7 @@ IMMUTABLE = {'code', 'artifact', 'protocol', 'dataset', 'conversation', 'evaluat
 HUMAN_ONLY = {'rws_overview_apply', 'rws_overview_dismiss', 'rws_project_stages_set', 'rws_amendment_apply', 'rws_amendment_dismiss'}
 READS = {'rws_project_list', 'rws_record_get', 'rws_get_context', 'rws_code_find', 'rws_result_query'}
 ALLOWED_FIELDS = {
-    'research': {'title', 'question', 'hypothesis', 'kind', 'stage', 'parentRefs', 'judgment', 'status'},
+    'research': {'title', 'question', 'hypothesis', 'kind', 'stage', 'parentRefs', 'judgment', 'status', 'implementationLinks'},
     'experiment': {'title', 'researchRef', 'protocolRef', 'config', 'status', 'foundationRevision'},
     'code': {'title', 'kind', 'version', 'source', 'parentRefs', 'description', 'specRef', 'entrypoint', 'modulePath', 'repository', 'commit', 'capabilities', 'checkEvidence'},
     'run': {'title', 'kind', 'codeRef', 'manual', 'config', 'status', 'inputRefs', 'experimentRef', 'source', 'notes', 'sampleSelection', 'purpose'},
@@ -43,6 +43,7 @@ ALLOWED_FIELDS = {
 }
 
 CODE_KINDS = ('inference', 'evaluation', 'analysis', 'report')
+IMPLEMENTATION_ROLES = ('implementation', 'control', 'diagnostic')
 AMENDMENT_FIELDS = {'title', 'description', 'parentRefs', 'source', 'provenance', 'producerRef', 'inputRefs', 'recoveredByRef', 'semantic', 'datasetRef', 'sampleId', 'taskKey', 'observation', 'sampleSelection', 'purpose'}
 
 
@@ -107,6 +108,17 @@ def ref_schema(kind=None):
     return {'type': 'object', 'properties': {'projectId': {'type': 'string'}, 'type': {'type': 'string', 'enum': [kind] if kind else list(TYPES)}, 'id': {'type': 'string'}, 'version': {'type': 'integer', 'minimum': 1}}, 'required': ['projectId', 'type', 'id'], 'additionalProperties': False}
 
 
+def implementation_links_schema():
+    target = ref_schema()
+    target['properties']['type']['enum'] = ['spec', 'code']
+    target['required'].append('version')
+    return {'type': 'array', 'maxItems': 32, 'description': 'Declared research purposes, not actual execution or evidence. Pin a specification before implementation, or reference existing code. Omission preserves existing links; [] clears them.',
+            'items': {'type': 'object', 'properties': {
+                'targetRef': target, 'role': {'enum': list(IMPLEMENTATION_ROLES)},
+                'note': {'type': 'string', 'maxLength': 1000}},
+                'required': ['targetRef', 'role'], 'additionalProperties': False}}
+
+
 def typed_result_schema():
     string = {'type': 'string'}
     axis = {'type': 'object', 'properties': {'label': {'type': 'string', 'minLength': 1}, 'unit': string}, 'required': ['label', 'unit'], 'additionalProperties': False}
@@ -156,6 +168,7 @@ def record_schema(kind, partial=False):
         'varyingConditions': {'oneOf': [{'type': 'array', 'items': string}, {'type': 'object', 'additionalProperties': True}]},
         'observations': text_list, 'interpretation': string, 'limitations': text_list, 'markdown': string,
         'schemaVersion': {'type': 'integer', 'const': 1}, 'purpose': {'type': 'string', 'minLength': 1},
+        'implementationLinks': implementation_links_schema(),
         'inputs': {'type': 'array', 'items': port}, 'outputs': {'type': 'array', 'items': port},
         'configSchema': {'type': 'object'}, 'dependencies': references, 'capabilities': strings,
         'acceptanceChecks': {'type': 'array', 'items': {'type': 'object', 'properties': {'id': {'type': 'string', 'minLength': 1}, 'description': {'type': 'string', 'minLength': 1}}, 'required': ['id', 'description'], 'additionalProperties': False}},
@@ -201,7 +214,7 @@ def tool_definitions():
     refs = {'type': 'array', 'items': ref_schema()}
     common = {'requestId': s, 'projectId': s, 'expectedRevision': {'type': 'integer', 'minimum': 1}}
     descriptions = {
-        'rws_research_save': 'Save a research question or optional hypothesis; does not decide scientific validity.',
+        'rws_research_save': 'Save a research question or optional hypothesis. implementationLinks declares intended uses of exact spec/code revisions before execution; these links are not evidence and do not decide scientific validity.',
         'rws_experiment_save': 'Save an experiment and bind its confirmed project foundation; does not execute it.',
         'rws_code_register': 'Register an immutable code identity and explicit parent references; never reads or runs the path.',
         'rws_run_register': 'Record an actual run and status. Registration never launches a program; producer bindings are immutable.',
@@ -286,7 +299,7 @@ def validate_schema(value, schema, path='arguments'):
             for index, child in enumerate(value):
                 validate_schema(child, schema['items'], path + '[' + str(index) + ']')
     if isinstance(value, str):
-        if len(value) < schema.get('minLength', 0) or ('pattern' in schema and re.search(schema['pattern'], value) is None):
+        if len(value) < schema.get('minLength', 0) or len(value) > schema.get('maxLength', len(value)) or ('pattern' in schema and re.search(schema['pattern'], value) is None):
             fail(path + ' has an invalid string value.')
     if isinstance(value, (int, float)) and not isinstance(value, bool):
         if value < schema.get('minimum', value) or value > schema.get('maximum', value):
@@ -883,6 +896,13 @@ class Store:
                     fail('Support/refutation cannot be assigned without a stated hypothesis.')
             for ref in array(record['parentRefs'], 'parentRefs'):
                 self._get(conn, ref, ['research'], pid)
+            seen_links = set()
+            for link in record.get('implementationLinks', []):
+                self._get(conn, link['targetRef'], ['spec', 'code'])
+                identity = (dump(link['targetRef']), link['role'])
+                if identity in seen_links:
+                    fail('An implementation target and role may only be declared once.')
+                seen_links.add(identity)
             self._check_dag(conn, pid, kind, record)
         elif kind == 'experiment':
             self._get(conn, record.get('researchRef'), ['research'], pid)
@@ -1428,13 +1448,43 @@ class Store:
         research_version_notice = None
         if current_research:
             value = current_research['record']
-            current_research_summary = {'ref': current_research['ref'], 'title': value['title'], 'kind': value['kind'], 'stage': value['stage'], 'judgment': value.get('judgment')}
+            current_research_summary = {'ref': current_research['ref'], 'title': value['title'], 'kind': value['kind'], 'stage': value['stage'], 'hasHypothesis': bool(value.get('hypothesis')), 'judgment': value.get('judgment')}
             if current_research['ref'] != research['ref']:
                 research_version_notice = '实验或所选记录基于研究 r%d；当前研究为 r%d。当前人工判断单独列出，原研究与项目基础绑定不变。' % (research['ref']['version'], current_research['ref']['version'])
         records = self._effective_many(conn, self._latest(conn, pid))
         # Context is a present-day reading view. Exact source documents remain
         # available from record_get and frozen report snapshots.
         records = [dict(env, record=env.get('effectiveRecord', env['record'])) for env in records]
+        # Keep purpose declarations distinct from completed execution facts. A
+        # selected experiment may retain an older research revision; expose its
+        # declarations alongside the current revision without repinning either.
+        declared_research = ([research] if research else [e for e in records if e['ref']['type'] == 'research'])
+        if current_research and current_research['ref'] != research['ref']:
+            declared_research.append(current_research)
+        declared_implementations = []
+        declaration_count = sum(len(e['record'].get('implementationLinks', [])) for e in declared_research)
+        role_names = {'implementation': '研究实现', 'control': '对照', 'diagnostic': '诊断'}
+        # Interleave revisions/questions so one full declaration list cannot
+        # hide all declarations from the current revision or another question.
+        max_links = max((len(e['record'].get('implementationLinks', [])) for e in declared_research), default=0)
+        for index in range(max_links):
+            for envelope in declared_research:
+                links = envelope['record'].get('implementationLinks', [])
+                if index >= len(links):
+                    continue
+                link = links[index]
+                target = self._get(conn, link['targetRef'], ['spec', 'code'])
+                declaration = {'researchRef': envelope['ref'], 'researchTitle': envelope['record']['title'][:180],
+                               'targetRef': target['ref'], 'title': target['record']['title'][:180],
+                               'role': link['role'], 'roleLabel': role_names[link['role']], 'intentOnly': True,
+                               'researchVersionRole': 'current' if not research or envelope['ref'] == current_research['ref'] else 'bound'}
+                if link.get('note'):
+                    declaration['note'] = link['note'][:200]
+                declared_implementations.append(declaration)
+                if len(declared_implementations) >= 32:
+                    break
+            if len(declared_implementations) >= 32:
+                break
         selected = [self._get(conn, r) for r in array(args.get('selectionRefs', []), 'selectionRefs')]
         relevant = records
         if experiment:
@@ -1521,4 +1571,4 @@ class Store:
                 if index < len(buckets.get(kind, [])) and len(objects) < 40:
                     objects.append(buckets[kind][index])
             index += 1
-        return {'projectId': pid, 'projectName': project['name'], 'revision': project['revision'], 'foundation': foundation, 'latestFoundationRevision': project['versions'][-1]['revision'], 'position': {'researchRef': research['ref'] if research else None, 'experimentRef': experiment['ref'] if experiment else None, 'stage': research['record']['stage'] if research else None, 'activeStages': project['activeStages']}, 'currentResearchRef': current_research['ref'] if current_research else None, 'currentResearch': current_research_summary, 'researchVersionNotice': research_version_notice, 'objects': objects, 'objectCount': len(object_values), 'objectsTruncated': len(object_values) > len(objects), 'readMore': {'operation': 'rws_record_get', 'note': '按精确ref读取完整记录；对象摘要不替代执行输入。'}, 'completed': completed, 'pending': pending, 'suggestedActions': suggested, 'notice': '仅依据已登记记录；建议不授权执行。项目基础与阶段变更需人工确认。'}
+        return {'projectId': pid, 'projectName': project['name'], 'revision': project['revision'], 'foundation': foundation, 'latestFoundationRevision': project['versions'][-1]['revision'], 'position': {'researchRef': research['ref'] if research else None, 'experimentRef': experiment['ref'] if experiment else None, 'stage': research['record']['stage'] if research else None, 'activeStages': project['activeStages']}, 'currentResearchRef': current_research['ref'] if current_research else None, 'currentResearch': current_research_summary, 'researchVersionNotice': research_version_notice, 'declaredImplementations': declared_implementations, 'declaredImplementationCount': declaration_count, 'declaredImplementationsTruncated': declaration_count > len(declared_implementations), 'objects': objects, 'objectCount': len(object_values), 'objectsTruncated': len(object_values) > len(objects), 'readMore': {'operation': 'rws_record_get', 'note': '按精确ref读取完整记录；对象摘要不替代执行输入。'}, 'completed': completed, 'pending': pending, 'suggestedActions': suggested, 'notice': '仅依据已登记记录；用途关联不是执行或完成证据，建议不授权执行。项目基础与阶段变更需人工确认。'}

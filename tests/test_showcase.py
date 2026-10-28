@@ -47,6 +47,22 @@ class ShowcaseTest(unittest.TestCase):
         finally:
             store.close()
 
+    def test_declared_purpose_exists_without_execution_and_does_not_move_sources(self):
+        seed(self.db, self.assets)
+        entries = self.snapshots()[MAIN_PROJECT]['records']
+        by_id = {e['ref']['id']: e for e in entries}
+        planned = by_id['H7']['record']['implementationLinks']
+        self.assertEqual(planned[0]['targetRef'], by_id['SPEC-INFERENCE']['ref'])
+        self.assertEqual(by_id['SPEC-INFERENCE']['record']['status'], 'draft')
+        self.assertFalse(any(e['ref']['type'] == 'run' and
+                             e['record'].get('experimentRef', {}).get('id') == 'E7'
+                             for e in entries))
+        self.assertEqual(by_id['A-CIRCLE-BASE']['record']['producerRef']['id'], 'R-BASE')
+        self.assertEqual(by_id['R-BASE']['record']['experimentRef']['id'], 'E5')
+        self.assertEqual(by_id['H2']['record']['implementationLinks'][0], {
+            'targetRef': by_id['C0']['ref'], 'role': 'control',
+            'note': '虚构研究用途；是否已有材料请查看实际使用与引用。'})
+
     def test_showcase_graph_materials_and_frozen_report_are_self_contained(self):
         result = seed(self.db, self.assets)
         snapshot = self.snapshots()[MAIN_PROJECT]

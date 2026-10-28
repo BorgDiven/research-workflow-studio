@@ -7,6 +7,7 @@ Keep project context, research questions, implementation identity and evidence s
 1. Read the project foundation, current research question and exact referenced records.
 2. Search for a reusable specification and implementation before creating one.
 3. Save a block specification describing purpose, inputs, output semantics, configuration, dependencies and acceptance checks. Mark it ready when agreed.
+   Link its exact revision (or an existing implementation) from the relevant research using `implementationLinks` with implementation/control/diagnostic role. A purpose declaration is not an execution fact; never invent a run merely to link research and code.
 4. Implement against that frozen specification. Put case inputs, task instructions and ordinary parameters in external configuration. A different case is not a new implementation version.
 5. Verify the implementation with appropriate development tools. Record actual results; never label submitted evidence as independent verification.
 6. Register the specification revision, repository, existing Git commit, module path, entrypoint and check evidence. Registration does not execute anything.

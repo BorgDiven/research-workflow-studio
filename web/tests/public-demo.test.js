@@ -187,3 +187,14 @@ test('demo strips live write-form startup parameters before application boot',()
     if(search.includes('kept'))assert.equal(url.searchParams.get('kept'),'test');
   }
 });
+
+test('readonly demo intercepts purpose-link editing before live handlers can open a form',()=>{
+  const source=fs.readFileSync(path.join(__dirname,'../../site/demo-runtime/demo-ui.js'),'utf8'),listeners=[],notices=[];
+  vm.runInNewContext(source,{window:{addEventListener:()=>{},RWSUI:{notify:message=>notices.push(message)}},document:{addEventListener:(name,callback,capture)=>listeners.push({name,callback,capture})},location:{search:'?projectId=showcase-shapes'},URLSearchParams});
+  const click=listeners.find(item=>item.name==='click');assert.equal(click.capture,true);
+  for(const action of ['edit-research','link-implementation','add-implementation-link','remove-implementation-link']){
+    let prevented=false,stopped=false;click.callback({target:{closest:selector=>selector.includes(`[data-studio="${action}"]`)?{}:null},preventDefault:()=>prevented=true,stopImmediatePropagation:()=>stopped=true});
+    assert.equal(prevented,true,action);assert.equal(stopped,true,action);
+  }
+  assert.equal(notices.length,4);assert.ok(notices.every(message=>message.includes('只读演示')));
+});
