@@ -118,6 +118,16 @@ def cli(run):
             item['content']['uri'] = path.name
             item['content']['availability'] = 'available'
             documents.append((path, item['markdown']))
+        for field, extension in (('jsonDocument', '.json'), ('textLog', '.jsonl')):
+            if field not in item:
+                continue
+            path = args.output.with_name(args.output.name + '.artifact-' + str(index + 1) + extension)
+            if path.exists():
+                parser.error('An artifact file already exists; choose a new output path.')
+            item['content']['uri'] = path.name
+            item['content']['availability'] = 'available'
+            content = json.dumps(item[field], ensure_ascii=False, indent=2, allow_nan=False) + '\n' if field == 'jsonDocument' else item[field]
+            documents.append((path, content))
     payload = json.dumps(output, ensure_ascii=False, indent=2, allow_nan=False)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     for path, document in documents:

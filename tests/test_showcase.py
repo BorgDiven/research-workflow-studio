@@ -63,6 +63,25 @@ class ShowcaseTest(unittest.TestCase):
             'targetRef': by_id['C0']['ref'], 'role': 'control',
             'note': '虚构研究用途；是否已有材料请查看实际使用与引用。'})
 
+    def test_process_demo_has_frozen_report_separate_from_later_points(self):
+        seed(self.db, self.assets)
+        store = Store(self.db)
+        try:
+            records = {e['ref']['id']: e for e in store.snapshot('showcase-signals')['records']}
+            run = records['R-TRAIN-B']
+            data = store.call('rws_metrics_query', {'projectId': 'showcase-signals', 'runRefs': [run['ref']]})['result']
+            self.assertIn(40, [p['x'] for s in data['series'] for p in s['points']])
+            self.assertTrue(any(p['value'] is None for s in data['series'] for p in s['points']))
+            report = records['REPORT-TRAIN']['record']
+            snapshots = [e['record'] for e in report['snapshot']['records'] if e['ref']['type']=='artifact']
+            self.assertEqual(len(snapshots), 2)
+            self.assertTrue(all(a['datasetRef']==records['DS-TRAIN']['ref'] for a in snapshots))
+            self.assertTrue(all(p['x']<=30 for a in snapshots for s in a['source']['series'] for p in s['points']))
+            self.assertEqual(records['OP-INSPECT']['record']['status'], 'proposed')
+            self.assertEqual(records['C-TRAIN']['record']['checkEvidence'][0]['status'], 'skipped')
+        finally:
+            store.close()
+
     def test_showcase_graph_materials_and_frozen_report_are_self_contained(self):
         result = seed(self.db, self.assets)
         snapshot = self.snapshots()[MAIN_PROJECT]

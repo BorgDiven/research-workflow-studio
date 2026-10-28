@@ -44,6 +44,17 @@
       const variant = context?.variants[JSON.stringify(selected)];
       if (!variant) throw error('demo_unsupported', '该上下文组合未包含在演示快照中；请选择界面中的研究或代码。');
       result = {...context.base, objectCount: variant.objectCount, objectsTruncated: variant.objectsTruncated, objects: variant.objectIndexes.map(index => db.contextObjects[index])};
+    } else if (name === 'rws_metrics_query') {
+      const saved=db.metrics?.[args.projectId],refs=args.runRefs||[];
+      if(!saved||!refs.length||refs.length>20)throw error('demo_unsupported','请选择演示中的过程记录。');
+      const chosen=new Map(refs.map(ref=>{const resolved=resolve(db,ref);if(ref.type!=='run'||ref.projectId!==args.projectId)throw error('demo_unsupported','运行必须属于当前项目。');return [ref.id,resolved.ref];}));
+      const through=args.throughSequence??saved.throughSequence,limit=args.limit??1000,offset=args.offset??0;
+      if(!Number.isInteger(through)||through<0||through>saved.throughSequence||!Number.isInteger(limit)||limit<1||limit>5000||!Number.isInteger(offset)||offset<0)throw error('demo_unsupported','过程查询范围无效。');
+      const all=saved.series.filter(s=>chosen.has(s.runRef.id)&&(!args.metricIds?.length||args.metricIds.includes(s.metricId))).flatMap((s,index)=>s.points.filter(p=>p.sequence<=through&&(args.fromX===undefined||p.x>=args.fromX)&&(args.toX===undefined||p.x<=args.toX)).map(p=>({s,index,p}))).sort((a,b)=>a.p.sequence-b.p.sequence);
+      const selected=new Map();all.slice(offset,offset+limit).forEach(({s,index,p})=>{if(!selected.has(index))selected.set(index,{...s,runRef:chosen.get(s.runRef.id),points:[]});selected.get(index).points.push(p);});
+      const series=[...selected.values()].map(s=>({...s,points:s.points.sort((a,b)=>a.x-b.x)}));
+      const aligned=saved.aligned.flatMap(group=>{const matches=series.filter(s=>group.columns.some(c=>c.runRef.id===s.runRef.id)&&s.metricId===group.metricId&&s.split===group.split&&s.sampleId===group.sampleId);if(!matches.length)return [];const xs=[...new Set(matches.flatMap(s=>s.points.map(p=>p.x)))].sort((a,b)=>a-b);return [{...group,xs,columns:matches.map(s=>({runRef:s.runRef,values:xs.map(x=>s.points.find(p=>p.x===x)?.value??null)}))}];});
+      result={series,aligned,total:all.length,offset,limit,truncated:offset+limit<all.length,throughSequence:through};
     } else throw error('demo_unsupported', '此接口不在只读演示中提供。');
     return clone({ok: true, operation: name, result});
   }

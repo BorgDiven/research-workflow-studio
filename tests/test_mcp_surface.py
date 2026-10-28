@@ -46,7 +46,8 @@ class MCPSurface(unittest.TestCase):
                 spec = rec('rws_spec_save', id='SP', title='Reusable image contract', schemaVersion=1,
                     kind='inference', status='ready', purpose='Exercise the registered interface.', inputs=[],
                     outputs=[{'name':'images','kind':'image','semantic':'final-image'}], configSchema={'type':'object'},
-                    dependencies=[], acceptanceChecks=[{'id':'fixture','description':'Check a synthetic output.'}], capabilities=['images'])
+                    dependencies=[], acceptanceChecks=[{'id':'fixture','description':'Check a synthetic output.'}], capabilities=['images'],
+                    processMetrics=[{'id':'distance','unit':'px','axis':'step','scope':'run','protocolRef':protocol}])
                 code = rec('rws_code_register', id='C', title='Synthetic source identity', kind='inference', version='1',
                     source={'description':'test fixture only'}, specRef=spec, repository='https://example.test/source.git',
                     commit='fixed-fixture-revision', modulePath='fixture.py', entrypoint='fixture:run', capabilities=['images'],
@@ -55,6 +56,9 @@ class MCPSurface(unittest.TestCase):
                 self.assertEqual([item['ref'] for item in found['items']], [code])
                 run = rec('rws_run_register', id='R', title='Synthetic record', kind='inference', codeRef=code, experimentRef=experiment,
                     status='completed', config={}, sampleSelection={'datasetRef':dataset,'sampleIds':['s1']})
+                call('rws_metrics_append', {'runRef':run,'points':[{'metricId':'distance','x':0,'value':1}]}, write=True)
+                process = call('rws_metrics_query', {'projectId':'audit','runRefs':[run]})
+                call('rws_metrics_snapshot', {'runRef':run,'title':'Fixed process fixture','throughSequence':process['throughSequence']}, write=True)
                 artifact = rec('rws_artifact_register', id='A', title='Synthetic image', kind='image', producerRef=run,
                     sampleId='s1', datasetRef=dataset, semantic='final-image', inputRefs=[], uri='/materials/test.png', availability='unknown')
                 queried = call('rws_result_query', {'projectId':'audit','sampleIds':['s1'],'semantics':['final-image'],'codeRefs':[code]})
@@ -86,6 +90,14 @@ class MCPSurface(unittest.TestCase):
                 self.assertEqual(call('rws_record_get', {'ref':artifact})['record']['title'], 'Synthetic image')
                 call('rws_usage_remove', {'id':'U'}, write=True)
                 self.assertEqual(call('rws_record_get', {'ref':artifact})['record']['producerRef'], run)
+                server = rec('rws_server_save', title='Local record', transport='local', workspaceRoot='/synthetic')
+                repository = rec('rws_repository_save', title='Checkout record', serverRef=server, path='/synthetic/source')
+                rec('rws_environment_save', title='Python record', serverRef=server, repositoryRef=repository, workingDirectory='/synthetic/source')
+                operation = rec('rws_operation_propose', title='Inspection request', kind='git.inspect', repositoryRef=repository, arguments={})
+                for name in ['rws_operation_approve','rws_operation_dismiss']:
+                    denied = call(name, {'operationRef':operation}, write=True, deny=True)
+                    self.assertIn('operations=1', denied['error']['reviewUrl'])
+                self.assertFalse(any(name.startswith('_rws') for name in advertised))
                 self.assertEqual(called, advertised)
             finally:
                 client.close()

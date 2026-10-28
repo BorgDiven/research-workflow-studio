@@ -1,64 +1,77 @@
-> 历史设计记录：此文保留此前预览阶段的提案与边界，不作为当前接口的调用契约。当前实现请看 [试装说明](runtime-guide.md) 与 [运行时契约](runtime-api.md)。
+# 数据接入格式 · 0.4
 
-# 已有结果的接入格式 · v1 提案
+这是当前运行时约定。公开示例均为虚构输入，不代表一次已完成的模型实验；示例的引用必须替换成实际已登记对象。以实时 `tools/list` 或工作台附带的 `tools.json` 为完整参数定义。
 
-2026-10-25 · 此说明沿用三份已有 JSON 格式示例，适用于修订后的研究条目设计；不是已上线接口或已完成导入。所有示例均 `demo: true`；不计算指标、不运行训练、不验证图像质量。
+## 先分清三种记录
 
-## 共同结构
-
-顶层包含 `schemaVersion`、`demo`、`kind`、`projectId`、`notice`、`sources` 和 `record`。`sources` 是示例内可解析的来源目录；真实系统中可以引用已登记的对象，无需反复复制。
-
-对象引用统一为 `{projectId, type, id, version?}`。固定代码、协议、数据集版本时必须带 `version`。对话是 conversation，样本是 sample；不能因为显示编号相似而互相解析。所有输入清单在登记时固定，新增文件不会自动扩大既有评估或报告范围。
-
-全局视图、聚焦和工作区全屏不改变接入格式。缩略图中的节点仍是原对象的显示入口，继续保留原引用、版本和固定输入。
-
-单图和数据集示例共享同一份三样本来源定义；单图评估的 record 只选择其中一个样本，不改写源运行或数据集。sources 也声明了最小的总览版本、任务和会话记录，使 context 引用可以解析。
-
-## 研究条目与旧字段兼容
-
-结果的生产来源与它用于哪项研究分开登记。研究条目可以是复现、诊断、可视化或开放探索，`hypothesis` 不是所有条目的必填内容。不得为了导入图片、探针输出或训练曲线，自动创建一个假设或填上“证据不足”。
-
-已有数据中的 hypothesis 引用和旧 ID 保持可解析，适配为包含相应假设的研究条目；不会改变原产物生产者或固定输入。这三份示例无需为本次界面改名而重写，也不声称已验证兼容后端。总览版本引用对应同一份已确认项目基础，不是另一份机器专用文档。
-
-观察材料与分析解释分别记录。诊断材料应注明观察对象、步骤或坐标语义，以及探针是否修改了原计算；不因可视化完成就把解释标为已证实。无法确定的元数据保留未知并要求补充。
-
-## 三份可下载示例
-
-1. [单图配对评估](../examples/single-image-evaluation.json)：一个预测图与一个参考图的显式配对，逐样本 PSNR 和本次汇总。
-2. [数据集子集评估](../examples/dataset-evaluation.json)：指定数据集版本、validation 划分和三个样本；两个演示成功、一个演示失败。均值只覆盖成功样本，覆盖率单独报告。
-3. [训练损失曲线](../examples/training-curve.json)：直接引用训练运行和训练数据，保留横轴 optimizer_step、纵轴 mean_squared_error 及原始点；不伪造评估协议。
-
-图片地址采用 `demo-unresolved://`，明确只是示例引用。它们没有对应图片文件，也不能用来运行 PSNR。真实导入必须换成可授权访问的实际位置，并将无法读取的材料显式标记为不可用。
-
-## 输入与结果要求
-
-- 数据集输入：名称、版本、划分、本次样本 ID 清单；单图也保留明确样本 ID。
-- 有参考图的评估：按 sampleId 显式列出预测图与参考图，禁止按目录顺序猜配对。
-- 评估协议：指标名称、单位、方向、样本级/整体级、预处理、汇总方式及缺失处理。PSNR 示例明确 RGB、数值范围 0–1、dataRange=1、不缩放和同形状配对。
-- metric：数值与指标定义关联。逐样本值携带 sampleId；数据集整体结果标注整体范围，不强拆成单图分数。
-- series：横纵轴含义与单位、原始数值、来源运行和记录方式。图上平滑或降采样不改原始数据。
-- image-set：具体图片引用与 sampleId、实际配置。展示分组不会改变生产来源。
-- table：列名、列类型、行标识及来源；与指标有关的列还关联指标口径。
-- attachment：原文件位置、类型和说明。暂不支持的格式保留为附件，标注未解析。
-
-失败、缺失与数值 0 是不同情况。汇总必须说明实际纳入的样本；非有限数字不能作为普通 JSON 数值提交，需显式状态与原因。来源不清楚时保留未知，不编造代码或运行。
-
-## CSV 列映射
-
-CSV 只承载行数据；项目、数据集、协议、代码及字段语义通过随附 JSON 描述。AI 读取列名后提出映射，后端验证；无法判断的列要求补充，不仅凭名称猜测语义。
-
-| CSV 列 | 映射目标 | 要求 |
+| 内容 | 接口 / 字段 | 用途 |
 | --- | --- | --- |
-| `sample_id` | 输入清单与逐样本结果的 sampleId | 字符串、在已确定子集中、不得重复 |
-| `prediction_id` / `reference_id` | 输入 pairs 中的材料引用 | 必须解析到目标样本；项目由描述文件明确 |
-| `psnr_db` | metric 的 value | 指标名称 psnr、单位 dB；口径来自 protocolRef |
-| `status` / `reason` | sampleStatuses | 失败时说明原因，不把空单元格写成 0 |
-| `step` / `loss` | series 的 x / y | 描述文件声明 step 的含义、loss 定义及来源运行 |
+| 持续追加的训练或其他过程指标 | 规范 `processMetrics`；`rws_metrics_append/query` | 浏览过程，不在每一步制造产物 |
+| 按协议完成的评估 | `rws_protocol_register` + `rws_evaluation_import` | 保存输入、评估规则和实际结果，不代算指标 |
+| 已选定的固定证据 | `rws_metrics_snapshot` 或 `rws_artifact_register` | 为比较、分析和报告保留精确输入 |
 
-只提供 PDF/HTML 报告时可登记为附件，但不会自动获得可比较的数值。需要指标或曲线对比时，另提供结构化数值。生成报告的样式可以不同，固定输入与来源规则保持一致。
+引用格式为 `{projectId,type,id,version}`。`version` 是整数记录修订，与代码的人类可读版本名分开。过程运行、资源与操作请求使用精确修订。省略、缺失、失败、数值 0 不可混用。
 
-## 校验与限制
+## 过程指标
 
-配套校验器检查：示例标识、项目身份、内部来源及上下文引用、跨示例同一来源定义一致性、数据集版本及成员、样本配对、失败覆盖、指标范围和汇总、曲线坐标语义。它还用破坏后的副本检查无效配对、范围错误及错误生产者能否被拒绝。
+在编写实现前，在规范中声明：
 
-校验通过只表示三份格式示例内部一致，不证明实际文件可读、MCP 已连接、计算正确或方法有效。
+```json
+{
+  "processMetrics": [
+    {"id":"train_loss","name":"Training loss","unit":"1","axis":"step","scope":"run","direction":"lower","splits":["train"]}
+  ]
+}
+```
+
+- `axis` 是 `step`、`epoch` 或 `time`；`scope` 是 `run` 或 `sample`。
+- `unit:"1"` 表示明确无量纲，不能把未登记单位等同于无量纲。
+- 如定义 `splits`，点必须属于相应范围；样本级点需提供 `sampleId`。
+- 可提供固定 `protocolRef`。没有协议时，比较仍核对同一精确规范版本，不能只因指标名字相同就合并。
+- 运行固定代码，代码固定规范；后来编辑规范不改变旧运行的指标含义。
+
+写入 `rws_metrics_append` 时，每批最多 1000 个点：
+
+```json
+{
+  "projectId":"example-project","expectedRevision":12,"requestId":"example-metrics-1",
+  "runRef":{"projectId":"example-project","type":"run","id":"run-example","version":1},
+  "points":[
+    {"metricId":"train_loss","x":0,"value":0.8,"split":"train"},
+    {"metricId":"train_loss","x":1,"value":null,"split":"train","reason":"observation unavailable"}
+  ]
+}
+```
+
+`x` 必须有限且非负；数值必须有限，缺失用 `null` 并附 `reason`，不能提交 NaN/Infinity。`timestamp` 可选，记录真实时间，不用它猜测 epoch。相同运行、指标、split、sample、坐标下的相同点可重试，冲突值拒绝；不会取均值或覆盖原值。
+
+`rws_metrics_query` 每次最多选择 20 个精确运行，返回 `series`、对齐结果、`total/offset/limit/truncated`；单页上限 5000 点；后续分页携带首次查询返回的同一 `throughSequence`。单位、横轴、范围、split、样本、协议或规范不匹配时分开。缺失保留 null，不插值。
+
+`rws_metrics_snapshot` 选择一个固定运行、指标集合、坐标区间及查询返回的必填截止 `throughSequence`，超过 5000 点的快照拒绝保存，需缩小选择，不会截断后冒充完整。保存 `kind:table`、`semantic:metric-history` 的不可变产物。来源为 `source.kind:metric-history-snapshot`，保留原指标定义、查询范围与截止序号；内容表保留实际值和缺失原因。报告读取此固定内容，不再查询实时数据。
+
+## 正式评估与通用产物
+
+正式评估需要固定的 `protocolRef`、计算实现 `codeRef` 和具体 `inputRefs`。图像有参考评估使用显式 `pairs` 按 `sampleId` 指定预测和参考；不能靠目录顺序配对。协议说明指标名称、单位、方向、范围、预处理、聚合和缺失规则。
+
+通用内容支持 `metric`、`series`、`image-set`、`table`、`attachment`。图片、预测 clean、速度场、注意力图、checkpoint 等使用准确语义。不会为单纯分析或可视化凭空创建方法改进假设。产物固定实际 `producerRef` 和配置；复用通过 usage 增加引用，不转移生产者。
+
+只有 PDF/HTML 时可登记附件，但不能据此制造可比较数值。曲线和表格需另提供结构化数据。来源不清楚时使用显式 unresolved 来源和说明，不补造代码或运行。
+
+## 资源与操作请求
+
+服务器记录已有 SSH 别名或本地连接；仓库固定服务器、绝对 checkout 路径和远端；环境固定仓库、服务器、工作目录与 Python 可执行文件。代码可关联 `repositoryRef`，运行固定 `repositoryRef/environmentRef`。
+
+`rws_operation_propose` 按操作类型只接受所需目标引用：Git 使用 `repositoryRef`，启动使用 `runRef + environmentRef`，环境检查使用 `environmentRef`，任务查询/日志/停止使用原 `launchOperationRef`。参数是结构化对象；启动是 argv 字符串数组，不是任意 shell 文本。
+
+修改型请求须由网页人工确认。`rws_operation_approve/dismiss` 虽在工具列表中描述，但模型权限执行会被拒绝。真正运行使用明确的 CLI `operate --version`；内部领取和回执操作不对 MCP/HTTP 开放。未知结果不会自动变成失败或重新运行。
+
+## 可下载示例
+
+- [过程指标调用示例](../examples/process-metrics.json)：规范片段、批量写入、查询、固定快照；只校验参数结构，需先登记前提对象。
+- [资源与操作请求示例](../examples/controlled-operations.json)：虚构的服务器、仓库、环境和启动/Git检查请求；没有审批或执行步骤。
+- 旧单图、数据集和曲线包属于早期格式提案，不是可以直接提交的当前 MCP 参数。工作台保留历史说明供迁移核对；不要据此宣称已导入。
+
+示例校验通过只说明参数结构符合当前工具定义，不证明引用存在、路径可访问、任务已运行、评估正确或研究有效。
+
+
+MLflow HTTP 导入只用于 run 范围指标；规范声明 split 时，用 `--mlflow-split train` 等明确指定，不同 split 分别导入。样本级点必须通过 JSONL 提供真实 sampleId。推送要求固定 `repository.remoteUrl` 并匹配唯一实际远端；本地 bare 路径必须在 `workspaceRoot` 内。

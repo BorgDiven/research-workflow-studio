@@ -198,3 +198,20 @@ test('readonly demo intercepts purpose-link editing before live handlers can ope
   }
   assert.equal(notices.length,4);assert.ok(notices.every(message=>message.includes('只读演示')));
 });
+test('readonly demo blocks resource mutations, job approval and metric freezing before handlers',()=>{
+  const source=fs.readFileSync(path.join(__dirname,'../../site/demo-runtime/demo-ui.js'),'utf8'),listeners=[],window={addEventListener:()=>{},RWSUI:{notify(){}}};
+  vm.runInNewContext(source,{window,document:{addEventListener:(name,callback,capture)=>listeners.push({name,callback,capture})},location:{search:'?projectId=showcase-shapes'},URLSearchParams});
+  assert.equal(window.RWS_PUBLIC_DEMO,true);const click=listeners.find(item=>item.name==='click');
+  for(const [group,action] of [...['new','edit','propose','approve','dismiss','plan-run'].map(action=>['resource',action]),['process','freeze']]){
+    let stopped=false;click.callback({target:{closest:selector=>selector.includes(`[data-${group}="${action}"]`)?{}:null},preventDefault(){},stopImmediatePropagation:()=>stopped=true});assert.equal(stopped,true,action);
+  }
+});
+test('public metric queries preserve watermark, missing points, range and pagination without network calls',async()=>{
+  const {L,db,requests}=api(),s={runRef:r,metricId:'loss',axis:'step',unit:'1',scope:'run',split:'train',sampleId:null,definitionRef:ref('spec','S'),datasetRef:ref('dataset','D'),sampleSelection:{sampleIds:['a']},points:[{x:0,value:2,sequence:1},{x:1,value:null,reason:'missing',sequence:2},{x:2,value:1,sequence:3}]};
+  db.metrics={[h.projectId]:{series:[s],aligned:[{...s,points:undefined,xs:[0,1,2],columns:[{runRef:r,values:[2,null,1]}]}],throughSequence:3}};
+  const request={projectId:h.projectId,runRefs:[r],limit:1,throughSequence:2};
+  const first=(await L.call('rws_metrics_query',request)).result,second=(await L.call('rws_metrics_query',{...request,offset:1})).result;
+  assert.equal(first.total,2);assert.equal(first.truncated,true);assert.equal(first.series[0].points[0].x,0);assert.equal(second.truncated,false);assert.equal(second.series[0].points[0].value,null);assert.equal(second.series[0].points[0].reason,'missing');
+  const interval=(await L.call('rws_metrics_query',{projectId:h.projectId,runRefs:[r],fromX:2})).result;assert.equal(interval.total,1);assert.equal(interval.series[0].points[0].x,2);assert.equal(requests.length,1);
+  await assert.rejects(L.call('rws_metrics_query',{...request,throughSequence:4}));
+});

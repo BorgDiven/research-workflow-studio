@@ -46,7 +46,11 @@
                   "proposal",
                   "usage",
                   "spec",
-                  "amendment"
+                  "amendment",
+                  "server",
+                  "repository",
+                  "environment",
+                  "operation"
                 ]
               },
               "id": {
@@ -110,7 +114,11 @@
                   "proposal",
                   "usage",
                   "spec",
-                  "amendment"
+                  "amendment",
+                  "server",
+                  "repository",
+                  "environment",
+                  "operation"
                 ]
               },
               "id": {
@@ -152,7 +160,11 @@
                   "proposal",
                   "usage",
                   "spec",
-                  "amendment"
+                  "amendment",
+                  "server",
+                  "repository",
+                  "environment",
+                  "operation"
                 ]
               },
               "id": {
@@ -196,7 +208,11 @@
                     "proposal",
                     "usage",
                     "spec",
-                    "amendment"
+                    "amendment",
+                    "server",
+                    "repository",
+                    "environment",
+                    "operation"
                   ]
                 },
                 "id": {
@@ -242,6 +258,7 @@
           },
           "kind": {
             "enum": [
+              "training",
               "inference",
               "evaluation",
               "analysis",
@@ -534,7 +551,11 @@
                                 "proposal",
                                 "usage",
                                 "spec",
-                                "amendment"
+                                "amendment",
+                                "server",
+                                "repository",
+                                "environment",
+                                "operation"
                               ]
                             },
                             "id": {
@@ -607,7 +628,11 @@
                         "proposal",
                         "usage",
                         "spec",
-                        "amendment"
+                        "amendment",
+                        "server",
+                        "repository",
+                        "environment",
+                        "operation"
                       ]
                     },
                     "id": {
@@ -643,7 +668,8 @@
                   "running",
                   "completed",
                   "failed",
-                  "partial"
+                  "partial",
+                  "unknown"
                 ]
               },
               "title": {
@@ -772,7 +798,11 @@
                                     "proposal",
                                     "usage",
                                     "spec",
-                                    "amendment"
+                                    "amendment",
+                                    "server",
+                                    "repository",
+                                    "environment",
+                                    "operation"
                                   ]
                                 },
                                 "id": {
@@ -845,7 +875,11 @@
                             "proposal",
                             "usage",
                             "spec",
-                            "amendment"
+                            "amendment",
+                            "server",
+                            "repository",
+                            "environment",
+                            "operation"
                           ]
                         },
                         "id": {
@@ -881,7 +915,8 @@
                       "running",
                       "completed",
                       "failed",
-                      "partial"
+                      "partial",
+                      "unknown"
                     ]
                   },
                   "title": {
@@ -984,7 +1019,11 @@
                       "proposal",
                       "usage",
                       "spec",
-                      "amendment"
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
                     ]
                   },
                   "id": {
@@ -1026,7 +1065,11 @@
                       "proposal",
                       "usage",
                       "spec",
-                      "amendment"
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
                     ]
                   },
                   "id": {
@@ -1050,7 +1093,8 @@
                   "running",
                   "completed",
                   "failed",
-                  "partial"
+                  "partial",
+                  "unknown"
                 ]
               },
               "title": {
@@ -1104,7 +1148,11 @@
                           "proposal",
                           "usage",
                           "spec",
-                          "amendment"
+                          "amendment",
+                          "server",
+                          "repository",
+                          "environment",
+                          "operation"
                         ]
                       },
                       "id": {
@@ -1146,7 +1194,11 @@
                           "proposal",
                           "usage",
                           "spec",
-                          "amendment"
+                          "amendment",
+                          "server",
+                          "repository",
+                          "environment",
+                          "operation"
                         ]
                       },
                       "id": {
@@ -1170,7 +1222,8 @@
                       "running",
                       "completed",
                       "failed",
-                      "partial"
+                      "partial",
+                      "unknown"
                     ]
                   },
                   "title": {
@@ -1276,6 +1329,7 @@
               },
               "kind": {
                 "enum": [
+                  "training",
                   "inference",
                   "evaluation",
                   "analysis",
@@ -1312,7 +1366,11 @@
                         "proposal",
                         "usage",
                         "spec",
-                        "amendment"
+                        "amendment",
+                        "server",
+                        "repository",
+                        "environment",
+                        "operation"
                       ]
                     },
                     "id": {
@@ -1334,6 +1392,53 @@
               "repository": {
                 "type": "string",
                 "minLength": 1
+              },
+              "repositoryRef": {
+                "type": "object",
+                "properties": {
+                  "projectId": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "research",
+                      "experiment",
+                      "code",
+                      "run",
+                      "artifact",
+                      "protocol",
+                      "dataset",
+                      "evaluation",
+                      "comparison",
+                      "analysis",
+                      "report",
+                      "conversation",
+                      "proposal",
+                      "usage",
+                      "spec",
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
+                    ]
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "projectId",
+                  "type",
+                  "id",
+                  "version"
+                ],
+                "additionalProperties": false
               },
               "source": {
                 "oneOf": [
@@ -1372,7 +1477,11 @@
                       "proposal",
                       "usage",
                       "spec",
-                      "amendment"
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
                     ]
                   },
                   "id": {
@@ -1481,7 +1590,11 @@
                       "proposal",
                       "usage",
                       "spec",
-                      "amendment"
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
                     ]
                   },
                   "id": {
@@ -1502,6 +1615,53 @@
               "config": {
                 "type": "object",
                 "additionalProperties": true
+              },
+              "environmentRef": {
+                "type": "object",
+                "properties": {
+                  "projectId": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "research",
+                      "experiment",
+                      "code",
+                      "run",
+                      "artifact",
+                      "protocol",
+                      "dataset",
+                      "evaluation",
+                      "comparison",
+                      "analysis",
+                      "report",
+                      "conversation",
+                      "proposal",
+                      "usage",
+                      "spec",
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
+                    ]
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "projectId",
+                  "type",
+                  "id",
+                  "version"
+                ],
+                "additionalProperties": false
               },
               "experimentRef": {
                 "type": "object",
@@ -1527,7 +1687,11 @@
                       "proposal",
                       "usage",
                       "spec",
-                      "amendment"
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
                     ]
                   },
                   "id": {
@@ -1575,7 +1739,11 @@
                         "proposal",
                         "usage",
                         "spec",
-                        "amendment"
+                        "amendment",
+                        "server",
+                        "repository",
+                        "environment",
+                        "operation"
                       ]
                     },
                     "id": {
@@ -1607,6 +1775,53 @@
               "purpose": {
                 "type": "string",
                 "minLength": 1
+              },
+              "repositoryRef": {
+                "type": "object",
+                "properties": {
+                  "projectId": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "research",
+                      "experiment",
+                      "code",
+                      "run",
+                      "artifact",
+                      "protocol",
+                      "dataset",
+                      "evaluation",
+                      "comparison",
+                      "analysis",
+                      "report",
+                      "conversation",
+                      "proposal",
+                      "usage",
+                      "spec",
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
+                    ]
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "projectId",
+                  "type",
+                  "id",
+                  "version"
+                ],
+                "additionalProperties": false
               },
               "sampleSelection": {
                 "type": "object",
@@ -1671,7 +1886,8 @@
                   "running",
                   "completed",
                   "failed",
-                  "partial"
+                  "partial",
+                  "unknown"
                 ]
               },
               "title": {
@@ -1713,7 +1929,11 @@
                           "proposal",
                           "usage",
                           "spec",
-                          "amendment"
+                          "amendment",
+                          "server",
+                          "repository",
+                          "environment",
+                          "operation"
                         ]
                       },
                       "id": {
@@ -1734,6 +1954,53 @@
                   "config": {
                     "type": "object",
                     "additionalProperties": true
+                  },
+                  "environmentRef": {
+                    "type": "object",
+                    "properties": {
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "research",
+                          "experiment",
+                          "code",
+                          "run",
+                          "artifact",
+                          "protocol",
+                          "dataset",
+                          "evaluation",
+                          "comparison",
+                          "analysis",
+                          "report",
+                          "conversation",
+                          "proposal",
+                          "usage",
+                          "spec",
+                          "amendment",
+                          "server",
+                          "repository",
+                          "environment",
+                          "operation"
+                        ]
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "projectId",
+                      "type",
+                      "id",
+                      "version"
+                    ],
+                    "additionalProperties": false
                   },
                   "experimentRef": {
                     "type": "object",
@@ -1759,7 +2026,11 @@
                           "proposal",
                           "usage",
                           "spec",
-                          "amendment"
+                          "amendment",
+                          "server",
+                          "repository",
+                          "environment",
+                          "operation"
                         ]
                       },
                       "id": {
@@ -1807,7 +2078,11 @@
                             "proposal",
                             "usage",
                             "spec",
-                            "amendment"
+                            "amendment",
+                            "server",
+                            "repository",
+                            "environment",
+                            "operation"
                           ]
                         },
                         "id": {
@@ -1839,6 +2114,53 @@
                   "purpose": {
                     "type": "string",
                     "minLength": 1
+                  },
+                  "repositoryRef": {
+                    "type": "object",
+                    "properties": {
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "research",
+                          "experiment",
+                          "code",
+                          "run",
+                          "artifact",
+                          "protocol",
+                          "dataset",
+                          "evaluation",
+                          "comparison",
+                          "analysis",
+                          "report",
+                          "conversation",
+                          "proposal",
+                          "usage",
+                          "spec",
+                          "amendment",
+                          "server",
+                          "repository",
+                          "environment",
+                          "operation"
+                        ]
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "projectId",
+                      "type",
+                      "id",
+                      "version"
+                    ],
+                    "additionalProperties": false
                   },
                   "sampleSelection": {
                     "type": "object",
@@ -1903,7 +2225,8 @@
                       "running",
                       "completed",
                       "failed",
-                      "partial"
+                      "partial",
+                      "unknown"
                     ]
                   },
                   "title": {
@@ -2020,7 +2343,11 @@
                               "proposal",
                               "usage",
                               "spec",
-                              "amendment"
+                              "amendment",
+                              "server",
+                              "repository",
+                              "environment",
+                              "operation"
                             ]
                           },
                           "id": {
@@ -2139,7 +2466,11 @@
                               "proposal",
                               "usage",
                               "spec",
-                              "amendment"
+                              "amendment",
+                              "server",
+                              "repository",
+                              "environment",
+                              "operation"
                             ]
                           },
                           "id": {
@@ -2316,7 +2647,11 @@
                               "proposal",
                               "usage",
                               "spec",
-                              "amendment"
+                              "amendment",
+                              "server",
+                              "repository",
+                              "environment",
+                              "operation"
                             ]
                           },
                           "id": {
@@ -2441,7 +2776,11 @@
                               "proposal",
                               "usage",
                               "spec",
-                              "amendment"
+                              "amendment",
+                              "server",
+                              "repository",
+                              "environment",
+                              "operation"
                             ]
                           },
                           "id": {
@@ -2566,7 +2905,11 @@
                               "proposal",
                               "usage",
                               "spec",
-                              "amendment"
+                              "amendment",
+                              "server",
+                              "repository",
+                              "environment",
+                              "operation"
                             ]
                           },
                           "id": {
@@ -2651,7 +2994,11 @@
                       "proposal",
                       "usage",
                       "spec",
-                      "amendment"
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
                     ]
                   },
                   "id": {
@@ -2702,7 +3049,11 @@
                         "proposal",
                         "usage",
                         "spec",
-                        "amendment"
+                        "amendment",
+                        "server",
+                        "repository",
+                        "environment",
+                        "operation"
                       ]
                     },
                     "id": {
@@ -2765,7 +3116,11 @@
                       "proposal",
                       "usage",
                       "spec",
-                      "amendment"
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
                     ]
                   },
                   "id": {
@@ -3152,7 +3507,11 @@
                       "proposal",
                       "usage",
                       "spec",
-                      "amendment"
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
                     ]
                   },
                   "id": {
@@ -3198,7 +3557,11 @@
                       "proposal",
                       "usage",
                       "spec",
-                      "amendment"
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
                     ]
                   },
                   "id": {
@@ -3292,7 +3655,11 @@
                       "proposal",
                       "usage",
                       "spec",
-                      "amendment"
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
                     ]
                   },
                   "id": {
@@ -3338,7 +3705,11 @@
                       "proposal",
                       "usage",
                       "spec",
-                      "amendment"
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
                     ]
                   },
                   "id": {
@@ -3380,7 +3751,11 @@
                       "proposal",
                       "usage",
                       "spec",
-                      "amendment"
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
                     ]
                   },
                   "id": {
@@ -3428,7 +3803,11 @@
                         "proposal",
                         "usage",
                         "spec",
-                        "amendment"
+                        "amendment",
+                        "server",
+                        "repository",
+                        "environment",
+                        "operation"
                       ]
                     },
                     "id": {
@@ -3482,7 +3861,11 @@
                             "proposal",
                             "usage",
                             "spec",
-                            "amendment"
+                            "amendment",
+                            "server",
+                            "repository",
+                            "environment",
+                            "operation"
                           ]
                         },
                         "id": {
@@ -3524,7 +3907,11 @@
                             "proposal",
                             "usage",
                             "spec",
-                            "amendment"
+                            "amendment",
+                            "server",
+                            "repository",
+                            "environment",
+                            "operation"
                           ]
                         },
                         "id": {
@@ -3575,7 +3962,11 @@
                       "proposal",
                       "usage",
                       "spec",
-                      "amendment"
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
                     ]
                   },
                   "id": {
@@ -3633,7 +4024,11 @@
                                 "proposal",
                                 "usage",
                                 "spec",
-                                "amendment"
+                                "amendment",
+                                "server",
+                                "repository",
+                                "environment",
+                                "operation"
                               ]
                             },
                             "id": {
@@ -3752,7 +4147,11 @@
                                 "proposal",
                                 "usage",
                                 "spec",
-                                "amendment"
+                                "amendment",
+                                "server",
+                                "repository",
+                                "environment",
+                                "operation"
                               ]
                             },
                             "id": {
@@ -3929,7 +4328,11 @@
                                 "proposal",
                                 "usage",
                                 "spec",
-                                "amendment"
+                                "amendment",
+                                "server",
+                                "repository",
+                                "environment",
+                                "operation"
                               ]
                             },
                             "id": {
@@ -4054,7 +4457,11 @@
                                 "proposal",
                                 "usage",
                                 "spec",
-                                "amendment"
+                                "amendment",
+                                "server",
+                                "repository",
+                                "environment",
+                                "operation"
                               ]
                             },
                             "id": {
@@ -4179,7 +4586,11 @@
                                 "proposal",
                                 "usage",
                                 "spec",
-                                "amendment"
+                                "amendment",
+                                "server",
+                                "repository",
+                                "environment",
+                                "operation"
                               ]
                             },
                             "id": {
@@ -4273,7 +4684,8 @@
                   "running",
                   "completed",
                   "failed",
-                  "partial"
+                  "partial",
+                  "unknown"
                 ]
               },
               "title": {
@@ -4362,7 +4774,11 @@
                         "proposal",
                         "usage",
                         "spec",
-                        "amendment"
+                        "amendment",
+                        "server",
+                        "repository",
+                        "environment",
+                        "operation"
                       ]
                     },
                     "id": {
@@ -4509,7 +4925,11 @@
                             "proposal",
                             "usage",
                             "spec",
-                            "amendment"
+                            "amendment",
+                            "server",
+                            "repository",
+                            "environment",
+                            "operation"
                           ]
                         },
                         "id": {
@@ -4679,7 +5099,11 @@
                       "proposal",
                       "usage",
                       "spec",
-                      "amendment"
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
                     ]
                   },
                   "id": {
@@ -4723,7 +5147,11 @@
                         "proposal",
                         "usage",
                         "spec",
-                        "amendment"
+                        "amendment",
+                        "server",
+                        "repository",
+                        "environment",
+                        "operation"
                       ]
                     },
                     "id": {
@@ -4794,7 +5222,11 @@
                         "proposal",
                         "usage",
                         "spec",
-                        "amendment"
+                        "amendment",
+                        "server",
+                        "repository",
+                        "environment",
+                        "operation"
                       ]
                     },
                     "id": {
@@ -4843,7 +5275,11 @@
                         "proposal",
                         "usage",
                         "spec",
-                        "amendment"
+                        "amendment",
+                        "server",
+                        "repository",
+                        "environment",
+                        "operation"
                       ]
                     },
                     "id": {
@@ -4915,7 +5351,11 @@
                       "proposal",
                       "usage",
                       "spec",
-                      "amendment"
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
                     ]
                   },
                   "id": {
@@ -4989,7 +5429,11 @@
                           "proposal",
                           "usage",
                           "spec",
-                          "amendment"
+                          "amendment",
+                          "server",
+                          "repository",
+                          "environment",
+                          "operation"
                         ]
                       },
                       "id": {
@@ -5033,7 +5477,11 @@
                             "proposal",
                             "usage",
                             "spec",
-                            "amendment"
+                            "amendment",
+                            "server",
+                            "repository",
+                            "environment",
+                            "operation"
                           ]
                         },
                         "id": {
@@ -5104,7 +5552,11 @@
                             "proposal",
                             "usage",
                             "spec",
-                            "amendment"
+                            "amendment",
+                            "server",
+                            "repository",
+                            "environment",
+                            "operation"
                           ]
                         },
                         "id": {
@@ -5153,7 +5605,11 @@
                             "proposal",
                             "usage",
                             "spec",
-                            "amendment"
+                            "amendment",
+                            "server",
+                            "repository",
+                            "environment",
+                            "operation"
                           ]
                         },
                         "id": {
@@ -5225,7 +5681,11 @@
                           "proposal",
                           "usage",
                           "spec",
-                          "amendment"
+                          "amendment",
+                          "server",
+                          "repository",
+                          "environment",
+                          "operation"
                         ]
                       },
                       "id": {
@@ -5336,7 +5796,11 @@
                         "proposal",
                         "usage",
                         "spec",
-                        "amendment"
+                        "amendment",
+                        "server",
+                        "repository",
+                        "environment",
+                        "operation"
                       ]
                     },
                     "id": {
@@ -5381,7 +5845,11 @@
                         "proposal",
                         "usage",
                         "spec",
-                        "amendment"
+                        "amendment",
+                        "server",
+                        "repository",
+                        "environment",
+                        "operation"
                       ]
                     },
                     "id": {
@@ -5426,7 +5894,11 @@
                         "proposal",
                         "usage",
                         "spec",
-                        "amendment"
+                        "amendment",
+                        "server",
+                        "repository",
+                        "environment",
+                        "operation"
                       ]
                     },
                     "id": {
@@ -5469,7 +5941,11 @@
                       "proposal",
                       "usage",
                       "spec",
-                      "amendment"
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
                     ]
                   },
                   "id": {
@@ -5511,7 +5987,11 @@
                       "proposal",
                       "usage",
                       "spec",
-                      "amendment"
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
                     ]
                   },
                   "id": {
@@ -5559,7 +6039,11 @@
                         "proposal",
                         "usage",
                         "spec",
-                        "amendment"
+                        "amendment",
+                        "server",
+                        "repository",
+                        "environment",
+                        "operation"
                       ]
                     },
                     "id": {
@@ -5607,7 +6091,11 @@
                         "proposal",
                         "usage",
                         "spec",
-                        "amendment"
+                        "amendment",
+                        "server",
+                        "repository",
+                        "environment",
+                        "operation"
                       ]
                     },
                     "id": {
@@ -5667,7 +6155,11 @@
                             "proposal",
                             "usage",
                             "spec",
-                            "amendment"
+                            "amendment",
+                            "server",
+                            "repository",
+                            "environment",
+                            "operation"
                           ]
                         },
                         "id": {
@@ -5712,7 +6204,11 @@
                             "proposal",
                             "usage",
                             "spec",
-                            "amendment"
+                            "amendment",
+                            "server",
+                            "repository",
+                            "environment",
+                            "operation"
                           ]
                         },
                         "id": {
@@ -5757,7 +6253,11 @@
                             "proposal",
                             "usage",
                             "spec",
-                            "amendment"
+                            "amendment",
+                            "server",
+                            "repository",
+                            "environment",
+                            "operation"
                           ]
                         },
                         "id": {
@@ -5800,7 +6300,11 @@
                           "proposal",
                           "usage",
                           "spec",
-                          "amendment"
+                          "amendment",
+                          "server",
+                          "repository",
+                          "environment",
+                          "operation"
                         ]
                       },
                       "id": {
@@ -5842,7 +6346,11 @@
                           "proposal",
                           "usage",
                           "spec",
-                          "amendment"
+                          "amendment",
+                          "server",
+                          "repository",
+                          "environment",
+                          "operation"
                         ]
                       },
                       "id": {
@@ -5890,7 +6398,11 @@
                             "proposal",
                             "usage",
                             "spec",
-                            "amendment"
+                            "amendment",
+                            "server",
+                            "repository",
+                            "environment",
+                            "operation"
                           ]
                         },
                         "id": {
@@ -5938,7 +6450,11 @@
                             "proposal",
                             "usage",
                             "spec",
-                            "amendment"
+                            "amendment",
+                            "server",
+                            "repository",
+                            "environment",
+                            "operation"
                           ]
                         },
                         "id": {
@@ -6064,7 +6580,11 @@
                         "proposal",
                         "usage",
                         "spec",
-                        "amendment"
+                        "amendment",
+                        "server",
+                        "repository",
+                        "environment",
+                        "operation"
                       ]
                     },
                     "id": {
@@ -6123,6 +6643,7 @@
               },
               "kind": {
                 "enum": [
+                  "training",
                   "inference",
                   "evaluation",
                   "analysis",
@@ -6159,6 +6680,93 @@
                   "required": [
                     "name",
                     "kind"
+                  ],
+                  "additionalProperties": false
+                }
+              },
+              "processMetrics": {
+                "type": "array",
+                "maxItems": 64,
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$"
+                    },
+                    "name": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 160
+                    },
+                    "unit": {
+                      "type": "string",
+                      "maxLength": 64
+                    },
+                    "axis": {
+                      "enum": [
+                        "step",
+                        "epoch",
+                        "time"
+                      ]
+                    },
+                    "scope": {
+                      "enum": [
+                        "run",
+                        "sample"
+                      ]
+                    },
+                    "direction": {
+                      "enum": [
+                        "higher",
+                        "lower",
+                        "none"
+                      ]
+                    },
+                    "splits": {
+                      "type": "array",
+                      "maxItems": 32,
+                      "uniqueItems": true,
+                      "items": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                      }
+                    },
+                    "protocolRef": {
+                      "type": "object",
+                      "properties": {
+                        "projectId": {
+                          "type": "string"
+                        },
+                        "type": {
+                          "type": "string",
+                          "enum": [
+                            "protocol"
+                          ]
+                        },
+                        "id": {
+                          "type": "string"
+                        },
+                        "version": {
+                          "type": "integer",
+                          "minimum": 1
+                        }
+                      },
+                      "required": [
+                        "projectId",
+                        "type",
+                        "id",
+                        "version"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "unit",
+                    "axis",
+                    "scope"
                   ],
                   "additionalProperties": false
                 }
@@ -6250,7 +6858,11 @@
                             "proposal",
                             "usage",
                             "spec",
-                            "amendment"
+                            "amendment",
+                            "server",
+                            "repository",
+                            "environment",
+                            "operation"
                           ]
                         },
                         "id": {
@@ -6309,6 +6921,7 @@
                   },
                   "kind": {
                     "enum": [
+                      "training",
                       "inference",
                       "evaluation",
                       "analysis",
@@ -6349,6 +6962,93 @@
                       "additionalProperties": false
                     }
                   },
+                  "processMetrics": {
+                    "type": "array",
+                    "maxItems": 64,
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,127}$"
+                        },
+                        "name": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 160
+                        },
+                        "unit": {
+                          "type": "string",
+                          "maxLength": 64
+                        },
+                        "axis": {
+                          "enum": [
+                            "step",
+                            "epoch",
+                            "time"
+                          ]
+                        },
+                        "scope": {
+                          "enum": [
+                            "run",
+                            "sample"
+                          ]
+                        },
+                        "direction": {
+                          "enum": [
+                            "higher",
+                            "lower",
+                            "none"
+                          ]
+                        },
+                        "splits": {
+                          "type": "array",
+                          "maxItems": 32,
+                          "uniqueItems": true,
+                          "items": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 80
+                          }
+                        },
+                        "protocolRef": {
+                          "type": "object",
+                          "properties": {
+                            "projectId": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string",
+                              "enum": [
+                                "protocol"
+                              ]
+                            },
+                            "id": {
+                              "type": "string"
+                            },
+                            "version": {
+                              "type": "integer",
+                              "minimum": 1
+                            }
+                          },
+                          "required": [
+                            "projectId",
+                            "type",
+                            "id",
+                            "version"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "unit",
+                        "axis",
+                        "scope"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
                   "purpose": {
                     "type": "string",
                     "minLength": 1
@@ -6385,6 +7085,561 @@
               }
             ],
             "description": "For an existing id, provide only fields to change; omitted fields are preserved. A new id still requires a complete valid record."
+          }
+        },
+        "required": [
+          "requestId",
+          "projectId",
+          "expectedRevision",
+          "record"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "rws_server_save",
+      "description": "Register a versioned local/SSH workspace using an SSH alias, never credentials. Registration does not connect.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "record": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 240
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "transport": {
+                "enum": [
+                  "local",
+                  "ssh"
+                ]
+              },
+              "sshAlias": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "workspaceRoot": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              }
+            },
+            "additionalProperties": false,
+            "anyOf": [
+              {
+                "required": [
+                  "id"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 240
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "transport": {
+                    "enum": [
+                      "local",
+                      "ssh"
+                    ]
+                  },
+                  "sshAlias": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 128
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "workspaceRoot": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  }
+                },
+                "required": [
+                  "title",
+                  "transport",
+                  "workspaceRoot"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "required": [
+          "requestId",
+          "projectId",
+          "expectedRevision",
+          "record"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "rws_repository_save",
+      "description": "Register an existing checkout and its exact server reference. Does not clone, inspect or change Git.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "record": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 240
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "serverRef": {
+                "type": "object",
+                "properties": {
+                  "projectId": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "server"
+                    ]
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "projectId",
+                  "type",
+                  "id",
+                  "version"
+                ],
+                "additionalProperties": false
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "remoteName": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "remoteUrl": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "defaultBranch": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 256
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "additionalProperties": false,
+            "anyOf": [
+              {
+                "required": [
+                  "id"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 240
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "serverRef": {
+                    "type": "object",
+                    "properties": {
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "server"
+                        ]
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "projectId",
+                      "type",
+                      "id",
+                      "version"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "path": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "remoteName": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "remoteUrl": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "defaultBranch": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 256
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                },
+                "required": [
+                  "title",
+                  "serverRef",
+                  "path"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "required": [
+          "requestId",
+          "projectId",
+          "expectedRevision",
+          "record"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "rws_environment_save",
+      "description": "Register a versioned execution directory and Python executable in the registered checkout. Does not execute or probe.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "record": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "title": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 240
+              },
+              "description": {
+                "type": "string",
+                "maxLength": 2000
+              },
+              "serverRef": {
+                "type": "object",
+                "properties": {
+                  "projectId": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "server"
+                    ]
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "projectId",
+                  "type",
+                  "id",
+                  "version"
+                ],
+                "additionalProperties": false
+              },
+              "repositoryRef": {
+                "type": "object",
+                "properties": {
+                  "projectId": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string",
+                    "enum": [
+                      "repository"
+                    ]
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "version": {
+                    "type": "integer",
+                    "minimum": 1
+                  }
+                },
+                "required": [
+                  "projectId",
+                  "type",
+                  "id",
+                  "version"
+                ],
+                "additionalProperties": false
+              },
+              "workingDirectory": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "pythonExecutable": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              }
+            },
+            "additionalProperties": false,
+            "anyOf": [
+              {
+                "required": [
+                  "id"
+                ]
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 240
+                  },
+                  "description": {
+                    "type": "string",
+                    "maxLength": 2000
+                  },
+                  "serverRef": {
+                    "type": "object",
+                    "properties": {
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "server"
+                        ]
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "projectId",
+                      "type",
+                      "id",
+                      "version"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "repositoryRef": {
+                    "type": "object",
+                    "properties": {
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "repository"
+                        ]
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "projectId",
+                      "type",
+                      "id",
+                      "version"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "workingDirectory": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  },
+                  "pythonExecutable": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 4096
+                  }
+                },
+                "required": [
+                  "title",
+                  "serverRef",
+                  "repositoryRef",
+                  "workingDirectory"
+                ],
+                "additionalProperties": false
+              }
+            ]
           }
         },
         "required": [
@@ -6445,7 +7700,11 @@
                   "proposal",
                   "usage",
                   "spec",
-                  "amendment"
+                  "amendment",
+                  "server",
+                  "repository",
+                  "environment",
+                  "operation"
                 ]
               },
               "id": {
@@ -6489,7 +7748,11 @@
                     "proposal",
                     "usage",
                     "spec",
-                    "amendment"
+                    "amendment",
+                    "server",
+                    "repository",
+                    "environment",
+                    "operation"
                   ]
                 },
                 "id": {
@@ -6633,7 +7896,11 @@
                     "proposal",
                     "usage",
                     "spec",
-                    "amendment"
+                    "amendment",
+                    "server",
+                    "repository",
+                    "environment",
+                    "operation"
                   ]
                 },
                 "id": {
@@ -6714,7 +7981,11 @@
                   "proposal",
                   "usage",
                   "spec",
-                  "amendment"
+                  "amendment",
+                  "server",
+                  "repository",
+                  "environment",
+                  "operation"
                 ]
               },
               "id": {
@@ -6793,7 +8064,11 @@
                   "proposal",
                   "usage",
                   "spec",
-                  "amendment"
+                  "amendment",
+                  "server",
+                  "repository",
+                  "environment",
+                  "operation"
                 ]
               },
               "id": {
@@ -6920,7 +8195,11 @@
                       "proposal",
                       "usage",
                       "spec",
-                      "amendment"
+                      "amendment",
+                      "server",
+                      "repository",
+                      "environment",
+                      "operation"
                     ]
                   },
                   "id": {
@@ -6971,7 +8250,11 @@
                         "proposal",
                         "usage",
                         "spec",
-                        "amendment"
+                        "amendment",
+                        "server",
+                        "repository",
+                        "environment",
+                        "operation"
                       ]
                     },
                     "id": {
@@ -7124,6 +8407,1183 @@
           "projectId",
           "expectedRevision",
           "amendmentRef"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "rws_operation_propose",
+      "description": "Propose a literal reviewed Git/task operation. No execution occurs. Read-only inspections may be claimed by an explicit local runner; workspace/process mutations need exact human approval.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "record": {
+            "oneOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 240
+                  },
+                  "kind": {
+                    "const": "git.inspect"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "additionalProperties": false
+                  },
+                  "repositoryRef": {
+                    "type": "object",
+                    "properties": {
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "repository"
+                        ]
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "projectId",
+                      "type",
+                      "id",
+                      "version"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "title",
+                  "kind",
+                  "arguments",
+                  "repositoryRef"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 240
+                  },
+                  "kind": {
+                    "const": "git.branch"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      "startPoint": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "name"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "repositoryRef": {
+                    "type": "object",
+                    "properties": {
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "repository"
+                        ]
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "projectId",
+                      "type",
+                      "id",
+                      "version"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "title",
+                  "kind",
+                  "arguments",
+                  "repositoryRef"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 240
+                  },
+                  "kind": {
+                    "const": "git.commit"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "message": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      "paths": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 128,
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        }
+                      }
+                    },
+                    "required": [
+                      "message",
+                      "paths"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "repositoryRef": {
+                    "type": "object",
+                    "properties": {
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "repository"
+                        ]
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "projectId",
+                      "type",
+                      "id",
+                      "version"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "title",
+                  "kind",
+                  "arguments",
+                  "repositoryRef"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 240
+                  },
+                  "kind": {
+                    "const": "git.tag"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      "revision": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      "message": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "name"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "repositoryRef": {
+                    "type": "object",
+                    "properties": {
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "repository"
+                        ]
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "projectId",
+                      "type",
+                      "id",
+                      "version"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "title",
+                  "kind",
+                  "arguments",
+                  "repositoryRef"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 240
+                  },
+                  "kind": {
+                    "const": "git.push"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "remoteName": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      },
+                      "refspec": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 4096
+                      }
+                    },
+                    "required": [
+                      "remoteName",
+                      "refspec"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "repositoryRef": {
+                    "type": "object",
+                    "properties": {
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "repository"
+                        ]
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "projectId",
+                      "type",
+                      "id",
+                      "version"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "title",
+                  "kind",
+                  "arguments",
+                  "repositoryRef"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 240
+                  },
+                  "kind": {
+                    "const": "task.start"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "argv": {
+                        "type": "array",
+                        "minItems": 1,
+                        "maxItems": 128,
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 4096
+                        }
+                      },
+                      "timeoutSeconds": {
+                        "type": "number",
+                        "minimum": 0.1,
+                        "maximum": 604800
+                      }
+                    },
+                    "required": [
+                      "argv"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "runRef": {
+                    "type": "object",
+                    "properties": {
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "run"
+                        ]
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "projectId",
+                      "type",
+                      "id",
+                      "version"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "environmentRef": {
+                    "type": "object",
+                    "properties": {
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "environment"
+                        ]
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "projectId",
+                      "type",
+                      "id",
+                      "version"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "title",
+                  "kind",
+                  "arguments",
+                  "runRef",
+                  "environmentRef"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 240
+                  },
+                  "kind": {
+                    "const": "task.inspect"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "additionalProperties": false
+                  },
+                  "launchOperationRef": {
+                    "type": "object",
+                    "properties": {
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "operation"
+                        ]
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "projectId",
+                      "type",
+                      "id",
+                      "version"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "title",
+                  "kind",
+                  "arguments",
+                  "launchOperationRef"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 240
+                  },
+                  "kind": {
+                    "const": "task.logs"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {
+                      "stream": {
+                        "enum": [
+                          "stdout",
+                          "stderr"
+                        ]
+                      },
+                      "tailLines": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 1000
+                      }
+                    },
+                    "required": [
+                      "stream"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "launchOperationRef": {
+                    "type": "object",
+                    "properties": {
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "operation"
+                        ]
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "projectId",
+                      "type",
+                      "id",
+                      "version"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "title",
+                  "kind",
+                  "arguments",
+                  "launchOperationRef"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 240
+                  },
+                  "kind": {
+                    "const": "task.stop"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "additionalProperties": false
+                  },
+                  "launchOperationRef": {
+                    "type": "object",
+                    "properties": {
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "operation"
+                        ]
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "projectId",
+                      "type",
+                      "id",
+                      "version"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "title",
+                  "kind",
+                  "arguments",
+                  "launchOperationRef"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 128
+                  },
+                  "title": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 240
+                  },
+                  "kind": {
+                    "const": "environment.inspect"
+                  },
+                  "arguments": {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                    "additionalProperties": false
+                  },
+                  "environmentRef": {
+                    "type": "object",
+                    "properties": {
+                      "projectId": {
+                        "type": "string"
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "environment"
+                        ]
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "version": {
+                        "type": "integer",
+                        "minimum": 1
+                      }
+                    },
+                    "required": [
+                      "projectId",
+                      "type",
+                      "id",
+                      "version"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "required": [
+                  "title",
+                  "kind",
+                  "arguments",
+                  "environmentRef"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
+        },
+        "required": [
+          "requestId",
+          "projectId",
+          "expectedRevision",
+          "record"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "rws_operation_approve",
+      "description": "Human only: approve this exact operation plan. Approval never launches it.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "operationRef": {
+            "type": "object",
+            "properties": {
+              "projectId": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "operation"
+                ]
+              },
+              "id": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "projectId",
+              "type",
+              "id",
+              "version"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "requestId",
+          "projectId",
+          "expectedRevision",
+          "operationRef"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "rws_operation_dismiss",
+      "description": "Human only: dismiss this exact operation plan. Approval never launches it.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "operationRef": {
+            "type": "object",
+            "properties": {
+              "projectId": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "operation"
+                ]
+              },
+              "id": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "projectId",
+              "type",
+              "id",
+              "version"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "requestId",
+          "projectId",
+          "expectedRevision",
+          "operationRef"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "rws_metrics_append",
+      "description": "Append actual process measurements in batches under the run's pinned processMetrics contract. Identical points deduplicate; conflicting values never overwrite. Does not run a model.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "runRef": {
+            "type": "object",
+            "properties": {
+              "projectId": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "run"
+                ]
+              },
+              "id": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "projectId",
+              "type",
+              "id",
+              "version"
+            ],
+            "additionalProperties": false
+          },
+          "source": {
+            "type": "object",
+            "properties": {
+              "kind": {
+                "const": "mlflow"
+              },
+              "baseUrl": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              },
+              "runId": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 256
+              }
+            },
+            "required": [
+              "kind",
+              "baseUrl",
+              "runId"
+            ],
+            "additionalProperties": false
+          },
+          "points": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 1000,
+            "items": {
+              "type": "object",
+              "properties": {
+                "metricId": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "x": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "value": {
+                  "type": [
+                    "number",
+                    "null"
+                  ]
+                },
+                "split": {
+                  "type": "string",
+                  "maxLength": 80
+                },
+                "sampleId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 160
+                },
+                "timestamp": {
+                  "type": "string",
+                  "maxLength": 80
+                },
+                "reason": {
+                  "type": "string",
+                  "maxLength": 1000
+                }
+              },
+              "required": [
+                "metricId",
+                "x",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "requestId",
+          "projectId",
+          "expectedRevision",
+          "runRef",
+          "points"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "rws_metrics_query",
+      "description": "Read bounded process series and compatible alignments. Reuse throughSequence on every page; null stays missing, with no interpolation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "metricIds": {
+            "type": "array",
+            "maxItems": 64,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "fromX": {
+            "type": "number",
+            "minimum": 0
+          },
+          "toX": {
+            "type": "number",
+            "minimum": 0
+          },
+          "throughSequence": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "runRefs": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "type": "object",
+              "properties": {
+                "projectId": {
+                  "type": "string"
+                },
+                "type": {
+                  "type": "string",
+                  "enum": [
+                    "run"
+                  ]
+                },
+                "id": {
+                  "type": "string"
+                },
+                "version": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              },
+              "required": [
+                "projectId",
+                "type",
+                "id",
+                "version"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5000
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "projectId",
+          "runRefs"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "rws_metrics_snapshot",
+      "description": "Freeze the selected run metrics through a previously read sequence into one immutable metric-history artifact. Includes complete definitions and points; rejects over 5000 points instead of silently truncating.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string"
+          },
+          "projectId": {
+            "type": "string"
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "metricIds": {
+            "type": "array",
+            "maxItems": 64,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "fromX": {
+            "type": "number",
+            "minimum": 0
+          },
+          "toX": {
+            "type": "number",
+            "minimum": 0
+          },
+          "throughSequence": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "runRef": {
+            "type": "object",
+            "properties": {
+              "projectId": {
+                "type": "string"
+              },
+              "type": {
+                "type": "string",
+                "enum": [
+                  "run"
+                ]
+              },
+              "id": {
+                "type": "string"
+              },
+              "version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "projectId",
+              "type",
+              "id",
+              "version"
+            ],
+            "additionalProperties": false
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 240
+          }
+        },
+        "required": [
+          "requestId",
+          "projectId",
+          "expectedRevision",
+          "runRef",
+          "title",
+          "throughSequence"
         ],
         "additionalProperties": false
       },

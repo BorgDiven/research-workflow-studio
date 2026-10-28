@@ -1,4 +1,13 @@
-# Version 0.3.4 validation
+# Version 0.4.0 validation — 2026-10-28
+
+- 170 Python tests passed, including isolated metric/operation storage, temporary Git and bare remotes, bounded synthetic local jobs, mocked SSH and fixture MLflow HTTP import. Seven cross-layer integration tests also passed in an independent review run.
+- 150 JavaScript tests passed. Coverage includes resource forms, exact operation approval, fixed executor commands, training execution/result separation, read-only demo guards, bounded process queries, frozen evidence and existing image comparisons.
+- Browser acceptance used fictional records at 1280×720 CSS pixels: live and frozen curves, range filtering, missing values, snapshot creation, metric tables, resource forms and approval without execution. No document horizontal overflow or captured application console errors occurred in the checked flows.
+- An isolated installed wheel served all 33 checked frontend/document/example resources successfully. A fresh installed stdio MCP process exposed 37 unique tools and read project context successfully; public JSON schemas and fictional request examples match the runtime.
+- Installation followed an app/database backup. All four complete existing project snapshots were identical before and after the update. The installed service reported version 0.4.0, and a read-only production browser check confirmed the updated interface.
+- No real research SSH server, external MLflow service, GPU/model run or scientific-quality result is claimed by these software checks. Existing MCP client connections require reconnection to load the new tools. Website deployment is a separate release step.
+
+## Previous validation: 0.3.4
 
 - 126 Python tests passed, including purpose links before execution, exact code/spec versions, cross-project references, legacy records, preserved report snapshots and fresh stdio MCP reads/writes.
 - 120 JavaScript tests passed. They cover bidirectional research/code navigation, reused and multi-producer evidence, report generators reached through artifacts or comparison snapshots, explicit experiment precedence, planned-input labels and read-only demo controls.

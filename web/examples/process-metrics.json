@@ -1,0 +1,102 @@
+{
+  "demo": true,
+  "notice": "Fictional request examples only. Prerequisite project, ready specification, committed code and observed run must already exist. Replace IDs/revisions; this file does not execute requests.",
+  "prerequisites": {
+    "specificationFragment": {
+      "processMetrics": [
+        {
+          "id": "train_loss",
+          "name": "Training loss",
+          "unit": "1",
+          "axis": "step",
+          "scope": "run",
+          "direction": "lower",
+          "splits": [
+            "train"
+          ]
+        }
+      ]
+    },
+    "runRef": {
+      "projectId": "example-project",
+      "type": "run",
+      "id": "run-example",
+      "version": 1
+    },
+    "runState": "running or observed; never merely planned"
+  },
+  "requests": [
+    {
+      "name": "rws_metrics_append",
+      "arguments": {
+        "projectId": "example-project",
+        "expectedRevision": 12,
+        "requestId": "example-append",
+        "runRef": {
+          "projectId": "example-project",
+          "type": "run",
+          "id": "run-example",
+          "version": 1
+        },
+        "points": [
+          {
+            "metricId": "train_loss",
+            "x": 0,
+            "value": 0.8,
+            "split": "train"
+          },
+          {
+            "metricId": "train_loss",
+            "x": 1,
+            "value": null,
+            "split": "train",
+            "reason": "observation unavailable"
+          }
+        ]
+      }
+    },
+    {
+      "name": "rws_metrics_query",
+      "arguments": {
+        "projectId": "example-project",
+        "runRefs": [
+          {
+            "projectId": "example-project",
+            "type": "run",
+            "id": "run-example",
+            "version": 1
+          }
+        ],
+        "metricIds": [
+          "train_loss"
+        ],
+        "fromX": 0,
+        "toX": 1,
+        "limit": 1000,
+        "offset": 0
+      }
+    },
+    {
+      "name": "rws_metrics_snapshot",
+      "arguments": {
+        "projectId": "example-project",
+        "expectedRevision": 13,
+        "requestId": "example-snapshot",
+        "title": "Example loss evidence through step 1",
+        "runRef": {
+          "projectId": "example-project",
+          "type": "run",
+          "id": "run-example",
+          "version": 1
+        },
+        "metricIds": [
+          "train_loss"
+        ],
+        "fromX": 0,
+        "toX": 1,
+        "throughSequence": 2
+      }
+    }
+  ],
+  "paginationAndFreeze": "Use the throughSequence returned by the first real query on every further page and the snapshot request. The example number 2 is not a discovered production sequence."
+}

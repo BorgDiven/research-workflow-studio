@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="color-scheme" content="light"><title>Research Workflow Studio · 项目与研究工作区</title>
-  <link rel="icon" href="data:,"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="evidence.css"><link rel="stylesheet" href="studio.css"><link rel="stylesheet" href="canvas-layout.css"><link rel="stylesheet" href="workspace.css"><link rel="stylesheet" href="live.css"><link rel="stylesheet" href="workbench-v3.css"><link rel="stylesheet" href="desktop-interaction.css">
+  <link rel="icon" href="data:,"><link rel="stylesheet" href="style.css"><link rel="stylesheet" href="evidence.css"><link rel="stylesheet" href="studio.css"><link rel="stylesheet" href="canvas-layout.css"><link rel="stylesheet" href="workspace.css"><link rel="stylesheet" href="live.css"><link rel="stylesheet" href="workbench-v3.css"><link rel="stylesheet" href="desktop-interaction.css"><link rel="stylesheet" href="resources.css"><link rel="stylesheet" href="process.css">
 </head>
 <body>
   <header class="app-header">
@@ -29,7 +29,7 @@
       <div class="stage-content" id="research-content"></div>
     </section>
     <section id="stage-code" class="stage code-stage" aria-label="代码与执行视图">
-      <div class="stage-heading"><div><h1>代码与执行</h1></div><div class="stage-actions"><button class="button" data-action="spec-library">代码规范</button><button class="button primary" data-contract="new">定义代码块</button><button class="button" data-studio="context">查看当前上下文</button><button class="button summary-toggle" data-action="toggle-inspector" data-view="code" aria-expanded="true">收起摘要</button></div></div>
+      <div class="stage-heading"><div><h1>代码与执行</h1></div><div class="stage-actions"><button class="button" data-resource="open">仓库与运行环境</button><button class="button" data-action="spec-library">代码规范</button><button class="button primary" data-contract="new">定义代码块</button><button class="button" data-studio="context">查看当前上下文</button><button class="button summary-toggle" data-action="toggle-inspector" data-view="code" aria-expanded="true">收起摘要</button></div></div>
       <div class="stage-content" id="code-content"></div>
     </section>
     <section id="stage-outputs" class="stage output-stage" aria-label="产出与对比视图">
@@ -42,5 +42,5 @@
   <div class="toast" id="toast" role="status"></div>
   <dialog id="studio-dialog" class="studio-dialog" aria-labelledby="studio-dialog-title"><header><div><h2 id="studio-dialog-title"></h2></div><button class="button" data-studio="close-dialog">关闭</button></header><div class="studio-dialog-body"></div></dialog>
   <dialog id="guidance-dialog" class="guidance-dialog" aria-labelledby="guidance-title"><header><div><h2 id="guidance-title">当前位置与建议</h2></div><button class="button" data-studio="close-guide">关闭</button></header><div id="guidance-body"></div></dialog>
-  <script src="live-model.js"></script><script src="data.js"></script><script src="live-api.js"></script><script src="evidence.js"></script><script src="results-model.js"></script><script src="results.js"></script><script src="graph-layout.js"></script><script src="interaction-state.js"></script><script src="app.js"></script><script src="studio-model.js"></script><script src="studio.js"></script><script src="contracts.js"></script><script src="amendments.js"></script><script src="materials.js"></script><script src="workspace.js"></script>
+  <script src="live-model.js"></script><script src="data.js"></script><script src="live-api.js"></script><script src="evidence.js"></script><script src="process-model.js"></script><script src="results-model.js"></script><script src="results.js"></script><script src="process.js"></script><script src="graph-layout.js"></script><script src="interaction-state.js"></script><script src="app.js"></script><script src="studio-model.js"></script><script src="studio.js"></script><script src="contracts.js"></script><script src="resources-model.js"></script><script src="resources.js"></script><script src="amendments.js"></script><script src="materials.js"></script><script src="workspace.js"></script>
 </body></html>

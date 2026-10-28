@@ -112,7 +112,7 @@ class PublicSiteTest(unittest.TestCase):
                     reconstructed = dict(item['base'], objectCount=variant['objectCount'], objectsTruncated=variant['objectsTruncated'], objects=[data['contextObjects'][i] for i in variant['objectIndexes']])
                     actual = store.call('rws_get_context', dict(args, selectionRefs=selected))['result']
                     self.assertEqual(reconstructed, relative_assets(actual))
-                self.assertEqual(len(data['contexts']), 23)
+                self.assertEqual(len(data['contexts']), 25)  # Project, research and experiment scopes including training.
             finally:
                 store.close()
 

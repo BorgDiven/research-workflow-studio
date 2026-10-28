@@ -6,13 +6,13 @@ from pathlib import Path
 import shutil
 import tempfile
 
-KINDS = ('inference', 'analysis', 'evaluation', 'report')
+KINDS = ('inference', 'training', 'analysis', 'evaluation', 'report')
 TEMPLATES = Path(__file__).resolve().parents[1] / 'templates'
 
 
 def scaffold(kind, destination, title=None, template_root=TEMPLATES):
     if kind not in KINDS:
-        raise ValueError('Choose inference, analysis, evaluation or report.')
+        raise ValueError('Choose inference, training, analysis, evaluation or report.')
     target = Path(destination).resolve()
     if target.exists():
         raise FileExistsError('Destination already exists; choose a new directory.')

@@ -1,0 +1,123 @@
+{
+  "demo": true,
+  "notice": "Fictional resource and proposal examples. They do not register, approve or execute anything when read. Actual paths/SSH configuration and prerequisite code/run must be selected separately.",
+  "requests": [
+    {
+      "name": "rws_server_save",
+      "arguments": {
+        "projectId": "example-project",
+        "expectedRevision": 1,
+        "requestId": "example-server",
+        "record": {
+          "id": "server-example",
+          "title": "Fictional local host",
+          "transport": "local",
+          "workspaceRoot": "/workspace/example"
+        }
+      }
+    },
+    {
+      "name": "rws_repository_save",
+      "arguments": {
+        "projectId": "example-project",
+        "expectedRevision": 2,
+        "requestId": "example-repository",
+        "record": {
+          "id": "repository-example",
+          "title": "Fictional checkout",
+          "serverRef": {
+            "projectId": "example-project",
+            "type": "server",
+            "id": "server-example",
+            "version": 1
+          },
+          "path": "/workspace/example/repository",
+          "remoteName": "origin",
+          "remoteUrl": "https://example.org/fictional/research.git",
+          "defaultBranch": "main"
+        }
+      }
+    },
+    {
+      "name": "rws_environment_save",
+      "arguments": {
+        "projectId": "example-project",
+        "expectedRevision": 3,
+        "requestId": "example-environment",
+        "record": {
+          "id": "environment-example",
+          "title": "Fictional Python environment",
+          "serverRef": {
+            "projectId": "example-project",
+            "type": "server",
+            "id": "server-example",
+            "version": 1
+          },
+          "repositoryRef": {
+            "projectId": "example-project",
+            "type": "repository",
+            "id": "repository-example",
+            "version": 1
+          },
+          "workingDirectory": "/workspace/example/repository",
+          "pythonExecutable": "python3"
+        }
+      }
+    },
+    {
+      "name": "rws_operation_propose",
+      "arguments": {
+        "projectId": "example-project",
+        "expectedRevision": 4,
+        "requestId": "example-git-inspect",
+        "record": {
+          "id": "operation-inspect-example",
+          "title": "Inspect fictional checkout",
+          "kind": "git.inspect",
+          "repositoryRef": {
+            "projectId": "example-project",
+            "type": "repository",
+            "id": "repository-example",
+            "version": 1
+          },
+          "arguments": {}
+        }
+      }
+    },
+    {
+      "name": "rws_operation_propose",
+      "arguments": {
+        "projectId": "example-project",
+        "expectedRevision": 12,
+        "requestId": "example-task-start",
+        "record": {
+          "id": "operation-start-example",
+          "title": "Propose fictional training",
+          "kind": "task.start",
+          "runRef": {
+            "projectId": "example-project",
+            "type": "run",
+            "id": "run-example",
+            "version": 1
+          },
+          "environmentRef": {
+            "projectId": "example-project",
+            "type": "environment",
+            "id": "environment-example",
+            "version": 1
+          },
+          "arguments": {
+            "argv": [
+              "python3",
+              "train.py",
+              "--config",
+              "configs/example.json"
+            ],
+            "timeoutSeconds": 60
+          }
+        }
+      }
+    }
+  ],
+  "boundary": "Mutating operations need separate human approval of the exact request, then an explicit CLI runner invocation. There is intentionally no approve or execute action in this bundle."
+}

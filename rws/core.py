@@ -11,8 +11,9 @@ from urllib.parse import urlencode
 FIELDS = ('goal', 'foundations', 'approach', 'resources', 'consensus')
 STAGES = ('idea', 'formal', 'ablation')
 TYPES = ('research', 'experiment', 'code', 'run', 'artifact', 'protocol', 'dataset',
-         'evaluation', 'comparison', 'analysis', 'report', 'conversation', 'proposal', 'usage', 'spec', 'amendment')
-STATES = ('planned', 'running', 'completed', 'failed', 'partial')
+         'evaluation', 'comparison', 'analysis', 'report', 'conversation', 'proposal', 'usage', 'spec', 'amendment',
+         'server', 'repository', 'environment', 'operation')
+STATES = ('planned', 'running', 'completed', 'failed', 'partial', 'unknown')
 RESULT_KINDS = ('metric', 'series', 'image-set', 'table', 'attachment')
 RECORD_OPS = {
     'rws_research_save': 'research', 'rws_experiment_save': 'experiment',
@@ -22,15 +23,16 @@ RECORD_OPS = {
     'rws_evaluation_import': 'evaluation', 'rws_comparison_save': 'comparison',
     'rws_analysis_save': 'analysis', 'rws_report_create_revision': 'report',
     'rws_spec_save': 'spec',
+    'rws_server_save': 'server', 'rws_repository_save': 'repository', 'rws_environment_save': 'environment',
 }
 IMMUTABLE = {'code', 'artifact', 'protocol', 'dataset', 'conversation', 'evaluation'}
-HUMAN_ONLY = {'rws_overview_apply', 'rws_overview_dismiss', 'rws_project_stages_set', 'rws_amendment_apply', 'rws_amendment_dismiss'}
-READS = {'rws_project_list', 'rws_record_get', 'rws_get_context', 'rws_code_find', 'rws_result_query'}
+HUMAN_ONLY = {'rws_overview_apply', 'rws_overview_dismiss', 'rws_project_stages_set', 'rws_amendment_apply', 'rws_amendment_dismiss', 'rws_operation_approve', 'rws_operation_dismiss'}
+READS = {'rws_project_list', 'rws_record_get', 'rws_get_context', 'rws_code_find', 'rws_result_query', 'rws_metrics_query'}
 ALLOWED_FIELDS = {
     'research': {'title', 'question', 'hypothesis', 'kind', 'stage', 'parentRefs', 'judgment', 'status', 'implementationLinks'},
     'experiment': {'title', 'researchRef', 'protocolRef', 'config', 'status', 'foundationRevision'},
-    'code': {'title', 'kind', 'version', 'source', 'parentRefs', 'description', 'specRef', 'entrypoint', 'modulePath', 'repository', 'commit', 'capabilities', 'checkEvidence'},
-    'run': {'title', 'kind', 'codeRef', 'manual', 'config', 'status', 'inputRefs', 'experimentRef', 'source', 'notes', 'sampleSelection', 'purpose'},
+    'code': {'title', 'kind', 'version', 'source', 'parentRefs', 'description', 'specRef', 'entrypoint', 'modulePath', 'repository', 'commit', 'capabilities', 'checkEvidence', 'repositoryRef'},
+    'run': {'title', 'kind', 'codeRef', 'manual', 'config', 'status', 'inputRefs', 'experimentRef', 'source', 'notes', 'sampleSelection', 'purpose', 'repositoryRef', 'environmentRef'},
     'artifact': {'title', 'kind', 'producerRef', 'sampleId', 'config', 'uri', 'availability', 'content', 'description', 'provenance', 'source', 'semantic', 'observation', 'inputRefs', 'datasetRef', 'taskKey'},
     'protocol': {'title', 'version', 'metrics', 'preprocessing', 'aggregation', 'missingPolicy', 'inputRequirements', 'inputKind', 'description'},
     'dataset': {'title', 'version', 'sampleIds', 'split', 'description'},
@@ -39,10 +41,13 @@ ALLOWED_FIELDS = {
     'comparison': {'title', 'inputRefs', 'fixedConditions', 'varyingConditions', 'description', 'viewSpec'},
     'analysis': {'title', 'experimentRefs', 'inputRefs', 'observations', 'interpretation', 'limitations', 'codeRef', 'runRef', 'comparisonRefs', 'scope', 'coverage'},
     'report': {'title', 'inputRefs', 'analysisRefs', 'evaluationRefs', 'researchRefs', 'markdown', 'comparisonRefs', 'generatorCodeRef', 'generatorRunRef'},
-    'spec': {'title', 'schemaVersion', 'kind', 'status', 'purpose', 'inputs', 'outputs', 'configSchema', 'dependencies', 'acceptanceChecks', 'capabilities'},
+    'spec': {'title', 'schemaVersion', 'kind', 'status', 'purpose', 'inputs', 'outputs', 'configSchema', 'dependencies', 'acceptanceChecks', 'capabilities', 'processMetrics'},
+    'server': {'title', 'transport', 'sshAlias', 'workspaceRoot', 'description'},
+    'repository': {'title', 'serverRef', 'path', 'remoteName', 'remoteUrl', 'defaultBranch', 'description'},
+    'environment': {'title', 'serverRef', 'repositoryRef', 'workingDirectory', 'pythonExecutable', 'description'},
 }
 
-CODE_KINDS = ('inference', 'evaluation', 'analysis', 'report')
+CODE_KINDS = ('training', 'inference', 'evaluation', 'analysis', 'report')
 IMPLEMENTATION_ROLES = ('implementation', 'control', 'diagnostic')
 AMENDMENT_FIELDS = {'title', 'description', 'parentRefs', 'source', 'provenance', 'producerRef', 'inputRefs', 'recoveredByRef', 'semantic', 'datasetRef', 'sampleId', 'taskKey', 'observation', 'sampleSelection', 'purpose'}
 
@@ -136,6 +141,9 @@ def typed_result_schema():
 
 
 def record_schema(kind, partial=False):
+    if kind in ('server', 'repository', 'environment'):
+        from .workflow_domain import resource_schema
+        return resource_schema(kind, partial)
     string = {'type': 'string'}
     text_list = {'oneOf': [string, {'type': 'array', 'items': string}]}
     references = {'type': 'array', 'items': ref_schema()}
@@ -181,8 +189,12 @@ def record_schema(kind, partial=False):
         'scope': {'type': 'object', 'properties': {'sampleIds': strings, 'description': string}, 'additionalProperties': False},
         'coverage': {'type': 'object', 'properties': {'expected': {'type': 'integer', 'minimum': 0}, 'observed': {'type': 'integer', 'minimum': 0}, 'missingSampleIds': strings}, 'required': ['expected', 'observed'], 'additionalProperties': False},
     }
-    for field in ('researchRef', 'protocolRef', 'codeRef', 'experimentRef', 'producerRef', 'datasetRef', 'runRef', 'specRef', 'generatorCodeRef', 'generatorRunRef'):
+    from .metrics import metric_definitions_schema
+    props['processMetrics'] = metric_definitions_schema()
+    for field in ('researchRef', 'protocolRef', 'codeRef', 'experimentRef', 'producerRef', 'datasetRef', 'runRef', 'specRef', 'generatorCodeRef', 'generatorRunRef', 'repositoryRef', 'environmentRef'):
         props[field] = ref_schema()
+        if field in ('repositoryRef', 'environmentRef'):
+            props[field]['required'].append('version')
     for field in ('parentRefs', 'inputRefs', 'experimentRefs', 'analysisRefs', 'evaluationRefs', 'researchRefs', 'comparisonRefs'):
         props[field] = references
     kinds = {'research': ['hypothesis', 'exploration', 'reproduction'], 'code': list(CODE_KINDS), 'spec': list(CODE_KINDS)}
@@ -227,6 +239,9 @@ def tool_definitions():
         'rws_analysis_save': 'Save observations, interpretation and limitations; manual analysis may omit code.',
         'rws_report_create_revision': 'Create a report version with immutable foundation and transitive evidence snapshots.',
         'rws_spec_save': 'Define a method-level contract before implementation. Saves a new draft or ready revision; implementations pin an exact ready revision. Cases/configurations belong to runs, not method contracts.',
+        'rws_server_save': 'Register a versioned local/SSH workspace using an SSH alias, never credentials. Registration does not connect.',
+        'rws_repository_save': 'Register an existing checkout and its exact server reference. Does not clone, inspect or change Git.',
+        'rws_environment_save': 'Register a versioned execution directory and Python executable in the registered checkout. Does not execute or probe.',
     }
     definitions = []
     def add(name, props, required, description, read=False):
@@ -249,6 +264,10 @@ def tool_definitions():
     add('rws_amendment_propose', dict(common, record=amendment), list(common) + ['record'], 'Propose an audited metadata/source/lineage/recovery correction for an exact record. Does not rewrite the source or approve the correction.')
     add('rws_amendment_apply', dict(common, amendmentRef=ref_schema('amendment')), list(common) + ['amendmentRef'], 'Human-only approval of an exact pending amendment. Raw records and previous report snapshots remain unchanged.')
     add('rws_amendment_dismiss', dict(common, amendmentRef=ref_schema('amendment')), list(common) + ['amendmentRef'], 'Human-only dismissal of an exact pending amendment. Keeps the proposal history without applying its patch.')
+    from .workflow_domain import operation_definitions
+    from .metrics import metric_tools
+    definitions.extend(operation_definitions(common))
+    definitions.extend(metric_tools(common))
     return definitions
 
 
@@ -322,6 +341,8 @@ class Store:
             CREATE TABLE IF NOT EXISTS projects (id TEXT PRIMARY KEY, revision INTEGER NOT NULL, document TEXT NOT NULL);
             CREATE TABLE IF NOT EXISTS records (project_id TEXT NOT NULL, type TEXT NOT NULL, id TEXT NOT NULL, version INTEGER NOT NULL, document TEXT NOT NULL, created_at TEXT NOT NULL, PRIMARY KEY(project_id,type,id,version), FOREIGN KEY(project_id) REFERENCES projects(id));
             CREATE TABLE IF NOT EXISTS requests (id TEXT PRIMARY KEY, payload TEXT NOT NULL, result TEXT NOT NULL);
+            CREATE TABLE IF NOT EXISTS metric_points (sequence INTEGER PRIMARY KEY AUTOINCREMENT, project_id TEXT NOT NULL, run_id TEXT NOT NULL, metric_id TEXT NOT NULL, split TEXT NOT NULL, sample_id TEXT NOT NULL, x REAL NOT NULL, document TEXT NOT NULL, UNIQUE(project_id,run_id,metric_id,split,sample_id,x));
+            CREATE INDEX IF NOT EXISTS metric_points_query ON metric_points(project_id,run_id,metric_id,x);
         ''')
         self._anchor.commit()
 
@@ -476,9 +497,13 @@ class Store:
             conn.close()
 
     def call(self, name, arguments, actor='model'):
-        if actor not in ('model', 'human'):
+        if actor not in ('model', 'human', 'runner'):
             fail('Unknown actor.', 'permission_denied')
-        definition = next((t for t in tool_definitions() if t['name'] == name), None)
+        definitions = tool_definitions()
+        if actor == 'runner':
+            from .workflow_domain import runner_definitions
+            definitions = runner_definitions()
+        definition = next((t for t in definitions if t['name'] == name), None)
         if not definition:
             fail('Unknown operation.', 'not_found')
         args = json.loads(dump(object_(arguments, 'arguments')))
@@ -490,7 +515,7 @@ class Store:
         if missing:
             fail('Required arguments are missing.', details={'fields': missing})
         if name in HUMAN_ONLY and actor != 'human':
-            destination = 'stages' if name == 'rws_project_stages_set' else 'amendments' if name.startswith('rws_amendment_') else 'review'
+            destination = 'stages' if name == 'rws_project_stages_set' else 'operations' if name.startswith('rws_operation_') else 'amendments' if name.startswith('rws_amendment_') else 'review'
             fail('Review and confirm this exact change in the application.', 'approval_required', {'reviewUrl': '/?' + urlencode({'projectId': str(args.get('projectId', '')), destination: '1'})})
         conn = self._connect()
         try:
@@ -504,6 +529,9 @@ class Store:
                     result = self._code_find(conn, args)
                 elif name == 'rws_result_query':
                     result = self._result_query(conn, args)
+                elif name == 'rws_metrics_query':
+                    from .metrics import query
+                    result = query(self, conn, args)
                 else:
                     result = self._context(conn, args)
                 return {'ok': True, 'operation': name, 'result': result}
@@ -537,6 +565,12 @@ class Store:
             raise RwsError('storage_error', 'Storage operation failed; no success was recorded.') from error
         finally:
             conn.close()
+
+    def runner_call(self, action, arguments):
+        """Local runner boundary; never published to MCP or accepted by HTTP."""
+        if action not in ('claim', 'update'):
+            fail('Unknown runner action.')
+        return self.call('_rws_operation_' + action, arguments, actor='runner')
 
     def _write_guidance(self, conn, operation, pid, result):
         # Scope comes only from the saved object's explicit relations, never UI selection.
@@ -581,6 +615,17 @@ class Store:
             card['suggestedActions'] = [{'label': '审阅项目基础修改建议', 'reason': '建议已保存，只有你确认后才会改变项目基础。', 'operation': 'rws_overview_apply', 'targetRef': affected, 'requiresHuman': True, 'reviewUrl': '/?' + urlencode({'projectId': pid, 'review': '1'})}]
         elif operation == 'rws_amendment_propose':
             card['suggestedActions'] = [{'label': '审阅来源修正', 'reason': '原始记录保持不变；确认后才应用有审计记录的显示修正。', 'operation': 'rws_amendment_apply', 'targetRef': affected, 'requiresHuman': True, 'reviewUrl': '/?' + urlencode({'projectId': pid, 'amendments': '1'})}]
+        elif operation == 'rws_operation_propose':
+            mutation = result['record']['policy'] == 'mutation'
+            card['suggestedActions'] = [{'label': '审阅操作计划' if mutation else '由显式 runner 采集状态',
+                'reason': '确认精确计划后，再手动调用 runner 执行。' if mutation else '当前只是检查请求；运行 CLI runner 后才有新观测。',
+                'operation': 'rws_operation_approve' if mutation else 'rws_record_get', 'targetRef': affected,
+                'requiresHuman': mutation, 'requiresRunner': True,
+                'reviewUrl': '/?' + urlencode({'projectId': pid, 'operations': '1'})}]
+        elif operation == 'rws_operation_approve':
+            card['suggestedActions'] = [{'label': '显式运行已批准操作', 'reason': '批准不会执行；在终端调用 runner 使用此精确操作版本。',
+                'operation': 'rws_record_get', 'targetRef': affected, 'requiresRunner': True,
+                'reviewUrl': '/?' + urlencode({'projectId': pid, 'operations': '1'})}]
         elif operation == 'rws_spec_save':
             card['suggestedActions'] = [{'label': '查找可复用实现', 'reason': '先检查已有实现及其固定契约；需要新实现时按本契约编写和检查。', 'operation': 'rws_code_find', 'targetRef': affected}]
         elif operation == 'rws_code_register':
@@ -602,6 +647,12 @@ class Store:
         pid = project['id']
         if name in RECORD_OPS:
             return self._save_record(conn, RECORD_OPS[name], args['record'], actor, project)
+        if name.startswith('rws_operation_') or name.startswith('_rws_operation_'):
+            from .workflow_domain import mutate_operation
+            return mutate_operation(self, conn, name, args, actor, project)
+        if name in ('rws_metrics_append', 'rws_metrics_snapshot'):
+            from .metrics import mutate
+            return mutate(self, conn, name, args, project)
         if name in ('rws_amendment_propose', 'rws_amendment_apply', 'rws_amendment_dismiss'):
             return self._amend(conn, name, args, project)
         if name == 'rws_project_stages_set':
@@ -919,7 +970,7 @@ class Store:
                 fail('An experiment cannot move to another research entry.', 'immutable_source')
             record['foundationRevision'] = foundation
         elif kind == 'code':
-            if record.get('kind') not in ('inference', 'evaluation', 'analysis', 'report'):
+            if record.get('kind') not in CODE_KINDS:
                 fail('Unsupported code kind.')
             text(record.get('version'), 'version')
             if not isinstance(record.get('source'), (str, dict)) or not record['source']:
@@ -928,6 +979,9 @@ class Store:
             for ref in array(record['parentRefs'], 'parentRefs'):
                 self._get(conn, ref, ['code'])
             self._validate_code_contract(conn, pid, record)
+            if record.get('repositoryRef'):
+                from .workflow_domain import validate_code_repository
+                validate_code_repository(self, conn, record, pid)
         elif kind == 'run':
             record.setdefault('manual', False)
             if not isinstance(record['manual'], bool):
@@ -946,11 +1000,15 @@ class Store:
             record.setdefault('status', 'planned')
             self._status(record)
             self._validate_run_contract(conn, record)
+            from .workflow_domain import validate_run_resources
+            validate_run_resources(self, conn, record, pid)
             if old:
-                for field in ('codeRef', 'manual', 'config', 'inputRefs', 'experimentRef', 'kind', 'source', 'sampleSelection', 'purpose'):
+                for field in ('codeRef', 'manual', 'config', 'inputRefs', 'experimentRef', 'kind', 'source', 'sampleSelection', 'purpose', 'repositoryRef', 'environmentRef'):
                     if old.get(field) != record.get(field):
                         fail('Actual run code, inputs, configuration and source cannot change.', 'immutable_source', {'field': field})
         elif kind == 'artifact':
+            if record.get('semantic') == 'metric-history' or (isinstance(record.get('source'), dict) and record['source'].get('kind') == 'metric-history-snapshot'):
+                fail('Metric-history artifacts are created only by rws_metrics_snapshot from stored measurements.')
             record.setdefault('provenance', 'known')
             if record['provenance'] == 'known' and not record.get('producerRef'):
                 fail('Known provenance requires its actual producerRef.')
@@ -978,6 +1036,11 @@ class Store:
             self._validate_artifact_contract(conn, pid, record)
         elif kind == 'spec':
             self._validate_spec(record)
+            from .metrics import validate_definitions
+            validate_definitions(self, conn, record.get('processMetrics', []))
+        elif kind in ('server', 'repository', 'environment'):
+            from .workflow_domain import validate_resource
+            validate_resource(self, conn, kind, record, pid)
         elif kind == 'protocol':
             text(record.get('version'), 'version')
             metrics = array(record.get('metrics'), 'metrics')
@@ -1494,6 +1557,10 @@ class Store:
             rid = research['ref']['id']
             experiment_ids = {e['ref']['id'] for e in records if e['ref']['type'] == 'experiment' and e['record']['researchRef']['id'] == rid}
             relevant = [e for e in records if any(r['projectId'] == pid and ((r['type'] == 'research' and r['id'] == rid) or (r['type'] == 'experiment' and r['id'] in experiment_ids)) for r in self._walk_refs(e['record']))]
+        if experiment or research:
+            run_ids = {e['ref']['id'] for e in relevant + selected if e['ref']['type'] == 'run' and e['ref']['projectId'] == pid}
+            known = {dump(e['ref']) for e in relevant}
+            relevant += [e for e in records if e['ref']['type'] == 'operation' and e['record'].get('runRef', {}).get('id') in run_ids and dump(e['ref']) not in known]
         relevant = [e for e in relevant if not (e['ref']['type'] == 'usage' and e['record'].get('revoked'))]
         relevant = [e for e in relevant if e['ref']['type'] != 'amendment' or e['record'].get('status') == 'pending']
         completed, pending = [], []
@@ -1501,6 +1568,17 @@ class Store:
             r, ref = env['record'], env['ref']
             if ref['type'] == 'amendment':
                 pending.append({'ref': ref, 'title': r['title'], 'reason': '来源修正建议等待人工审阅；原始记录尚未改变。', 'requiresHuman': True})
+            if ref['type'] == 'operation':
+                fact = {'ref': ref, 'title': r['title'], 'kind': r['kind'], 'status': r['status'],
+                        'observedAt': r.get('observedAt'), 'policy': r['policy']}
+                if r['status'] == 'completed':
+                    completed.append(dict(fact, meaning='操作已记录完成；任务本身状态以 result.taskStatus 为准。'))
+                elif r['status'] != 'dismissed':
+                    pending.append(dict(fact, requiresHuman=r['status'] == 'proposed' and r['policy'] == 'mutation',
+                        reason={'proposed': '操作计划尚未执行。', 'approved': '精确计划已批准，等待显式 runner。',
+                                'claimed': 'runner 已领取；若未返回结果，先检查原任务，不能重新启动。',
+                                'running': '已采集运行状态；不代表持续在线监控。', 'unknown': '状态未知，需检查原任务，不能假定失败或重启。',
+                                'failed': '操作未完成，需检查记录。'}.get(r['status'], '检查已记录的操作状态。')))
             if ref['type'] in ('run', 'evaluation'):
                 status = r.get('status')
                 fact = {'ref': ref, 'title': r.get('title', ref['id']), 'status': status}
@@ -1508,8 +1586,8 @@ class Store:
                     completed.append(dict(fact, status='recovered', originalStatus=status, recoveredByRef=r['recoveredByRef']))
                 elif status == 'completed':
                     completed.append(fact)
-                elif status in ('planned', 'running', 'failed', 'partial'):
-                    pending.append(dict(fact, reason={'planned': '已登记待执行', 'running': '等待已有执行结果', 'failed': '失败记录待检查', 'partial': '部分完成，需核对覆盖范围'}[status]))
+                elif status in ('planned', 'running', 'failed', 'partial', 'unknown'):
+                    pending.append(dict(fact, reason={'planned': '已登记待执行', 'running': '等待已有执行结果', 'failed': '失败记录待检查', 'partial': '部分完成，需核对覆盖范围', 'unknown': '连接或执行状态未知；检查原任务，不能假定失败或重新启动。'}[status]))
         usages = [e for e in relevant if e['ref']['type'] == 'usage' and not e['record'].get('revoked')]
         if experiment and not usages:
             pending.append({'ref': experiment['ref'], 'reason': '当前实验尚未选择实际材料；不自动复用其他研究的结果。'})
@@ -1548,9 +1626,11 @@ class Store:
             if ref['type'] == 'amendment' and value.get('status') != 'pending' and dump(ref) not in explicitly_selected:
                 continue
             summary = {'ref': ref, 'title': str(value.get('title', value.get('label', ref['id'])))[:180]}
-            for field in ('kind', 'status', 'codeRef', 'producerRef', 'experimentRef', 'researchRef', 'sampleId', 'availability', 'provenance', 'specRef', 'semantic', 'observation', 'datasetRef', 'taskKey', 'sampleSelection', 'purpose', 'recoveredByRef'):
+            for field in ('kind', 'status', 'codeRef', 'producerRef', 'experimentRef', 'researchRef', 'sampleId', 'availability', 'provenance', 'specRef', 'semantic', 'observation', 'datasetRef', 'taskKey', 'sampleSelection', 'purpose', 'recoveredByRef', 'serverRef', 'repositoryRef', 'environmentRef', 'launchOperationRef', 'runRef', 'policy', 'observedAt'):
                 if field in value:
                     summary[field] = value[field]
+            if ref['type'] == 'operation' and value.get('result'):
+                summary['lastObservation'] = {key: value['result'][key] for key in ('jobId', 'taskStatus', 'exitCode', 'observedAt', 'headCommit', 'branch') if key in value['result']}
             summary['sourceProjectId'] = ref['projectId']
             unique[dump(ref)] = summary
         object_values = list(unique.values())
@@ -1564,7 +1644,7 @@ class Store:
         for item in object_values:
             if dump(item['ref']) not in chosen:
                 buckets.setdefault(item['ref']['type'], []).append(item)
-        order = ('research', 'experiment', 'amendment', 'spec', 'code', 'run', 'artifact', 'protocol', 'dataset', 'comparison', 'evaluation', 'analysis', 'report', 'conversation', 'usage', 'proposal')
+        order = ('research', 'experiment', 'operation', 'server', 'repository', 'environment', 'amendment', 'spec', 'code', 'run', 'artifact', 'protocol', 'dataset', 'comparison', 'evaluation', 'analysis', 'report', 'conversation', 'usage', 'proposal')
         index = 0
         while len(objects) < min(40, len(object_values)):
             for kind in order:

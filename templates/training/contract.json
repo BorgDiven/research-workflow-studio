@@ -1,0 +1,100 @@
+{
+  "schemaVersion": "rws.block-contract/v1",
+  "entrypoint": "block.py:run",
+  "fixture": "fixtures.json",
+  "spec": {
+    "title": "Synthetic linear fitting",
+    "purpose": "Fit independent explicit numeric datasets with a reusable linear model; preserve per-step loss, model checkpoint and training log. Synthetic CPU teaching work only.",
+    "inputs": [
+      {
+        "name": "cases",
+        "kind": "dataset",
+        "multiple": true,
+        "description": "Each case supplies input.pairs of [x, target] training observations."
+      }
+    ],
+    "outputs": [
+      {
+        "name": "loss",
+        "kind": "series",
+        "semantic": "training-loss",
+        "multiple": false
+      },
+      {
+        "name": "checkpoint",
+        "kind": "attachment",
+        "semantic": "model-checkpoint",
+        "multiple": false
+      },
+      {
+        "name": "log",
+        "kind": "attachment",
+        "semantic": "training-log",
+        "multiple": false
+      }
+    ],
+    "configSchema": {
+      "type": "object",
+      "properties": {
+        "learningRate": {
+          "type": "number",
+          "minimum": 1e-06,
+          "maximum": 1,
+          "default": 0.25
+        },
+        "epochs": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 10000,
+          "default": 2
+        }
+      },
+      "additionalProperties": false
+    },
+    "capabilities": [
+      "synthetic-linear-training",
+      "training-loss-series",
+      "json-checkpoint"
+    ],
+    "schemaVersion": 1,
+    "kind": "training",
+    "status": "ready",
+    "dependencies": [],
+    "acceptanceChecks": [
+      {
+        "id": "contract-valid",
+        "description": "Contract and local entrypoint are valid."
+      },
+      {
+        "id": "two-inputs",
+        "description": "Two distinct single-case fixtures retain their case identities and complete."
+      },
+      {
+        "id": "batch-equivalence",
+        "description": "A batch produces the same per-case content as the two individual requests."
+      },
+      {
+        "id": "input-immutability",
+        "description": "Execution does not mutate the supplied request or referenced artifacts."
+      },
+      {
+        "id": "declared-outputs",
+        "description": "Every artifact matches an output port and exact input IDs."
+      },
+      {
+        "id": "expected-values",
+        "description": "Selected fixture outputs match explicit expected content."
+      }
+    ],
+    "processMetrics": [
+      {
+        "id": "loss",
+        "name": "Training mean squared error",
+        "unit": "squared signal",
+        "axis": "step",
+        "scope": "sample",
+        "direction": "lower"
+      }
+    ]
+  }
+}

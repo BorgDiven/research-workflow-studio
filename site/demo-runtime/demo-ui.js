@@ -1,10 +1,13 @@
 /* Generated demo only: keep the real canvas and readers, hide write controls. */
 (() => {
   'use strict';
+  window.RWS_PUBLIC_DEMO = true;
   const mutations = {
     studio: ['new-project','new-research','edit-research','new-experiment','edit','stages','apply-draft','dismiss-draft','reuse-artifact','remove-usage','confirm-remove-usage','add-material','link-implementation','add-implementation-link','remove-implementation-link'],
     contract: ['new','edit','implement','add-port','remove-port'],
     amendment: ['apply','dismiss'], results: ['save','analysis','report'],
+    resource: ['new','edit','propose','approve','dismiss','plan-run'],
+    process: ['freeze'],
   };
   const selector = Object.entries(mutations).flatMap(([group, actions]) => actions.map(action => `[data-${group}="${action}"]`)).join(',');
   // Installed before production listeners, so even a scripted click cannot open

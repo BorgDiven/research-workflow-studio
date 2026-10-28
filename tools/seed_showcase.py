@@ -139,7 +139,7 @@ def seed(db, assets_dir=None, *, preview_models=False):
 
         for pid, name, goal in [
             (MAIN_PROJECT, preview_name if preview_models else '合成图形稳健性研究 · 演示', '探索噪声、局部对比与尺度对几何轮廓示意结果的影响，展示从观察到对照、消融和报告的半自动流程。'),
-            ('showcase-signals', '周期信号诊断 · 演示', '用人为编排的曲线展示观察、异常定位与证据整理。'),
+            ('showcase-signals', '信号与训练过程 · 演示', '用人为编排的曲线展示过程追踪、异常定位与固定证据。'),
             ('showcase-materials', '材料复用工作室 · 演示', '用虚构案例演示项目准备与材料复用，不包含真实研究记录。'),
         ]:
             write('rws_project_create', projectId=pid, name=name, goal=goal,
@@ -410,6 +410,66 @@ def seed(db, assets_dir=None, *, preview_models=False):
         foundation('showcase-materials', {'foundations': '尚未添加素材；保留空项目以演示项目准备。',
                                         'approach': '先确认目的与材料，再登记研究问题。',
                                         'resources': '无真实数据与外部服务。', 'consensus': NOTICE}, [])
+        # Record-only workflow fixture: no connection, training, Git operation or
+        # check is executed. The declared contract and skipped checks stay explicit.
+        srv = rec('rws_server_save', signals, 'SERVER-DEMO', title='演示计算节点 · 未连接',
+                  transport='ssh', sshAlias='demo-compute', workspaceRoot='/demo/workspace')
+        repo = rec('rws_repository_save', signals, 'REPO-DEMO', title='训练示例仓库 · 虚构',
+                   serverRef=srv, path='/demo/workspace/signals', remoteName='origin',
+                   remoteUrl='git@example.invalid:demo/signals.git', defaultBranch='main')
+        env = rec('rws_environment_save', signals, 'ENV-DEMO', title='Python 环境 · 未检查',
+                  serverRef=srv, repositoryRef=repo, workingDirectory='/demo/workspace/signals',
+                  pythonExecutable='python3', description=NOTICE)
+        train_spec = rec('rws_spec_save', signals, 'SPEC-TRAIN', title='拟合过程记录 · 示例约定',
+            kind='training', schemaVersion=1, status='ready', purpose='演示同数据范围的过程指标与固定报告；不是方法有效性验证。',
+            inputs=[], outputs=[{'name': 'checkpoint', 'kind': 'attachment', 'semantic': 'checkpoint'}],
+            configSchema={'type': 'object', 'properties': {'learning_rate': {'type': 'number'}}, 'required': ['learning_rate']},
+            dependencies=[], capabilities=['training'],
+            acceptanceChecks=[{'id': 'demo-only', 'description': '只展示记录形态；未验收真实训练实现。'}],
+            processMetrics=[{'id': 'loss', 'name': '训练损失 · 人为编排', 'unit': '1', 'axis': 'step', 'scope': 'run', 'splits': ['train'], 'direction': 'lower'},
+                            {'id': 'mae', 'name': '验证误差 · 人为编排', 'unit': '1', 'axis': 'step', 'scope': 'run', 'splits': ['validation'], 'direction': 'lower'}])
+        train_code = rec('rws_code_register', signals, 'C-TRAIN', title='信号拟合器 · 示例实现记录',
+            kind='training', version='demo-v1', source={'description': NOTICE}, specRef=train_spec,
+            repositoryRef=repo, repository='git@example.invalid:demo/signals.git', commit='illustrative-not-executed',
+            modulePath='trainer.py', entrypoint='trainer:run', capabilities=['training'],
+            checkEvidence=[{'checkId': 'demo-only', 'status': 'skipped', 'evidence': NOTICE}])
+        train_data = rec('rws_dataset_register', signals, 'DS-TRAIN', title='合成信号区段 · 演示集',
+                         version='demo-v1', sampleIds=['segment-a', 'segment-b'], split='illustration', description=NOTICE)
+        train_h = rec('rws_research_save', signals, 'H2', title='不同学习率的过程如何比较？',
+            question='在同一虚构数据与指标定义下，对比损失过程，保留缺失点并固定报告引用范围。',
+            kind='exploration', stage='idea', parentRefs=[hs],
+            implementationLinks=[{'targetRef': train_code, 'role': 'implementation', 'note': '展示过程记录；没有执行训练。'}])
+        train_e = rec('rws_experiment_save', signals, 'E2', title='两组学习率的过程对比 · 虚构',
+                      researchRef=train_h, config={}, status='completed')
+        frozen = []
+        for suffix, rate, scale in [('A', 0.05, 1.0), ('B', 0.1, .72)]:
+            run = rec('rws_run_register', signals, 'R-TRAIN-'+suffix, title='学习率 '+str(rate)+' · 虚构记录',
+                kind='training', codeRef=train_code, environmentRef=env, repositoryRef=repo,
+                experimentRef=train_e, status='completed', inputRefs=[], config={'learning_rate': rate},
+                sampleSelection={'datasetRef': train_data, 'sampleIds': ['segment-a', 'segment-b']}, purpose=NOTICE)
+            points = []
+            for step in range(31):
+                loss = round(1.8/(1+step*.22)*scale+.03*(step%3), 5)
+                points.append(dict(metricId='loss', x=step, value=loss, split='train'))
+                if step%5==0:
+                    value = None if suffix=='B' and step==15 else round(loss*.75+.12, 5)
+                    point = dict(metricId='mae', x=step, value=value, split='validation')
+                    if value is None: point['reason']='演示缺测；不填零、不连接缺口。'
+                    points.append(point)
+            query = write('rws_metrics_append', signals, runRef=run, points=points)
+            artifact = write('rws_metrics_snapshot', signals, runRef=run,
+                             title='学习率 '+str(rate)+' · 0–30 步固定证据',
+                             throughSequence=query['throughSequence'], fromX=0, toX=30)
+            frozen.append(artifact['ref'])
+            usage(signals, train_e, 'U-TRAIN-'+suffix, [artifact['ref']], 'observation', '虚构过程的固定区间。')
+        report_process = rec('rws_report_create_revision', signals, 'REPORT-TRAIN', title='过程对比说明 · 固定 0–30 步',
+            markdown='# 过程记录演示\n\n这些数值由脚本编排，没有训练或质量评测执行。\n\n报告引用两次记录的 0–30 步。B 在第 15 步缺少验证误差，图中留空；不能据此判定模型优劣。后续过程点不会进入本报告。',
+            inputRefs=frozen, analysisRefs=[], evaluationRefs=[], comparisonRefs=[])
+        # Later data must remain visible in live queries without changing this report.
+        write('rws_metrics_append', signals, runRef=run,
+              points=[{'metricId': 'loss', 'x': 40, 'value': .18, 'split': 'train'}])
+        rec('rws_operation_propose', signals, 'OP-INSPECT', title='查看演示仓库状态 · 未执行',
+            kind='git.inspect', repositoryRef=repo, arguments={})
         return {'projectId': MAIN_PROJECT, 'projects': list(PROJECTS), 'researchCount': 9,
                 'comparison': comparison, 'report': report, 'notice': NOTICE,
                 'selectedResearch': refs[(pid, 'H5')], 'selectedCode': refs[(pid, 'C1')],

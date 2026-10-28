@@ -24,5 +24,6 @@
   }
   async function read(projectId){return fetchJSON('/api/state'+(projectId?'?projectId='+encodeURIComponent(projectId):''));}
   function apply(next){const previous=snapshot;snapshot=next;const data=window.RWSAdapter.project(next);Object.keys(window.RP_DATA).forEach(k=>delete window.RP_DATA[k]);Object.assign(window.RP_DATA,data);window.dispatchEvent(new CustomEvent('rws:data',{detail:{snapshot:next,previous}}));}
-  window.RWSLive={read,apply,call,mutate,getSnapshot:()=>snapshot,session};
+  const health=()=>fetchJSON('/api/health');
+  window.RWSLive={read,apply,call,mutate,getSnapshot:()=>snapshot,session,health};
 })();

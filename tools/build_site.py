@@ -62,7 +62,7 @@ def export_showcase(db, metadata):
         if {p['id'] for p in home['projects']} != set(PROJECTS) or not all(p.get('demo') for p in home['projects']):
             raise ValueError('Public export accepts only the three fictional showcase projects')
         snapshots = {pid: store.snapshot(pid) for pid in PROJECTS}
-        records, contexts, objects, object_ids = {}, {}, [], {}
+        records, contexts, objects, object_ids, metrics = {}, {}, [], {}, {}
 
         def collect(value):
             if isinstance(value, dict):
@@ -77,6 +77,13 @@ def export_showcase(db, metadata):
         collect(snapshots)
         for pid, snapshot in snapshots.items():
             current = snapshot['records']
+            spec_ids = {e['ref']['id'] for e in current if e['ref']['type']=='spec' and e['record'].get('processMetrics')}
+            code_ids = {e['ref']['id'] for e in current if e['ref']['type']=='code' and e['record'].get('specRef', {}).get('id') in spec_ids}
+            run_refs = [e['ref'] for e in current if e['ref']['type']=='run' and e['record']['codeRef']['id'] in code_ids]
+            if run_refs:
+                metrics[pid] = store.call('rws_metrics_query', {'projectId': pid, 'runRefs': run_refs, 'limit': 5000})['result']
+                if metrics[pid]['truncated']:
+                    raise ValueError('Fictional metrics exceed the bounded static package')
             bases = [{'projectId': pid}]
             bases += [{'projectId': pid, 'researchRef': e['ref']} for e in current if e['ref']['type'] == 'research']
             for entry in current:
@@ -113,7 +120,7 @@ def export_showcase(db, metadata):
         return relative_assets({
             'schemaVersion': 1, 'mode': 'offline-fictional-readonly', 'mainProjectId': MAIN_PROJECT,
             'notice': metadata['notice'], 'home': home, 'snapshots': snapshots,
-            'records': records, 'contexts': contexts, 'contextObjects': objects,
+            'records': records, 'contexts': contexts, 'contextObjects': objects, 'metrics': metrics,
             'mutationNames': [tool['name'] for tool in tool_definitions() if tool['name'] not in READS],
             'comparisonRef': metadata['comparison'], 'selectedResearchRef': metadata['selectedResearch'],
         })

@@ -5,6 +5,7 @@ from importlib import metadata
 import mimetypes
 import re
 import secrets
+import shlex
 import sys
 import threading
 import time
@@ -14,7 +15,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlsplit
 
 from . import __version__
-from .core import RwsError, Store
+from .core import RwsError, Store, tool_definitions
 from .origin import normalize_web_origin
 
 
@@ -74,6 +75,9 @@ class StudioHTTPServer(ThreadingHTTPServer):
         self.public_origin = normalize_web_origin(public_origin, allow_loopback=False) if public_origin is not None else None
         self.tailscale_user = tailscale_user
         self.store = Store(db_path)
+        launcher = Path(__file__).resolve().parent.parent / "launch.py"
+        prefix = [sys.executable, str(launcher)] if launcher.is_file() else [sys.executable, "-m", "rws"]
+        self.operator_command_prefix = shlex.join(prefix + ["operate", "--db", str(Path(db_path).resolve())])
         self.web_root = Path(web_root or default_web_root()).resolve()
         self.material_root = Path(db_path).resolve().parent / "materials"
         self.sessions = {}
@@ -194,7 +198,8 @@ class StudioHandler(BaseHTTPRequestHandler):
         try:
             if parsed.path == "/api/health":
                 self._json(200, {"ok": True, "service": "Research Workflow Studio",
-                                 "version": __version__, "mode": "local-single-user"})
+                                 "version": __version__, "mode": "local-single-user",
+                                 "operatorCommandPrefix": self.server.operator_command_prefix})
             elif parsed.path == "/api/session":
                 sid, csrf = self.server.issue_session()
                 secure = "; Secure" if self.request_origin.startswith("https://") else ""
@@ -341,6 +346,9 @@ class StudioHandler(BaseHTTPRequestHandler):
             self.close_connection = True
             return
         try:
+            if body["name"] not in {tool["name"] for tool in tool_definitions()}:
+                self._error(404, "not_found", "此操作不通过网页接口提供。")
+                return
             result = self.server.store.call(body["name"], body["arguments"],
                                             actor="human" if human else "model")
             self._json(200, result)

@@ -1,10 +1,11 @@
 # Reusable development blocks
 
-Define the reusable method before writing its implementation. Select cases and parameter values through input JSON; keep the same implementation when only those inputs change. These four templates run entirely on synthetic numeric signals using Python's standard library. They do not download models, start a GPU job or establish scientific results.
+Define the reusable method before writing its implementation. Select cases and parameter values through input JSON; keep the same implementation when only those inputs change. These five templates run entirely on synthetic numeric signals using Python's standard library. They do not download models, start a GPU job or establish scientific results.
 
 | Role | Input | Output | Boundary |
 | --- | --- | --- | --- |
 | [Inference](inference/README.md) | Selected numeric cases and affine-transform settings | Final series; optional intermediate diagnostic series | Produces data. A diagnostic output is an observation, not a separate method version. |
+| [Training](training/README.md) | Explicit numeric training datasets and optimization settings | Loss series, JSON model checkpoint and JSONL training log | Fits independent synthetic linear models; records optimization evidence, not a scientific conclusion. |
 | [Analysis](analysis/README.md) | Exact stored final-series artifacts | Descriptive-statistics table | Reads existing outputs; does not invoke inference. |
 | [Evaluation](evaluation/README.md) | Stored final series and corresponding reference values | Per-case mean absolute error, protocol definition and coverage | Records units, direction, alignment, aggregation and missing-data behavior. |
 | [Report](report/README.md) | Selected final series, metric or analysis-table artifacts; optional supplied interpretation | Markdown documents and an evidence snapshot | Composes existing evidence; does not silently compute new metrics or conclusions. |
@@ -20,7 +21,7 @@ python3 tools/check_block.py .local/my-method --execute --output .local/my-metho
 python3 .local/my-method/block.py --input .local/my-method/request.json --output .local/my-method/output.json
 ```
 
-The destination and each output file must be new. `--kind` accepts `inference`, `analysis`, `evaluation`, or `report`. Each generated directory contains:
+The destination and each output file must be new. `--kind` accepts `inference`, `training`, `analysis`, `evaluation`, or `report`. Each generated directory contains:
 
 - `contract.json`: method purpose, typed inputs/outputs, configuration schema, dependencies, acceptance checks and entrypoint.
 - `block.py`: the reusable `run(request)` implementation.

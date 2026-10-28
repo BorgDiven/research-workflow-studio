@@ -10,19 +10,19 @@
 
 Research rarely follows a straight line. You explore a question, inspect intermediate outputs, reuse a control, change a method and compare again. Research Workflow Studio keeps those relationships visible without treating every case as a new code version or every result as a new research claim.
 
-It is a **local desktop web workbench with a Python backend, SQLite storage and an MCP server**. An AI client can create and read structured records through MCP; your development tools run the actual code. You decide the research direction, conclusions and project-level changes.
+It is a **local desktop web workbench with a Python backend, SQLite storage and an MCP server**. An AI client can create and read structured records through MCP; an explicitly invoked command-line executor can run reviewed Git and task requests. You decide the research direction, conclusions and project-level changes.
 
 ## One workspace, three views
 
 | View | What it helps you do |
 | --- | --- |
 | **Research** | Read the project foundation, follow branching questions and hypotheses, see the current stage and reuse evidence. Exploration does not require an improvement hypothesis. |
-| **Code & execution** | Define inputs and outputs before implementation; follow inference, evaluation, analysis and report code separately. Inspect actual execution provenance when needed. |
-| **Outputs & comparison** | Compare one case across settings or align several cases across implementations. Filter output semantics and steps; keep missing cells and repeated candidates explicit. |
+| **Code & execution** | Define inputs and outputs before implementation; follow training, inference, evaluation, analysis and report code separately. Inspect actual execution provenance when needed. |
+| **Outputs & comparison** | Use image grids, compatible curve overlays or scoped metric tables. Freeze selected process data before reusing it in an analysis or report; missing values stay missing. |
 
 Saved comparisons are working selections. Analyses explain observations and their limits. Reports preserve the exact evidence and project context used at the time; new results do not rewrite old reports.
 
-The walkthrough and desktop previews use a separate fictional project with generated geometric shapes and manually specified example metrics. No private research data or model execution is involved.
+The walkthrough and desktop previews below show the 0.3 interface and use a separate fictional project with generated geometric shapes and manually specified example metrics. No private research data or model execution is involved.
 
 [Watch the project-to-workspace walkthrough](https://github.com/BorgDiven/research-workflow-studio/releases/download/v0.3.3/workspace-tour.mp4)
 
@@ -49,7 +49,7 @@ python3 tools/seed_showcase.py --db "$PWD/.local/showcase.sqlite3"
 python3 launch.py serve --db "$PWD/.local/showcase.sqlite3" --port 8831
 ```
 
-Open **http://127.0.0.1:8831**. The showcase includes a project home, branching research questions, all four code roles, geometric illustrations, curves and fixed reports. Seeding is repeatable and refuses databases containing unrelated projects. It does not run a model or measure image quality.
+Open **http://127.0.0.1:8831**. The showcase includes a project home, branching research questions, code roles, geometric illustrations, curves and fixed reports. Seeding is repeatable and refuses databases containing unrelated projects. It does not run a model or measure image quality.
 
 For your own empty workspace, choose a different database path and skip the seed command:
 
@@ -84,7 +84,26 @@ A useful first prompt:
 
 > Open my project in Research Workflow Studio. Read its foundation and current research context. Tell me what is already recorded, what is missing and the next useful action. Before implementing a method, find reusable code and agree on a specification. Do not execute an experiment or approve a scientific decision without my instruction.
 
-The model can create projects, questions, specifications, implementation records, execution records, artifacts, evidence references, evaluations, comparisons, analyses and reports. It can propose changes to project context and provenance. Human approval is separate. Studio provides **no shell, GPU launcher or arbitrary file-read MCP tool**.
+The 37 advertised MCP tools let the model read context, manage research records, append/query process metrics, freeze evidence, register repositories/environments and propose concrete Git or task requests. Mutations such as starting or stopping a task, committing or pushing require a separate human confirmation. Read-only inspections can be claimed directly by the explicit CLI executor. Neither MCP registration nor approval executes a command; there is no arbitrary-shell or arbitrary-file-read MCP tool. See [the current tool schemas](web/docs/tools.json) and [the 0.4 contract](docs/contract-v4.md).
+
+## Track training without turning every step into a card
+
+![0.4 process tracking with fictional training observations](docs/assets/process-tracking.png)
+
+Declare a process metric on the code specification, then batch its observations from your script. The workbench preserves metric identity, units, axis, data scope and the exact protocol/specification. Incompatible or unknown scopes stay separate; gaps are not zeroes. Switch between images, curves and metrics in the same output view.
+
+Use `tools/track_metrics.py` for JSONL input or an explicitly selected MLflow HTTP history. Its local spool supports retries. MLflow import reads run-scoped metrics only; supply declared splits with `--mlflow-split` and use JSONL for explicit per-sample data. It does not install, discover, control or take over an MLflow service. Save a fixed metric-history artifact before using process data in a comparison, analysis or report. [Usage and formats](docs/usage-guide.md)
+
+## Review work, then execute it
+
+Open **仓库与运行环境** (Repositories & environments) in the project. Register an existing local checkout or SSH alias, and pin the repository/environment on a run. Request a Git action or task, review its exact arguments, then copy the generated executor command to the Studio host's terminal:
+
+```sh
+python3 launch.py operate --db /absolute/path/studio.sqlite3 \
+  --project-id example-project --operation-id operation-example --version 2
+```
+
+The identifiers above are fictional placeholders. Use the exact revision shown by your real request. This is an execution command, not a preview. The runner claims one request, checks the fixed source commit and records its receipt. Unknown launch outcomes are not retried automatically. Remote SSH behavior has been checked with mocked transport; a real server still needs its own explicit integration check. Execution and tracking clients target POSIX systems such as macOS/Linux.
 
 ## Build reusable research blocks
 
@@ -95,7 +114,7 @@ python3 tools/check_block.py .local/my-method --output .local/check.json
 
 The checker is static by default. Add `--execute` only when you intend to execute that block locally. The supplied templates use small standard-library synthetic fixtures, with no model downloads or GPU usage.
 
-A specification declares purpose, input/output semantics, configurable values, dependencies and acceptance checks. A registered implementation pins a ready specification revision, repository, Git commit, module path, entrypoint and supplied check evidence. Cases and ordinary parameter changes belong in inputs/configuration. See [the four templates](templates/README.md) and [contributor rules](AGENTS.md).
+A specification declares purpose, input/output semantics, configurable values, dependencies and acceptance checks. A registered implementation pins a ready specification revision, repository, Git commit, module path, entrypoint and supplied check evidence. Cases and ordinary parameter changes belong in inputs/configuration. See [the five templates](templates/README.md) and [contributor rules](AGENTS.md).
 
 ## Data that stays understandable
 
@@ -113,13 +132,13 @@ The service binds to loopback. It supports an explicitly configured **Tailscale 
 
 ## Development and status
 
-Version **0.3.4** is an early, single-user workbench. It has no collaborative multi-user permissions, cloud synchronization, automatic experiment scheduler or mobile layout. Supplied check evidence is recorded, not independently certified. Review changes and keep a database backup when upgrading.
+Version **0.4.0** is an early, single-user workbench. It has no collaborative multi-user permissions, cloud synchronization, automatic experiment scheduler or mobile layout. Supplied check evidence is recorded, not independently certified. Review changes and keep a database backup when upgrading.
 
 ```sh
 python3 -m unittest discover -s tests
 node --test web/tests/*.test.js
 ```
 
-See [architecture](docs/architecture.md), [roadmap](docs/roadmap.md) and [contributing](CONTRIBUTING.md). Issues describing a concrete workflow are welcome.
+See [usage](docs/usage-guide.md), [data formats](docs/format-guide.md), [changes](CHANGELOG.md), [architecture](docs/architecture.md) and [contributing](CONTRIBUTING.md). Issues describing a concrete workflow are welcome.
 
 MIT licensed. The title illustration and demo contact sheet are AI-generated branding/illustration assets, not experimental evidence; [asset provenance](docs/assets/banner-prompt.md).

@@ -1,7 +1,7 @@
 /* Canonical, versioned server records projected into the existing canvas. */
 (function(root){
   'use strict';
-  const groups={research:'hypotheses',experiment:'experiments',spec:'specs',amendment:'amendments',code:'codes',run:'runs',artifact:'artifacts',protocol:'protocols',dataset:'datasets',evaluation:'evaluations',comparison:'comparisons',analysis:'analyses',report:'reports',conversation:'conversations',proposal:'proposals',usage:'usages'};
+  const groups={research:'hypotheses',experiment:'experiments',spec:'specs',amendment:'amendments',code:'codes',run:'runs',artifact:'artifacts',protocol:'protocols',dataset:'datasets',evaluation:'evaluations',comparison:'comparisons',analysis:'analyses',report:'reports',conversation:'conversations',proposal:'proposals',usage:'usages',server:'servers',repository:'repositories',environment:'environments',operation:'operations'};
   const statusNames={planned:'计划中',running:'运行中',completed:'已完成',failed:'失败',partial:'部分完成',missing:'缺失',undefined:'未定义',available:'可用',unavailable:'不可用',unknown:'位置未知'};
   const researchKinds={exploration:'探索',hypothesis:'假设验证',reproduction:'复现'},implementationRoles={implementation:'研究实现',control:'对照',diagnostic:'诊断'};
   const judgmentLabel=r=>r?.hypothesis?(typeof r.judgment==='string'?r.judgment:r.judgment?.label)||'待判断':null;
@@ -33,7 +33,7 @@
     // Versioned status edits do not create another actual experiment or run.
     // Use the newest loaded version for browsing, while every raw ref stays frozen.
     const latestLoaded=rows=>{const logical=new Map();rows.forEach(row=>{const identity=JSON.stringify([row.ref.projectId,row.ref.type,row.ref.id]),previous=logical.get(identity);if(!previous||row.recordVersion>previous.recordVersion)logical.set(identity,row);});return [...logical.values()];};
-    out.experiments=latestLoaded(out.experiments);out.runs=latestLoaded(out.runs);
+    out.experiments=latestLoaded(out.experiments);out.runs=latestLoaded(out.runs);out.operations=latestLoaded(out.operations);
     const experimentId=ref=>out.experiments.find(e=>sameRecord(e.ref,ref))?.id||key(ref);
     const runId=ref=>out.runs.find(r=>sameRecord(r.ref,ref))?.id||key(ref);
     out.usages.forEach(u=>u.experimentId=experimentId(u.raw.experimentRef));
