@@ -86,6 +86,10 @@ A useful first prompt:
 
 The 37 advertised MCP tools let the model read context, manage research records, append/query process metrics, freeze evidence, register repositories/environments and propose concrete Git or task requests. Mutations such as starting or stopping a task, committing or pushing require a separate human confirmation. Read-only inspections can be claimed directly by the explicit CLI executor. Neither MCP registration nor approval executes a command; there is no arbitrary-shell or arbitrary-file-read MCP tool. See [the current tool schemas](web/docs/tools.json) and [the 0.4 contract](docs/contract-v4.md).
 
+**Inspect code without losing the research context.** Related-code navigation highlights exact implementations and specifications. Details stay in the right column; cancelling highlights preserves the research context and current code selection.
+
+![0.4.2 persistent research associations and right-side details in a fictional project](docs/assets/research-code-highlight.png)
+
 ## Track training without turning every step into a card
 
 ![0.4 process tracking with fictional training observations](docs/assets/process-tracking.png)
@@ -132,7 +136,7 @@ The service binds to loopback. It supports an explicitly configured **Tailscale 
 
 ## Development and status
 
-Version **0.4.1** is an early, single-user workbench. It has no collaborative multi-user permissions, cloud synchronization, automatic experiment scheduler or mobile layout. Supplied check evidence is recorded, not independently certified. Review changes and keep a database backup when upgrading.
+Version **0.4.2** is an early, single-user workbench. It has no collaborative multi-user permissions, cloud synchronization, automatic experiment scheduler or mobile layout. Supplied check evidence is recorded, not independently certified. Review changes and keep a database backup when upgrading.
 
 ```sh
 python3 -m unittest discover -s tests

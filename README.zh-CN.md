@@ -57,6 +57,10 @@ python3 launch.py serve --db "$PWD/.local/showcase.sqlite3" --port 8831
 
 研究详情中的“关联代码”可定位实现，代码详情中的“用于哪些研究”可返回问题。编辑研究时，可以先关联代码规范或已有实现，标明研究实现、对照或诊断用途；不必先生成一次运行。计划用途、实际使用和证据复用分别显示，同一份代码和产物可以服务多个研究。[字段与 MCP 写入示例](docs/contract-v3.md#declare-which-research-the-implementation-serves)
 
+**查看代码，不丢研究关系。** “关联代码”会高亮当前研究涉及的代码与规范；右侧查看详情，点“取消高亮”只关闭颜色标记，保留当前研究和正在看的代码。
+
+![0.4.2 研究关联高亮与右侧详情 · 虚构项目](docs/assets/research-code-highlight.png)
+
 ## 记录训练过程，按需固化证据
 
 ![0.4 过程追踪：独立虚构项目中的训练观察](docs/assets/process-tracking.png)
@@ -80,6 +84,6 @@ python3 launch.py operate --db /absolute/path/studio.sqlite3 \
 
 五类可复用模板见 [templates](templates/README.md)。代码实现绑定规则版本、Git commit、入口及检查证据；案例、指令、普通参数放在外部输入中。检查器默认只做静态检查，`--execute` 才会实际执行本地代码。
 
-当前是 0.4.1 单用户早期版本，没有多用户协作权限、自动实验调度或手机布局。可以通过 [Tailscale 私有访问](docs/deployment.md) 跨电脑使用；公开仓库不包含真实研究数据库和材料。历史来源纠正保留原记录，旧报告不会被新数据改写。
+当前是 0.4.2 单用户早期版本，没有多用户协作权限、自动实验调度或手机布局。可以通过 [Tailscale 私有访问](docs/deployment.md) 跨电脑使用；公开仓库不包含真实研究数据库和材料。历史来源纠正保留原记录，旧报告不会被新数据改写。
 
 [使用指南](docs/usage-guide.md) · [更新记录](CHANGELOG.md) · [数据约定](CONTRACT.md) · [架构](docs/architecture.md) · [后续方向](docs/roadmap.md) · [贡献](CONTRIBUTING.md)

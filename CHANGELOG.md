@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.2 — 2026-10-28
+
+- Keep research association highlights independent from the selected code, with an explicit show/cancel control and readable research source.
+- Open related code on the canvas and inspect source, outputs and execution details in the existing right column instead of automatically covering the canvas with a bottom reader.
+- Show exact specification-only associations as pending implementations; preserve missing-reference warnings and fixed evidence scope.
+
+Validation passed: 176 Python tests and 163 JavaScript tests, including exact-version refresh recovery and static specification context. Desktop browser acceptance used fictional data.
+
 ## 0.4.1 — 2026-10-28
 
 - Re-read and verify the final durable task receipt when the supervisor exits during a status query, avoiding an incorrect unknown state caused by a stale running record.

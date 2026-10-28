@@ -90,8 +90,8 @@ def export_showcase(db, metadata):
                 if entry['ref']['type'] == 'experiment':
                     bases.append({'projectId': pid, 'researchRef': entry['record']['researchRef'], 'experimentRef': entry['ref']})
             # These cover every selection emitted by RPWorkbench: no selection,
-            # a code, an execution, or that execution together with its own code.
-            selections = [[]] + [[e['ref']] for e in current if e['ref']['type'] == 'code']
+            # a code or specification, an execution, or that execution with its code.
+            selections = [[]] + [[e['ref']] for e in current if e['ref']['type'] in ('code', 'spec')]
             for entry in current:
                 if entry['ref']['type'] in ('run', 'evaluation', 'analysis', 'report'):
                     selections.append([entry['ref']])

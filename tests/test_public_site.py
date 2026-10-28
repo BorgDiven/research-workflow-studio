@@ -116,6 +116,30 @@ class PublicSiteTest(unittest.TestCase):
             finally:
                 store.close()
 
+    def test_specification_only_selection_retains_exact_research_context(self):
+        with tempfile.TemporaryDirectory() as directory:
+            db = Path(directory) / 'fresh.sqlite3'
+            metadata = seed(db, Path(directory) / 'assets')
+            data = export_showcase(db, metadata)
+            records = data['snapshots'][MAIN_PROJECT]['records']
+            experiment = next(e for e in records if e['ref']['type'] == 'experiment' and e['ref']['id'] == 'E7')
+            spec = next(e for e in records if e['ref']['type'] == 'spec' and e['ref']['id'] == 'SPEC-INFERENCE')
+            args = {'projectId': MAIN_PROJECT, 'researchRef': experiment['record']['researchRef'],
+                    'experimentRef': experiment['ref']}
+            selected = [spec['ref']]
+            item = data['contexts'][context_key(args)]
+            variant = item['variants'][selection_key(selected)]
+            reconstructed = dict(item['base'], objectCount=variant['objectCount'],
+                                 objectsTruncated=variant['objectsTruncated'],
+                                 objects=[data['contextObjects'][i] for i in variant['objectIndexes']])
+            store = Store(db)
+            try:
+                actual = store.call('rws_get_context', dict(args, selectionRefs=selected))['result']
+                self.assertEqual(reconstructed, relative_assets(actual))
+                self.assertTrue(any(e['ref'] == spec['ref'] for e in reconstructed['objects']))
+            finally:
+                store.close()
+
     def test_no_database_input_option_and_no_overwrite_of_unrelated_directory(self):
         result = subprocess.run([sys.executable, str(ROOT / 'tools/build_site.py'), '--db', 'private.sqlite3'], capture_output=True, text=True)
         self.assertNotEqual(result.returncode, 0)

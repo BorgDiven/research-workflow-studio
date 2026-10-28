@@ -8,7 +8,7 @@ function arrange(height,focus=null,training=false){
   const lanes=[...(training?['training']:[]),'inference','evaluation','analysis','report'].map(kind=>({dataset:{kind},style:style(),content:{style:style()},querySelector(){return this.content;}}));
   const board={style:style(),dataset:{},scrollWidth:1120,get scrollHeight(){return lanes.reduce((sum,lane)=>sum+parseFloat(lane.content.style.height)+(this.dataset.density==='compact'?31:35),4);}};
   const vp={clientHeight:height,clientWidth:1120},svg={setAttribute(){}},selectors={'.lane-board':board,'.code-scroll':vp,'#code-edges':svg,...nodes};
-  const run=vm.runInNewContext(`(()=>{${implementation}return layoutCode;})()`,{D:{codes,analyses:[]},layout:{code:{focus}},$:selector=>selectors[selector],$$:()=>lanes,topologyPlan:G.topologyPlan,drawCode(){}});
+  const run=vm.runInNewContext(`(()=>{${implementation}return layoutCode;})()`,{D:{codes,analyses:[]},layout:{code:{focus}},$:selector=>selectors[selector],$$:()=>lanes,topologyPlan:G.topologyPlan,codeLaneNodes:kind=>codes.filter(c=>c.kind===kind),drawCode(){}});
   run();return {board,lanes,nodes};
 }
 test('actual compact code layout keeps a fork/merge and all four roles within the 800px desktop work area',()=>{
