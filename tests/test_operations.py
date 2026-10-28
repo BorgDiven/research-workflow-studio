@@ -7,10 +7,89 @@ import tempfile
 import time
 from types import SimpleNamespace
 import unittest
+from unittest.mock import patch
 import uuid
 
 from rws.core import RwsError, Store
 from rws.operations import OperationsRunner, SubprocessTransport, TransportError
+from rws import operations_worker
+
+
+class ReceiptObservationTests(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='rws-receipt-')
+        self.root = Path(self.temp.name).resolve()
+        self.job = self.root / '.rws-jobs' / 'job-fixture'
+        self.job.mkdir(parents=True)
+        self.running = {'jobId': 'job-fixture', 'processStart': 'claim-fixture',
+                        'pid': 12345, 'taskStatus': 'running'}
+        self.expected = {key: self.running[key] for key in ('jobId', 'processStart')}
+        self.file = self.job / 'receipt.json'
+        self.file.write_text(json.dumps(self.running))
+
+    def tearDown(self):
+        self.temp.cleanup()
+
+    def test_final_receipt_wins_if_supervisor_exits_during_identity_check(self):
+        for status, exit_code in [('partial', -15), ('completed', 0), ('failed', 1)]:
+            for check in ('kill', 'ps'):
+                with self.subTest(status=status, check=check):
+                    self.file.write_text(json.dumps(self.running))
+                    final = dict(self.running, taskStatus=status, exitCode=exit_code,
+                                 finishedAt='2026-10-28T00:00:00+00:00')
+                    def supervisor_exits(*args, **kwargs):
+                        self.file.write_text(json.dumps(final))
+                        if check == 'kill':
+                            raise ProcessLookupError
+                        return SimpleNamespace(returncode=1, stdout='')
+                    with patch.object(operations_worker.os, 'kill', side_effect=supervisor_exits if check == 'kill' else None), \
+                            patch.object(operations_worker, 'run', supervisor_exits):
+                        observed = operations_worker.receipt(self.job, self.expected)
+                    self.assertEqual(observed['taskStatus'], status)
+                    self.assertEqual(observed['exitCode'], exit_code)
+
+    def test_reread_final_receipt_must_still_match_launch_identity(self):
+        def supervisor_exits(*args, **kwargs):
+            self.file.write_text(json.dumps(dict(self.running, processStart='other-claim', taskStatus='partial', exitCode=-15)))
+            raise ProcessLookupError
+        with patch.object(operations_worker.os, 'kill', side_effect=supervisor_exits):
+            with self.assertRaisesRegex(ValueError, 'identity'):
+                operations_worker.receipt(self.job, self.expected)
+
+    def test_disappeared_supervisor_without_final_receipt_stays_unknown(self):
+        with patch.object(operations_worker.os, 'kill', side_effect=ProcessLookupError):
+            observed = operations_worker.receipt(self.job, self.expected)
+        self.assertEqual(observed['taskStatus'], 'unknown')
+        self.assertNotIn('exitCode', observed)
+
+    def test_stop_waits_through_transient_unknown_for_confirmed_final_receipt(self):
+        partial = dict(self.running, taskStatus='partial', exitCode=-15)
+        observations = [self.running, dict(self.running, taskStatus='unknown'), partial]
+        payload = {'kind': 'task.stop', 'workspaceRoot': str(self.root),
+                   'repositoryPath': str(self.root), 'job': self.expected}
+        with patch.object(operations_worker, 'receipt', side_effect=observations):
+            observed = operations_worker.execute(payload)
+        self.assertEqual(observed['taskStatus'], 'partial')
+        self.assertEqual(json.loads((self.job / 'stop.json').read_text())['token'], 'claim-fixture')
+
+    def test_stop_without_final_receipt_remains_unknown_after_bounded_wait(self):
+        clock = [0.0]
+        calls = [0]
+        def observe(*args):
+            calls[0] += 1
+            return dict(self.running, taskStatus='running' if calls[0] == 1 else 'unknown')
+        def sleep(seconds):
+            clock[0] += seconds
+        payload = {'kind': 'task.stop', 'workspaceRoot': str(self.root),
+                   'repositoryPath': str(self.root), 'job': self.expected}
+        with patch.object(operations_worker, 'receipt', side_effect=observe), \
+                patch.object(operations_worker.time, 'monotonic', side_effect=lambda: clock[0]), \
+                patch.object(operations_worker.time, 'sleep', side_effect=sleep):
+            observed = operations_worker.execute(payload)
+        self.assertEqual(observed['taskStatus'], 'unknown')
+        self.assertNotIn('exitCode', observed)
+        self.assertGreaterEqual(clock[0], 5)
+        self.assertLess(clock[0], 5.1)
 
 
 class OperationsTests(unittest.TestCase):
@@ -57,9 +136,9 @@ class OperationsTests(unittest.TestCase):
             result = self.write('rws_operation_approve', operationRef=result['ref'], actor='human')
         return result
 
-    def launch(self, seconds=.2, argv=None):
+    def launch(self, seconds=.2, argv=None, timeout_seconds=4):
         run = self.write('rws_run_register', record={'title': 'Synthetic job', 'kind': 'training', 'codeRef': self.code['ref'], 'status': 'planned', 'config': {}, 'inputRefs': [], 'environmentRef': self.environment['ref'], 'repositoryRef': self.repository['ref'], 'sampleSelection': {'sampleIds': ['fixture']}, 'purpose': 'Software lifecycle test'})
-        op = self.operation('task.start', {'argv': argv or [sys.executable, 'job.py', str(seconds)], 'timeoutSeconds': 4}, runRef=run['ref'], environmentRef=self.environment['ref'])
+        op = self.operation('task.start', {'argv': argv or [sys.executable, 'job.py', str(seconds)], 'timeoutSeconds': timeout_seconds}, runRef=run['ref'], environmentRef=self.environment['ref'])
         return run, op, self.runner.execute(op['ref'])['result']
 
     def follow(self, launch, kind, args=None):
@@ -84,10 +163,11 @@ class OperationsTests(unittest.TestCase):
         self.assertEqual(latest['record']['status'], 'completed')
 
     def test_explicit_stop_is_confirmed_partial_not_success(self):
-        _, _, launch = self.launch(seconds=3)
+        _, _, launch = self.launch(seconds=30, timeout_seconds=60)
         stopped = self.follow(launch, 'task.stop')['record']['result']
         self.assertEqual(stopped['taskStatus'], 'partial')
         self.assertIn('exitCode', stopped)
+        self.assertEqual(stopped['message'], 'Stopped by an approved operation.')
 
     def test_unapproved_mutation_never_calls_transport(self):
         class Never:

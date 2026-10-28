@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1 — 2026-10-28
+
+- Re-read and verify the final durable task receipt when the supervisor exits during a status query, avoiding an incorrect unknown state caused by a stale running record.
+- Let an approved stop wait through transient unknown observations within its existing five-second window. Missing final evidence still remains unknown; no success is inferred.
+- Add deterministic race/identity/timeout regression tests and require the live synthetic stop test to verify an approved stop rather than natural completion.
+
 ## 0.4.0 — 2026-10-28
 
 - Add training as a code/specification role, with a standard-library synthetic training template.

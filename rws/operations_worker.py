@@ -100,14 +100,17 @@ def safe_paths(paths, repo):
 
 def receipt(root, expected):
     file = root / 'receipt.json'
-    if file.is_symlink():
-        raise ValueError('A supervisor receipt cannot be a symbolic link.')
-    within(file, root)
-    if not file.exists():
-        return dict(expected, taskStatus='unknown', checkedAt=now(), message='No durable supervisor receipt; do not relaunch.')
-    state = json.loads(file.read_text())
-    if state.get('jobId') != expected['jobId'] or (expected.get('processStart') and state.get('processStart') != expected['processStart']):
-        raise ValueError('Job receipt identity does not match the approved launch.')
+    def read_state():
+        if file.is_symlink():
+            raise ValueError('A supervisor receipt cannot be a symbolic link.')
+        within(file, root)
+        if not file.exists():
+            return dict(expected, taskStatus='unknown', message='No durable supervisor receipt; do not relaunch.')
+        state = json.loads(file.read_text())
+        if state.get('jobId') != expected['jobId'] or (expected.get('processStart') and state.get('processStart') != expected['processStart']):
+            raise ValueError('Job receipt identity does not match the approved launch.')
+        return state
+    state = read_state()
     if state.get('taskStatus') == 'running':
         try:
             os.kill(state['pid'], 0)
@@ -119,6 +122,12 @@ def receipt(root, expected):
             command = run(['ps', '-p', str(state['pid']), '-o', 'args='], root)
             if command.returncode or str(root / 'supervisor.py') not in command.stdout:
                 state.update(taskStatus='unknown', message='Supervisor process identity is no longer confirmed.')
+        if state.get('taskStatus') == 'unknown':
+            # The supervisor writes its final receipt before exiting. It may have
+            # done both after our first read but before the process identity check.
+            latest = read_state()
+            if latest.get('taskStatus') in ('completed', 'failed', 'partial'):
+                state = latest
     return dict(state, checkedAt=now())
 
 
@@ -273,13 +282,15 @@ def execute(payload):
             with os.fdopen(descriptor, 'w') as handle:
                 json.dump({'token': observed['processStart']}, handle)
         deadline = time.monotonic() + 5
-        while time.monotonic() < deadline:
+        while True:
             observed = receipt(root, expected)
-            if observed.get('taskStatus') != 'running':
+            if observed.get('taskStatus') in ('completed', 'failed', 'partial'):
                 break
-            time.sleep(.05)
-        if observed.get('taskStatus') == 'running':
-            observed.update(taskStatus='unknown', message='Stop request saved but termination is not confirmed.')
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                observed.update(taskStatus='unknown', message='Stop request saved but termination is not confirmed.')
+                break
+            time.sleep(min(.05, remaining))
     elif operation != 'task.inspect' and operation != 'task.stop':
         raise ValueError('Unsupported task operation.')
     return dict(paths, **observed)

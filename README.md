@@ -132,7 +132,7 @@ The service binds to loopback. It supports an explicitly configured **Tailscale 
 
 ## Development and status
 
-Version **0.4.0** is an early, single-user workbench. It has no collaborative multi-user permissions, cloud synchronization, automatic experiment scheduler or mobile layout. Supplied check evidence is recorded, not independently certified. Review changes and keep a database backup when upgrading.
+Version **0.4.1** is an early, single-user workbench. It has no collaborative multi-user permissions, cloud synchronization, automatic experiment scheduler or mobile layout. Supplied check evidence is recorded, not independently certified. Review changes and keep a database backup when upgrading.
 
 ```sh
 python3 -m unittest discover -s tests

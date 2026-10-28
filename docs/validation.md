@@ -1,4 +1,10 @@
-# Version 0.4.0 validation — 2026-10-28
+# Version 0.4.1 validation — 2026-10-28
+
+- 175 Python tests passed after the task-status race repair. The five new deterministic regressions cover final receipts written during process checks, matching launch identity, missing final evidence and bounded stop confirmation. Twenty separate synthetic stop-test processes also passed.
+- Independent review confirmed that the repair accepts only a final receipt with the same task identity; persistent uncertainty remains unknown and never causes an automatic relaunch.
+- The frontend is unchanged from the 150-test JavaScript suite below. The repair adds no model or real-server execution.
+
+## Version 0.4.0 validation — 2026-10-28
 
 - 170 Python tests passed, including isolated metric/operation storage, temporary Git and bare remotes, bounded synthetic local jobs, mocked SSH and fixture MLflow HTTP import. Seven cross-layer integration tests also passed in an independent review run.
 - 150 JavaScript tests passed. Coverage includes resource forms, exact operation approval, fixed executor commands, training execution/result separation, read-only demo guards, bounded process queries, frozen evidence and existing image comparisons.
