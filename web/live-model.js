@@ -53,6 +53,20 @@
   }
   function find(data,id){for(const g of Object.values(groups)){const row=data[g]?.find(x=>x.id===id);if(row)return row;}return null;}
   function label(data,ref){const e=data.envelopes[key(ref)];return e?.effectiveRecord?.title||e?.record.title||ref?.id||'未登记';}
+  function codeVisibility(data,showHistoricalSources=null,research=null){
+    const codes=data.codes||[],links=(research?.raw||research)?.implementationLinks||[],declaredCodes=new Set(links.filter(link=>link.targetRef.type==='code').map(link=>key(link.targetRef))),declaredSpecs=new Set(links.filter(link=>link.targetRef.type==='spec').map(link=>key(link.targetRef)));
+    const historical=codes.filter(c=>c.isExternal&&!declaredCodes.has(c.id)&&!declaredSpecs.has(key(c.raw?.specRef||c.specRef))),historicalIds=new Set(historical.map(c=>c.id)),hasOwnContracted=codes.some(c=>c.isCurrent&&!c.isExternal&&(c.raw?.specRef||c.specRef));
+    const show=showHistoricalSources??!hasOwnContracted;
+    return {showHistoricalSources:show,historicalSourceCount:historical.length,hiddenCount:show?0:historical.length,codes:show?codes:codes.filter(c=>!historicalIds.has(c.id))};
+  }
+  // Historical material is a reference, never a new execution or output binding.
+  function historicalMaterials(data,code,resolve=ref=>data.envelopes[key(ref)]){
+    const source=(code.raw||code).source||{},record=e=>e?.effectiveRecord||e?.record;
+    return (source.historicalArtifactRefs||[]).map(ref=>{
+      const artifact=resolve(ref),value=record(artifact),producerRef=value?.producerRef,producer=producerRef?resolve(producerRef):null,codeRef=record(producer)?.codeRef||record(producer)?.generatorCodeRef;
+      return {ref,artifact,producerRef,producer,codeRef,code:codeRef?resolve(codeRef):null};
+    });
+  }
   // Purpose links are declarations. Actual use is resolved only from execution
   // and explicit evidence references, never from matching titles or samples.
   function researchCodeRelations(data,research,{experiment=null}={}){
@@ -148,5 +162,5 @@
     }catch{return null;}
   }
 
-  const api={groups,key,sameRecord,empty,project,find,label,esc,clone,statusNames,researchKinds,implementationRoles,judgmentLabel,researchCodeRelations,researchForCode,relationLabels,relatedExecution,safeURL,pageWindow,outputGroups,materialCandidates,conditionLabel,fitStageWidths,reportsForExperiment};root.RWSAdapter=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
+  const api={groups,key,sameRecord,empty,project,find,label,esc,clone,statusNames,researchKinds,implementationRoles,judgmentLabel,codeVisibility,historicalMaterials,researchCodeRelations,researchForCode,relationLabels,relatedExecution,safeURL,pageWindow,outputGroups,materialCandidates,conditionLabel,fitStageWidths,reportsForExperiment};root.RWSAdapter=api;if(typeof module!=='undefined'&&module.exports)module.exports=api;
 })(typeof window!=='undefined'?window:globalThis);

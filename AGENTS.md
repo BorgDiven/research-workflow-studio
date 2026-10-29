@@ -18,6 +18,10 @@ MCP has model authority. It may propose project-foundation changes and provenanc
 
 Preserve immutable production facts and old report snapshots. Corrections are audited overlays. Never invent a producer to fill a missing field, silently choose the latest duplicate, or equate matching case labels across projects with the same input.
 
+Inference owns generation and necessary process records. Derived computations and visualizations used only for diagnosis, without affecting generation decisions, belong in reusable analysis modules. A clean prediction used in a FlowAlign pullback update is inference; endpoint extrapolation, differences and PCA computed from saved state/velocity/time are analysis. Both may share pure functions. Analysis may explicitly decode saved latents for visualization, but must not resample or query the generating model for new velocities while claiming offline analysis. Evaluation scores by a fixed protocol; reports organize existing evidence.
+
+Code may declare exact `source.historicalArtifactRefs`, a `source.historicalReuseNote`, and optional exact `source.legacyCodeRefs`. These are historical reference material, not outputs of the refactored implementation or evidence of equivalence. Keep original artifact producers and run code references. Show historical material separately with “重构一致性未验证”; missing exact versions remain missing. The code canvas defaults to hiding external codes loaded only through historical provenance when this project has its own contracted code. Keep external implementations explicitly declared by the current research, including exact specification bindings, visible for every role; the show/hide control counts only collapsible historical sources. Preserve direct provenance navigation. Legacy projects keep their existing default.
+
 ## Development
 
 - Runtime uses Python standard library and a vanilla JavaScript desktop UI. Avoid adding a build system or remote dependency without a concrete need.

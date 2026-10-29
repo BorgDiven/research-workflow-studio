@@ -48,7 +48,7 @@ test('actual sidebar controller preserves report scope through nested references
 });
 test('canvas definitions expose exact spec versions and unavailable refs without substituting a newer available version',()=>{
   const specs=[{id:'p:spec:S:1',kind:'analysis',purpose:'fixed spec'},{id:'p:spec:M:2',kind:'inference'}],links=[{id:'p:spec:S:1',targetRef:{type:'spec',version:1},available:true},{id:'p:spec:M:1',targetRef:{type:'spec',version:1},available:false},{id:'p:code:C:1',targetRef:{type:'code',version:1},available:true}];
-  const nodes=vm.runInNewContext(`(()=>{${implementation('codeLaneNodes','associationBadge')}return codeLaneNodes;})()`,{D:{codes:[{id:'p:code:C:1',kind:'analysis'}]},codeContextLinks:links,get:(kind,id)=>specs.find(s=>s.id===id)});
+  const nodes=vm.runInNewContext(`(()=>{${implementation('codeLaneNodes','associationBadge')}return codeLaneNodes;})()`,{D:{codes:[{id:'p:code:C:1',kind:'analysis'}]},A,state:state(),codeContextLinks:links,currentH:()=>null,get:(kind,id)=>specs.find(s=>s.id===id)});
   assert.deepEqual(plain(nodes('analysis')).map(x=>x.id),['p:code:C:1','p:spec:S:1']);assert.deepEqual(plain(nodes('unavailable')).map(x=>x.id),['p:spec:M:1']);assert.equal(nodes('inference').length,0);
 });
 test('frozen sidebar rendering cannot fall through to later live code or artifact records',()=>{

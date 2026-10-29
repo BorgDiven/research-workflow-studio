@@ -2,6 +2,8 @@
 
 Research Workflow Studio keeps a method's implementation separate from the cases it runs on. The model first reads the project context, looks for an existing implementation, and defines or reads the block contract. It then writes code against that contract outside MCP, records supplied check evidence, and registers the fixed implementation. Actual execution remains a separately authorized action in the user's conversation or local environment.
 
+Inference owns generation and its necessary process records. Computations and visualizations used only for diagnosis, without affecting generation decisions, belong in reusable analysis modules. For example, a clean prediction used in a FlowAlign pullback update is inference; endpoint extrapolation, differences or PCA reading saved state/velocity/time are analysis. These modules may share pure functions. Analysis can explicitly call a decoder to visualize saved latents, but cannot resample or query the generating model for new velocities and present that as offline analysis. Evaluation applies a fixed scoring protocol; reports organize already available evidence.
+
 All MCP writes require `requestId`, `projectId`, and `expectedRevision`, except project creation. Replaying the same request returns its original result. References have `{projectId, type, id, version}`; omitted versions resolve once when saving. Historical versions remain readable. The generated `tools/list` schemas are the executable API specification.
 
 ## 1. Define the method before implementing it
@@ -90,6 +92,26 @@ Use `rws_code_find` with `{projectId, query?, kind?, specRef?, limit?}` before c
 Check status is `passed`, `failed`, or `skipped`. Evidence is a nonempty description or log reference. The server sets `validationOrigin: "supplied"` in the stored record. Do not send that generated field as an input. Failed/skipped checks remain explicit; registration is not independent verification or scientific acceptance.
 
 The tuple `(repository, commit, modulePath, entrypoint)` identifies one contracted implementation within a project. Registering it again under a new title is rejected with `duplicate_identity` and the existing reference. A different case or configuration reuses that reference. Registered code cannot be edited. Legacy code records without contracts remain readable and valid, but cannot claim contracted validation.
+
+For a refactored implementation, optional source metadata can associate existing historical material:
+
+```json
+{
+  "source": {
+    "historicalArtifactRefs": [
+      {"projectId": "legacy-project", "type": "artifact", "id": "saved-output", "version": 1}
+    ],
+    "historicalReuseNote": "Reference material from the earlier implementation; refactor equivalence has not been verified.",
+    "legacyCodeRefs": [
+      {"projectId": "legacy-project", "type": "code", "id": "original-method", "version": 1}
+    ]
+  }
+}
+```
+
+These fields declare historical references, not a production or execution relationship. The interface resolves only exact loaded versions, displays them under **历史复用材料** with **重构一致性未验证**, and keeps the original artifact → producer → code path available. Historical material does not enter this implementation's output or execution counts; no `producerRef` or `codeRef` is rewritten. An unavailable version remains unavailable even when a newer version is loaded. `legacyCodeRefs` optionally supplies direct source-code navigation. This metadata does not establish scientific equivalence or an actual experiment usage; the latter still requires an explicit usage record.
+
+When the current project has its own code bound to a contract, its main code canvas defaults to hiding external code loaded only through historical provenance. External code explicitly declared by the current research’s `implementationLinks` remains visible for implementation, control and diagnostic roles; an external implementation bound to an explicitly declared exact specification revision also remains visible. This protection uses the current research regardless of the association-highlight scope. The show/hide control counts only the historical source cards it can collapse; provenance navigation retains access. Projects with only legacy own code retain their previous default; changing visibility never changes research context or the separate association-highlighting state.
 
 ## 3. Select cases on runs; identify outputs precisely
 
