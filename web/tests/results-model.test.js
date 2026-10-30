@@ -45,3 +45,34 @@ test('missing single-sample columns respect fixed conditions and survive a pinne
   const pinned=[...new Map([...grid.items,...grid.columns.map(c=>c.item)].map(x=>[x.id,x])).values()],reopened=M.matrix(pinned,view);
   assert.deepEqual(reopened.columns.map(c=>c.key),grid.columns.map(c=>c.key));assert.deepEqual(reopened.rows.map(r=>r.key),[bird.caseKey]);assert.equal(reopened.cells.size,1);
 });
+
+test('explicit method groups compare across code versions but keep configuration and provenance',()=>{
+  const items=fixture(),before=JSON.stringify(items),refs=items.filter(x=>['A0','A1','A2','A4'].includes(x.ref.id)).map(x=>x.ref);
+  const view={mode:'multi',axis:'method',observation:{step:1},methodGroups:[{id:'native',label:'Native comparison',artifactRefs:refs}]};
+  const grid=M.matrix(items,view);assert.equal(grid.columns.length,1);assert.equal(grid.columns[0].title,'Native comparison');
+  const fish=grid.rows.find(x=>x.item.sampleId==='fish'),candidates=grid.cells.get(grid.cellKey(fish.key,grid.columns[0].key));
+  assert.deepEqual(candidates.map(x=>x.ref.id),['A0','A1','A4']);assert.equal(M.selectedCell(candidates),null);
+  assert.equal(M.selectedCell(candidates,items[1].id).codeRef.id,'C1');assert.equal(M.selectedCell(candidates,items[0].id).codeRef.id,'C0');
+  const different=items.map(x=>x.ref.id==='A1'?{...x,config:{cfg:6}}:x);assert.equal(M.matrix(different,view).columns.length,2);
+  assert.equal(M.matrix(items,{...view,axis:'implementation'}).columns.length,2);
+  assert.equal(JSON.stringify(items),before);
+});
+
+test('group assignments pin exact membership without changing result identities',()=>{
+  const items=fixture(),refs=items.map(x=>x.ref),old=[{id:'base',label:'Native',artifactRefs:refs.slice(0,2)}],before=JSON.stringify(old);
+  const next=M.assignGroup(old,[refs[1]],'changed','Controlled');assert.equal(JSON.stringify(old),before);
+  assert.deepEqual(next.map(g=>g.artifactRefs.map(r=>r.id)),[['A0'],['A1']]);
+  assert.deepEqual(M.pinGroups(next,[refs[1]]),[{id:'changed',label:'Controlled',artifactRefs:[refs[1]]}]);
+  assert.equal(M.assignGroup(next,[refs[1]],null,'').length,1);
+  const view={mode:'multi',axis:'method',methodGroups:old},saved=JSON.parse(JSON.stringify(view));
+  const future={...items[0],id:'future',ref:ref('artifact','future')};
+  const grid=M.matrix([...items,future],saved);assert.ok(grid.columns.some(c=>c.item===future||(!c.group&&c.item.codeRef?.id==='C0')));
+  const grouped=[...grid.cells.values()].flat().filter(x=>x.id==='future');assert.equal(grouped.length,1);
+  assert.equal(M.selectedCell([future],items[0].id),null);
+});
+
+test('missing exact run revision never borrows another revision of the same run',()=>{
+  const artifact={id:'a',ref:ref('artifact','a'),raw:{sampleId:'fish',producerRef:ref('run','R',1)}};
+  const data={key:A.key,envelopes:{},codes:[],runs:[{ref:ref('run','R',2),raw:{codeRef:ref('code','wrong'),config:{cfg:99}}}]};
+  const item=M.describe(artifact,data);assert.equal(item.producerKnown,false);assert.equal(item.codeRef,undefined);assert.deepEqual(item.config,{});
+});

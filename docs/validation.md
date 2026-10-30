@@ -1,3 +1,9 @@
+# Method comparison columns — 2026-10-30
+
+- 181 Python and 181 JavaScript tests passed. Coverage includes exact method-group members, differing configurations, explicit repeat selection, missing precise producer revisions, saved comparisons and report snapshots. Source corrections now validate the merged comparison, so grouped members cannot be removed from its input set.
+- A real Chrome session against an isolated database verified grouping five synthetic PNG results across two code identities, preserving two configuration columns, explicit candidate selection, saving and reopening, per-result code/run details, and creating a report with the three selected results plus the fixed comparison.
+- Synthetic records and images were kept outside production. No model execution, scientific equivalence claim, production migration or file-hash check was performed. Installed-service verification is recorded separately in the local release receipt.
+
 # Version 0.4.1 validation — 2026-10-28
 
 - 175 Python tests passed after the task-status race repair. The five new deterministic regressions cover final receipts written during process checks, matching launch identity, missing final evidence and bounded stop confirmation. Twenty separate synthetic stop-test processes also passed.

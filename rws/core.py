@@ -185,7 +185,7 @@ def record_schema(kind, partial=False):
         'repository': {'type': 'string', 'minLength': 1}, 'commit': {'type': 'string', 'minLength': 1},
         'sampleSelection': {'type': 'object', 'properties': {'datasetRef': ref_schema('dataset'), 'sampleIds': strings}, 'required': ['sampleIds'], 'additionalProperties': False},
         'semantic': {'type': 'string', 'minLength': 1}, 'observation': observation, 'taskKey': {'type': 'string', 'minLength': 1},
-        'viewSpec': {'type': 'object', 'properties': {'mode': {'enum': ['single', 'multi']}, 'sampleIds': strings, 'semantics': strings, 'axis': string, 'selectedValues': {'type': 'array'}, 'observation': observation, 'filters': {'type': 'object'}, 'repeats': {'enum': ['all', 'latest']}}, 'required': ['mode'], 'additionalProperties': False},
+        'viewSpec': {'type': 'object', 'properties': {'mode': {'enum': ['single', 'multi']}, 'sampleIds': strings, 'semantics': strings, 'axis': string, 'selectedValues': {'type': 'array'}, 'observation': observation, 'filters': {'type': 'object'}, 'repeats': {'enum': ['all', 'latest']}, 'methodGroups': {'type': 'array', 'items': {'type': 'object', 'properties': {'id': {'type': 'string', 'minLength': 1}, 'label': {'type': 'string', 'minLength': 1}, 'artifactRefs': {'type': 'array', 'minItems': 1, 'items': {**ref_schema('artifact'), 'required': ['projectId', 'type', 'id', 'version']}}}, 'required': ['id', 'label', 'artifactRefs'], 'additionalProperties': False}}}, 'required': ['mode'], 'additionalProperties': False},
         'scope': {'type': 'object', 'properties': {'sampleIds': strings, 'description': string}, 'additionalProperties': False},
         'coverage': {'type': 'object', 'properties': {'expected': {'type': 'integer', 'minimum': 0}, 'observed': {'type': 'integer', 'minimum': 0}, 'missingSampleIds': strings}, 'required': ['expected', 'observed'], 'additionalProperties': False},
     }
@@ -793,6 +793,29 @@ class Store:
         offset, limit = args.get('offset', 0), args.get('limit', 100)
         return {'items': items[offset:offset + limit], 'total': len(items), 'offset': offset, 'limit': limit}
 
+    def _validate_comparison(self, record):
+        array(record.get('inputRefs'), 'inputRefs')
+        object_(record.get('fixedConditions'), 'fixedConditions')
+        if not isinstance(record.get('varyingConditions'), (list, dict)):
+            fail('varyingConditions must explicitly describe allowed differences.')
+        if len({dump(ref) for ref in record['inputRefs']}) != len(record['inputRefs']):
+            fail('Comparison inputs must identify unique records.')
+        if record.get('viewSpec', {}).get('mode') == 'single' and len(record['viewSpec'].get('sampleIds', [])) > 1:
+            fail('Single-case view cannot select more than one sampleId.')
+        inputs = {dump(ref) for ref in record['inputRefs']}
+        group_ids, members = set(), set()
+        for group in record.get('viewSpec', {}).get('methodGroups', []):
+            if group['id'] in group_ids:
+                fail('Comparison method group IDs must be unique.')
+            group_ids.add(group['id'])
+            for ref in group['artifactRefs']:
+                key = dump(ref)
+                if key not in inputs:
+                    fail('Method group members must be exact artifacts in comparison inputRefs.')
+                if key in members:
+                    fail('A comparison artifact cannot belong to more than one method group.')
+                members.add(key)
+
     def _validate_amendment(self, conn, target, patch):
         kind = target['ref']['type']
         if kind not in ('research', 'experiment', 'code', 'run', 'artifact', 'dataset', 'conversation', 'comparison', 'analysis'):
@@ -821,6 +844,8 @@ class Store:
         if 'inputRefs' in patch:
             for ref in array(patch['inputRefs'], 'inputRefs'):
                 self._get(conn, ref)
+        if kind == 'comparison':
+            self._validate_comparison(value)
         if 'producerRef' in patch:
             producer = self._get(conn, patch['producerRef'], ['run'], target['ref']['projectId'])
             if producer['record'].get('status') == 'planned':
@@ -1170,14 +1195,7 @@ class Store:
             if record['status'] in ('failed', 'partial') and not results and not record.get('notes') and not failed:
                 fail('An evaluation without results needs an explicit failure or missing-data reason.')
         elif kind == 'comparison':
-            array(record.get('inputRefs'), 'inputRefs')
-            object_(record.get('fixedConditions'), 'fixedConditions')
-            if not isinstance(record.get('varyingConditions'), (list, dict)):
-                fail('varyingConditions must explicitly describe allowed differences.')
-            if len({dump(ref) for ref in record['inputRefs']}) != len(record['inputRefs']):
-                fail('Comparison inputs must identify unique records.')
-            if record.get('viewSpec', {}).get('mode') == 'single' and len(record['viewSpec'].get('sampleIds', [])) > 1:
-                fail('Single-case view cannot select more than one sampleId.')
+            self._validate_comparison(record)
         elif kind == 'analysis':
             for ref in array(record.get('experimentRefs', []), 'experimentRefs'):
                 self._get(conn, ref, ['experiment'], pid)

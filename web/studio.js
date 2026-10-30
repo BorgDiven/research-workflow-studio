@@ -104,7 +104,7 @@
   window.addEventListener('rp:foundation-render',renderFoundation);
   window.addEventListener('rp:context-change',()=>{if(project())renderStrip();});
   document.addEventListener('error',event=>{if(event.target.matches?.('.typed-image img')){event.target.hidden=true;const p=document.createElement('p');p.className='evidence-empty';p.textContent='图像暂不可访问；来源记录仍保留。';event.target.closest('figure').prepend(p);}},true);
-  window.RWSUI={openDialog,notify,fail,write,project,wb,getProjects:projects,isBusy:()=>busy};
+  window.RWSUI={openDialog,closeDialog,notify,fail,write,project,wb,getProjects:projects,isBusy:()=>busy};
   window.RWSPreview={getProject:()=>A.clone(project()||null),getProjects:()=>A.clone(projects()),getContext:()=>contextCache&&A.clone(contextCache),getProjectSummary:()=>project()?M.projectSummary(project(),D):null,refresh:()=>load()};
   const params=new URLSearchParams(location.search),initial=params.get('projectId');if(initial){activeProjectId=initial;surface='workbench';}refresh();load(activeProjectId,{force:true}).then(()=>{if(params.has('amendments'))window.RWSAmendments?.openFromURL(params);else if(params.has('stages')&&project())stages();else if(params.has('review')&&project()?.draft)review();});
   setInterval(()=>{if(document.visibilityState==='visible'&&!busy)load(activeProjectId,{quiet:true});},15000);
