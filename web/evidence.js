@@ -128,8 +128,12 @@
     }
     return empty('该内容尚未声明受支持的展示格式');
   }
+  function managedPDF(uri){
+    if(/^\/materials\/.*\.pdf(?:[?#]|$)/i.test(uri))return true;
+    try{const parsed=new URL(uri);return !!window.location?.origin&&parsed.origin===window.location.origin&&/^\/materials\/.*\.pdf$/i.test(parsed.pathname);}catch{return false;}
+  }
   function inlineMarkdown(text){
-    const token=/(`[^`]+`|!?\[[^\]]*\]\([^)]+\)|\*\*[^*]+\*\*)/g;let out='',last=0;for(const match of text.matchAll(token)){out+=esc(text.slice(last,match.index));const value=match[0];if(value.startsWith('`'))out+='<code>'+esc(value.slice(1,-1))+'</code>';else if(value.startsWith('**'))out+='<strong>'+esc(value.slice(2,-2))+'</strong>';else{const link=/^(!?)\[([^\]]*)\]\(([^)]+)\)$/.exec(value),isImage=link[1]||/\.(png|jpe?g|webp|gif|tiff?|bmp|svg|avif|heic|heif)(?:[?#]|$)/i.test(link[3]),isReport=/^\/materials\/.*\.pdf(?:[?#]|$)/i.test(link[3]),url=isImage||isReport?readingURL(link[3]):A.safeURL(link[3]);out+=link[1]?`<span class="report-reading-image">${readingMedia(link[3],link[2]||'报告阅读图')}</span>`:url?`<a href="${esc(url)}" target="_blank" rel="noopener">${esc(link[2])}</a>`:esc(link[2]+'（'+(isImage?'阅读图尚不可用':link[3])+'）');}last=match.index+value.length;}return out+esc(text.slice(last));
+    const token=/(`[^`]+`|!?\[[^\]]*\]\([^)]+\)|\*\*[^*]+\*\*)/g;let out='',last=0;for(const match of text.matchAll(token)){out+=esc(text.slice(last,match.index));const value=match[0];if(value.startsWith('`'))out+='<code>'+esc(value.slice(1,-1))+'</code>';else if(value.startsWith('**'))out+='<strong>'+esc(value.slice(2,-2))+'</strong>';else{const link=/^(!?)\[([^\]]*)\]\(([^)]+)\)$/.exec(value),isImage=link[1]||/\.(png|jpe?g|webp|gif|tiff?|bmp|svg|avif|heic|heif)(?:[?#]|$)/i.test(link[3]),isReport=managedPDF(link[3]),url=isImage||isReport?readingURL(link[3]):A.safeURL(link[3]);out+=link[1]?`<span class="report-reading-image">${readingMedia(link[3],link[2]||'报告阅读图')}</span>`:url?`<a href="${esc(url)}" target="_blank" rel="noopener">${esc(link[2])}</a>`:esc(link[2]+'（'+(isImage?'阅读图尚不可用':isReport?'报告阅读版尚不可用':link[3])+'）');}last=match.index+value.length;}return out+esc(text.slice(last));
   }
   function markdown(text){
     const lines=String(text||'').replace(/\r\n?/g,'\n').split('\n');let out='',paragraph=[],list=null,code=null;

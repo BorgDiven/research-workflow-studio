@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.1 — 2026-11-01
+
+- Route same-origin absolute managed PDF links in report Markdown through the reading-copy endpoint, matching relative material links and typed PDF attachments. External links retain their original destination.
+
 ## 0.5.0 — 2026-11-01
 
 - Separate configurable managed originals and a bounded local reading cache without changing original URLs or fixed evidence records.
@@ -8,7 +12,7 @@
 - Generate concise report Markdown with selected summaries instead of embedding full input arrays. Preserve the complete selected evidence snapshot separately.
 - Include the previously accepted explicit method comparison groups and historical-source separation.
 
-Validation: 212 Python tests and 192 JavaScript tests passed locally; synthetic desktop browser checks covered comparison reading and enlargement.
+Validation: CI passed on Python 3.9 and 3.12 (212 cases, with 13 optional-component skips before installation; all 20 storage and 8 PDF tests passed after installing converters), plus 192 JavaScript tests. Synthetic desktop browser checks covered comparison reading and enlargement.
 
 ## 0.4.2 — 2026-10-28
 

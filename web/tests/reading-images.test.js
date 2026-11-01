@@ -94,6 +94,28 @@ test('PDF reading links use the rendition endpoint and originals remain explicit
   const details=R.render('artifact',A.key(artifact.ref));assert.match(details,/href="\/materials\/p\/large-report.pdf\?download=1" download/);
   assert.doesNotMatch(R.typed({kind:'attachment',uri:'https://files.example/report.pdf',mimeType:'application/pdf'}),/href=/);
 });
+test('Markdown PDF links treat relative and same-origin managed reports identically while keeping external citations',()=>{
+  const path='/materials/p/report%201.pdf',origin='https://studio.example:8443',original=origin+path;
+  const artifact=env('artifact','PDF',{title:'Report',kind:'attachment',uri:original,mimeType:'application/pdf'}),{R}=reader([artifact],{origin});
+  for(const uri of [path,original]){
+    const html=R.markdown('[Report]('+uri+')');
+    assertReadingOnly(html,path);assert.doesNotMatch(html,new RegExp('href="'+origin));
+  }
+  const details=R.render('artifact',A.key(artifact.ref));
+  assert.match(details,/<details class="original-materials"><summary>原始文件<\/summary>/);
+  assert.ok(details.includes('href="'+original+'" download'));
+  for(const uri of ['https://other.example/materials/p/report.pdf','https://studio.example/materials/p/report.pdf','http://studio.example:8443/materials/p/report.pdf']){
+    const html=R.markdown('[Paper]('+uri+')');
+    assert.ok(html.includes('href="'+uri+'"'));assert.doesNotMatch(html,/\/api\/preview/);
+  }
+});
+test('unsupported same-origin PDF addresses never fall back to original links',()=>{
+  const {R}=reader([],{origin:'https://studio.example'});
+  for(const uri of ['https://studio.example/materials/p/report.pdf?download=1','https://studio.example/materials/p/report.pdf#page=2','https://user:secret@studio.example/materials/p/report.pdf']){
+    const html=R.markdown('[Report]('+uri+')');
+    assert.doesNotMatch(html,/href=/);assert.match(html,/报告阅读版尚不可用/);
+  }
+});
 test('single-sample and multi-sample result matrices both reuse the shared reading resolver',()=>{
   const records=[env('code','C',{kind:'inference',version:'v1'}),env('run','R',{codeRef:ref('code','C'),status:'completed'}),...['a','b'].map(id=>env('artifact',id,{kind:'image',title:id,semantic:'final-output',sampleId:id,producerRef:ref('run','R'),uri:'/materials/p/'+id+'.png'}))];
   const {R,D}=reader(records),listeners={},host={innerHTML:'',querySelector:()=>({scrollTop:0})};
