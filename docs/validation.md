@@ -1,6 +1,6 @@
 # Lightweight reading and local storage — 2026-11-01
 
-211 Python tests and 192 JavaScript tests passed locally with the optional reading converters installed. The continuous-integration matrix also checks the base installation without those optional dependencies.
+212 Python tests and 192 JavaScript tests passed locally with the optional reading converters installed. The continuous-integration matrix also checks the base installation without those optional dependencies.
 
 - Separate roots and derived-cache tests cover traversal/symlink rejection, source-root identity, same-root offline reading, exact file replacement, concurrent streaming/eviction, bounded cache bookkeeping and optional-converter failure without original fallback.
 - Reading-image UI tests cover multi/single comparisons, native Markdown images and material attachments, exact report scope, missing versions, same-origin URL normalization, unavailable reading copies and the packaged offline demo.

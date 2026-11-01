@@ -8,7 +8,7 @@
 - Generate concise report Markdown with selected summaries instead of embedding full input arrays. Preserve the complete selected evidence snapshot separately.
 - Include the previously accepted explicit method comparison groups and historical-source separation.
 
-Validation: 211 Python tests and 192 JavaScript tests passed locally; synthetic desktop browser checks covered comparison reading and enlargement.
+Validation: 212 Python tests and 192 JavaScript tests passed locally; synthetic desktop browser checks covered comparison reading and enlargement.
 
 ## 0.4.2 — 2026-10-28
 

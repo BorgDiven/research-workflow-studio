@@ -242,6 +242,8 @@ class StudioHandler(BaseHTTPRequestHandler):
                 self._static(parsed.path)
         except PreviewError as exc:
             self._error(exc.status, exc.code, exc.message)
+        except PermissionError:
+            self._error(503, "storage_permission_denied", "操作系统禁止后台服务读取此存储位置；请检查服务的文件访问权限。原件未改动。")
         except RwsError as exc:
             self._error(error_status(exc.code), exc.code, exc.message, exc.details)
         except (BrokenPipeError, ConnectionResetError):

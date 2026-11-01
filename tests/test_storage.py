@@ -335,6 +335,15 @@ class StorageTransportTests(unittest.TestCase):
         self.assertEqual(self.read('/api/preview?uri=%2Fmaterials%2Ftest.png',
                                    headers={'Origin': 'https://untrusted.example'})[0], 403)
 
+    def test_os_permission_failure_is_actionable_without_exposing_path(self):
+        (self.originals / 'test.png').write_bytes(b'original protected')
+        with patch.object(Path, 'open', side_effect=PermissionError(1, 'Operation not permitted')):
+            status, _, body = self.read('/materials/test.png?download=1')
+        self.assertEqual(status, 503)
+        self.assertEqual(json.loads(body)['error']['code'], 'storage_permission_denied')
+        self.assertNotIn(str(self.originals).encode(), body)
+        self.assertEqual((self.originals / 'test.png').read_bytes(), b'original protected')
+
     @unittest.skipUnless(Image, 'Optional Pillow converter is not installed')
     def test_real_http_preview_bytes_range_and_offline_read(self):
         path = self.originals / 'large.png'
