@@ -4,7 +4,7 @@
   "fixture": "fixtures.json",
   "spec": {
     "title": "Evidence composition report",
-    "purpose": "Compose exact stored evidence and supplied interpretation into per-case Markdown documents without running inference or recomputing metrics.",
+    "purpose": "Compose exact stored evidence and supplied interpretation into bounded per-case Markdown reading summaries, preserving the complete selected records separately without running inference or recomputing metrics.",
     "inputs": [
       {
         "name": "signals",

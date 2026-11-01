@@ -87,3 +87,9 @@ python3 launch.py operate --db /absolute/path/studio.sqlite3 \
 当前是 0.4.2 单用户早期版本，没有多用户协作权限、自动实验调度或手机布局。可以通过 [Tailscale 私有访问](docs/deployment.md) 跨电脑使用；公开仓库不包含真实研究数据库和材料。历史来源纠正保留原记录，旧报告不会被新数据改写。
 
 [使用指南](docs/usage-guide.md) · [更新记录](CHANGELOG.md) · [数据约定](CONTRACT.md) · [架构](docs/architecture.md) · [后续方向](docs/roadmap.md) · [贡献](CONTRIBUTING.md)
+
+## 轻量阅读与原件保存
+
+产出对比和点图放大都使用独立的阅读图；受管 PDF 默认打开阅读版。原件下载收进材料详情。阅读缓存有容量上限，自动清理仅涉及可重新生成的副本，原始数据与固定证据不受影响。默认全放本机，也可单独指定原件目录。
+
+图片转换可选安装 `.[previews]`，PDF 阅读版可选安装 `.[pdf-readings]`；缺少转换能力时显示提示，不自动下载大原件。详见[存储与阅读规则](docs/storage-and-reading.md)。

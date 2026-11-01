@@ -17,6 +17,7 @@ from urllib.parse import parse_qs, unquote, urlsplit
 from . import __version__
 from .core import RwsError, Store, tool_definitions
 from .origin import normalize_web_origin
+from .storage import MaterialStorage, PreviewError
 
 
 MAX_BODY_BYTES = 4 * 1024 * 1024
@@ -64,7 +65,8 @@ def default_web_root():
 class StudioHTTPServer(ThreadingHTTPServer):
     daemon_threads = True
 
-    def __init__(self, address, db_path, web_root=None, public_origin=None, tailscale_user=None):
+    def __init__(self, address, db_path, web_root=None, public_origin=None, tailscale_user=None,
+                 materials_root=None, preview_cache_root=None, preview_cache_mb=512):
         if address[0] not in ("127.0.0.1", "localhost"):
             raise ValueError("The local trial must bind to 127.0.0.1 or localhost.")
         if (public_origin is None) != (tailscale_user is None):
@@ -74,12 +76,13 @@ class StudioHTTPServer(ThreadingHTTPServer):
             raise ValueError("tailscale_user must be a nonempty Tailscale login name.")
         self.public_origin = normalize_web_origin(public_origin, allow_loopback=False) if public_origin is not None else None
         self.tailscale_user = tailscale_user
+        self.storage = MaterialStorage(db_path, materials_root, preview_cache_root, preview_cache_mb)
         self.store = Store(db_path)
         launcher = Path(__file__).resolve().parent.parent / "launch.py"
         prefix = [sys.executable, str(launcher)] if launcher.is_file() else [sys.executable, "-m", "rws"]
         self.operator_command_prefix = shlex.join(prefix + ["operate", "--db", str(Path(db_path).resolve())])
         self.web_root = Path(web_root or default_web_root()).resolve()
-        self.material_root = Path(db_path).resolve().parent / "materials"
+        self.material_root = self.storage.materials_root
         self.sessions = {}
         self.session_lock = threading.Lock()
         super().__init__(address, StudioHandler)
@@ -213,12 +216,32 @@ class StudioHandler(BaseHTTPRequestHandler):
                     return
                 project_id = params.get("projectId", [None])[0]
                 self._json(200, self.server.store.snapshot(project_id or None))
+            elif parsed.path == "/api/preview":
+                params = parse_qs(parsed.query, keep_blank_values=True)
+                if set(params) != {"uri"} or len(params["uri"]) != 1:
+                    self._error(400, "validation", "阅读图参数无效。")
+                    return
+                stream, info = self.server.storage.preview(params["uri"][0])
+                with stream:
+                    self._stream_material(stream, info["mimeType"], info["bytes"],
+                                          preview=True, original_available=info["originalAvailable"])
+            elif parsed.path == "/api/storage":
+                if parsed.query:
+                    self._error(400, "validation", "存储状态参数无效。")
+                    return
+                self._json(200, {"ok": True, **self.server.storage.status()})
             elif parsed.path.startswith("/api/"):
                 self._error(404, "not_found", "接口不存在。")
             elif parsed.path.startswith("/materials/"):
-                self._material(parsed.path)
+                params = parse_qs(parsed.query, keep_blank_values=True)
+                if params and params != {"download": ["1"]}:
+                    self._error(400, "validation", "材料读取参数无效。")
+                    return
+                self._material(parsed.path, download=bool(params))
             else:
                 self._static(parsed.path)
+        except PreviewError as exc:
+            self._error(exc.status, exc.code, exc.message)
         except RwsError as exc:
             self._error(error_status(exc.code), exc.code, exc.message, exc.details)
         except (BrokenPipeError, ConnectionResetError):
@@ -244,19 +267,17 @@ class StudioHandler(BaseHTTPRequestHandler):
             content_type += "; charset=utf-8"
         self._send(200, candidate.read_bytes(), content_type)
 
-    def _material(self, url_path):
-        """Serve only explicitly imported copies, never a supplied source path."""
-        relative = unquote(url_path[len("/materials/"):])
-        if not relative or "\x00" in relative or "\\" in relative or any(
-                part.startswith(".") for part in Path(relative).parts):
+    def _material(self, url_path, download=False):
+        """Serve only the configured managed root, never supplied source paths."""
+        _, candidate = self.server.storage.original(url_path)
+        if not candidate.is_file():
             self._error(404, "not_found", "材料不存在。")
             return
-        root = self.server.material_root.resolve()
-        candidate = (root / relative).resolve()
-        if root not in candidate.parents or not candidate.is_file():
-            self._error(404, "not_found", "材料不存在。")
-            return
-        size = candidate.stat().st_size
+        media = mimetypes.guess_type(str(candidate))[0] or "application/octet-stream"
+        with candidate.open("rb") as stream:
+            self._stream_material(stream, media, candidate.stat().st_size, download=download)
+
+    def _stream_material(self, stream, media, size, download=False, preview=False, original_available=True):
         start, end, partial = 0, size - 1, False
         byte_range = self.headers.get("Range")
         if byte_range:
@@ -274,7 +295,6 @@ class StudioHandler(BaseHTTPRequestHandler):
                 self._send(416, b"", "application/octet-stream", (("Content-Range", "bytes */%s" % size),))
                 return
             partial = True
-        media = mimetypes.guess_type(str(candidate))[0] or "application/octet-stream"
         safe_inline = media in {"image/png", "image/jpeg", "image/webp", "image/gif", "application/pdf", "text/plain"}
         self.send_response(206 if partial else 200)
         self.send_header("Content-Type", media if safe_inline else "application/octet-stream")
@@ -284,21 +304,23 @@ class StudioHandler(BaseHTTPRequestHandler):
         self.send_header("X-Content-Type-Options", "nosniff")
         self.send_header("Content-Security-Policy", "default-src 'none'; sandbox")
         self.send_header("Referrer-Policy", "no-referrer")
-        if not safe_inline:
+        if download or not safe_inline:
             self.send_header("Content-Disposition", "attachment")
+        if preview:
+            self.send_header("X-RWS-Rendition", "reading")
+            self.send_header("X-RWS-Original-Available", "true" if original_available else "false")
         if partial:
             self.send_header("Content-Range", "bytes %s-%s/%s" % (start, end, size))
         self.end_headers()
         if self.command != "HEAD":
-            with candidate.open("rb") as stream:
-                stream.seek(start)
-                remaining = end - start + 1
-                while remaining > 0:
-                    chunk = stream.read(min(256 * 1024, remaining))
-                    if not chunk:
-                        break
-                    self.wfile.write(chunk)
-                    remaining -= len(chunk)
+            stream.seek(start)
+            remaining = end - start + 1
+            while remaining > 0:
+                chunk = stream.read(min(256 * 1024, remaining))
+                if not chunk:
+                    break
+                self.wfile.write(chunk)
+                remaining -= len(chunk)
 
     def do_POST(self):
         parsed = urlsplit(self.path)
@@ -363,12 +385,16 @@ class StudioHandler(BaseHTTPRequestHandler):
         self._error(405, "forbidden", "此本机服务不提供跨站 CORS 接口。")
 
 
-def create_server(db_path, host="127.0.0.1", port=8831, web_root=None, public_origin=None, tailscale_user=None):
-    return StudioHTTPServer((host, port), db_path, web_root, public_origin, tailscale_user)
+def create_server(db_path, host="127.0.0.1", port=8831, web_root=None, public_origin=None, tailscale_user=None,
+                  materials_root=None, preview_cache_root=None, preview_cache_mb=512):
+    return StudioHTTPServer((host, port), db_path, web_root, public_origin, tailscale_user,
+                            materials_root, preview_cache_root, preview_cache_mb)
 
 
-def serve(db_path, host="127.0.0.1", port=8831, web_root=None, public_origin=None, tailscale_user=None):
-    server = create_server(db_path, host, port, web_root, public_origin, tailscale_user)
+def serve(db_path, host="127.0.0.1", port=8831, web_root=None, public_origin=None, tailscale_user=None,
+          materials_root=None, preview_cache_root=None, preview_cache_mb=512):
+    server = create_server(db_path, host, port, web_root, public_origin, tailscale_user,
+                           materials_root, preview_cache_root, preview_cache_mb)
     print("Research Workflow Studio: http://%s:%s/" % server.server_address, file=sys.stderr)
     try:
         server.serve_forever()

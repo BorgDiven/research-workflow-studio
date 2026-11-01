@@ -130,13 +130,19 @@ A specification declares purpose, input/output semantics, configurable values, d
 - **Corrections are audited.** Approved amendments preserve the original record; previously frozen reports retain their original snapshot.
 - **A completed run ≠ a supported hypothesis.** Scientific judgments and project-foundation changes remain human decisions.
 
+## Lighter reading, protected originals
+
+Comparisons and enlarged images use a separate reading copy. Managed PDF reports open a reading edition, while original downloads stay inside material details. The local cache has a configurable size limit; originals and fixed evidence are never eviction targets. You can keep everything locally or put originals on a separate volume without changing material links.
+
+Image conversion is optional: install `.[previews]`; add `.[pdf-readings]` for reading PDFs. Missing converters show unavailable reading content instead of silently downloading originals. See [storage, retention and reading copies](docs/storage-and-reading.md).
+
 ## Private remote use
 
 The service binds to loopback. It supports an explicitly configured **Tailscale Serve** proxy for private cross-device use; see [deployment](docs/deployment.md). Real projects, SQLite files and managed materials stay on your server. This public repository contains software and synthetic examples, not a public hosted workspace.
 
 ## Development and status
 
-Version **0.4.2** is an early, single-user workbench. It has no collaborative multi-user permissions, cloud synchronization, automatic experiment scheduler or mobile layout. Supplied check evidence is recorded, not independently certified. Review changes and keep a database backup when upgrading.
+Version **0.5.0** is an early, single-user workbench. It has no collaborative multi-user permissions, cloud synchronization, automatic experiment scheduler or mobile layout. Supplied check evidence is recorded, not independently certified. Review changes and keep a database backup when upgrading.
 
 ```sh
 python3 -m unittest discover -s tests

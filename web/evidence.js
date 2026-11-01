@@ -68,10 +68,40 @@
     },'历史材料',6);
     return section('历史复用材料',readableList(source.historicalReuseNote||'参考既有产物与来源。')+'<p class="evidence-empty">重构一致性未验证 · 历史材料不计为本版产出或执行。</p>'+rows+(legacy.length?section('历史源码参考',batch(legacy,ref=>codeNavigation(ref),'历史代码',6)) :''));
   }
-  function unavailableURI(uri){return uri?.startsWith('file:')?'原地址是本机文件链接，网页无法直接读取；需登记受管附件或可访问的 HTTP 地址。':'未提供可访问的图像地址；未补用其他产物。';}
+  function unavailableURI(uri){return uri?.startsWith('file:')?'原地址是本机文件链接，网页无法直接读取；需先导入受管材料。':uri?'尚无可用阅读图；未自动下载原件。':'未提供可访问的图像地址；未补用其他产物。';}
+  function readingURL(original){
+    if(typeof original!=='string')return null;
+    if(/^https?:\/\//i.test(original)){
+      try{const parsed=new URL(original);if(!window.location?.origin||parsed.origin!==window.location.origin||!parsed.pathname.startsWith('/materials/')||parsed.search||parsed.hash||parsed.username||parsed.password)return null;original=parsed.pathname;}catch{return null;}
+    }
+    const safe=A.safeURL(original);
+    if(original.startsWith('/materials/')&&safe?.startsWith('/materials/'))return '/api/preview?uri='+encodeURIComponent(original);
+    // Packaged illustrations are already lightweight; keep static demos offline.
+    if(/^\/?assets\//.test(original)&&/^\/?assets\//.test(safe||''))return safe;
+    if(original.length<=512*1024&&/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(original))return original;
+    return null;
+  }
+  function readingMedia(original,caption){
+    const uri=readingURL(original);
+    return uri?`<a class="reading-image-link" href="${esc(uri)}" target="_blank" rel="noopener" aria-label="${esc('放大阅读图 · '+caption)}"><img data-reading-image src="${esc(uri)}" loading="lazy" decoding="async" alt="${esc(caption)}"></a><span class="reading-image-error" role="status" hidden>阅读图暂不可用；原始材料记录仍保留。</span>`:`<span class="evidence-empty">${esc(unavailableURI(original))}</span>`;
+  }
+  function imageSource(item,seen=new Set()){
+    const key=item.artifactRef?A.key(item.artifactRef):null,e=key?get(item.artifactRef):null,r=e?.effectiveRecord||e?.record||{};
+    if(key&&(!e||seen.has(key)))return {missing:true,record:r};
+    if(key)seen.add(key);
+    const available=!['unavailable','missing','unknown'].includes(item.availability||r.availability),original=item.uri||r.uri;
+    if(!original&&r.content?.items?.[0]){const nested=imageSource(r.content.items[0],seen);return {...nested,record:r,available:available&&nested.available};}
+    return {original,record:r,available};
+  }
   function imageItem(item){
-    const e=item.artifactRef?get(item.artifactRef):null,r=e?.record||{},original=item.uri||r.uri||r.content?.items?.[0]?.uri,uri=A.safeURL(original),available=!['unavailable','missing','unknown'].includes(item.availability||r.availability);
-    return `<figure class="typed-image">${uri&&available?`<a href="${esc(uri)}" target="_blank" rel="noopener"><img src="${esc(uri)}" loading="lazy" decoding="async" alt="${esc(item.caption||r.title||item.sampleId||'登记图像')}"></a>`:empty(available?unavailableURI(original):'登记的图像位置不可用；来源仍保留')}${!uri&&original?`<code class="unavailable-uri">${esc(original)}</code>`:''}<figcaption>${esc(item.caption||r.title||'图像')}${item.sampleId?' · 样本 '+esc(item.sampleId):''}</figcaption>${item.artifactRef?provenance(item.artifactRef)+refLink(item.artifactRef,'查看固定来源'):''}</figure>`;
+    const source=imageSource(item),r=source.record||{},caption=item.caption||r.title||item.sampleId||'登记图像';
+    const media=source.missing?empty('此精确图像版本不在当前快照中；未使用其他版本替代。'):!source.available?empty('登记的图像位置不可用；来源仍保留'):readingMedia(source.original,caption);
+    return `<figure class="typed-image">${media}<figcaption>${esc(item.caption||r.title||'图像')}${item.sampleId?' · 样本 '+esc(item.sampleId):''}</figcaption>${item.artifactRef&&item.showSource!==false?provenance(item.artifactRef)+refLink(item.artifactRef,'查看固定来源'):''}</figure>`;
+  }
+  function originalDownloads(record){
+    const originals=[...(record.uri?[{uri:record.uri,caption:record.title}]:[]),...(record.content?.kind==='image-set'?record.content.items||[]:record.content?.uri?[record.content]:[])],seen=new Set();
+    const links=originals.flatMap(item=>{const url=A.safeURL(item.uri);if(!url||seen.has(url))return [];seen.add(url);return [{url:url.startsWith('/materials/')?url+(url.includes('?')?'&':'?')+'download=1':url,label:item.caption||item.sampleId||record.title||'原始文件'}];});
+    return links.length?`<details class="original-materials"><summary>原始文件</summary><div class="evidence-actions">${batch(links,link=>`<a class="button small" href="${esc(link.url)}" download target="_blank" rel="noopener">下载原件 · ${esc(link.label)}</a>`,'原始文件',12)}</div></details>`:'';
   }
   function seriesSample(points,limit=600){
     if(points.length<=limit)return points;
@@ -90,11 +120,16 @@
     }
     if(result.kind==='image-set')return `<div class="typed-images">${batch(result.items||[],imageItem,'图像',12)||empty('图像集合为空')}</div>`;
     if(result.kind==='table'){const cs=result.columns||[],rows=result.rows||[];return `<div class="typed-table"><strong>${esc(label)}</strong>${batch(Array.from({length:Math.ceil(rows.length/50)},(_,i)=>rows.slice(i*50,(i+1)*50)),page=>`<table><thead><tr>${cs.map(c=>`<th>${esc(c.label||c.key||c.name)}</th>`).join('')}</tr></thead><tbody>${page.map(row=>`<tr>${cs.map(c=>`<td>${row[c.key||c.name]==null?'—':esc(row[c.key||c.name])}</td>`).join('')}</tr>`).join('')}</tbody></table>`,'表格分段（每段最多50行）',1)||empty('没有登记表格行')}</div>`;}
-    if(result.kind==='attachment'){const url=['unavailable','missing','unknown'].includes(result.availability)?null:A.safeURL(result.uri);return `<div class="typed-attachment"><strong>${esc(label||'附件')}</strong><p>${esc(result.mimeType||result.mediaType||'')} · ${esc(result.uri||'未登记路径')}</p>${url?`<a class="button" href="${esc(url)}" target="_blank" rel="noopener">打开附件 ↗</a>`:empty(result.uri?.startsWith('file:')?unavailableURI(result.uri):'未提供可访问的 HTTP 附件地址')}</div>`;}
+    if(result.kind==='attachment'){
+      const media=result.mimeType||result.mediaType||'';
+      if(/^image\//.test(media)||/\.(png|jpe?g|webp|gif|tiff?|bmp|svg|avif|heic|heif)(?:[?#]|$)/i.test(result.uri||''))return imageItem({uri:result.uri,caption:label,availability:result.availability});
+      const pdf=media==='application/pdf'||/\.pdf(?:[?#]|$)/i.test(result.uri||''),url=['unavailable','missing','unknown'].includes(result.availability)?null:pdf?readingURL(result.uri):A.safeURL(result.uri);
+      return `<div class="typed-attachment"><strong>${esc(label||(pdf?'报告':'附件'))}</strong><p>${esc(media)} · ${esc(result.uri||'未登记路径')}</p>${url?`<a class="button" href="${esc(url)}" target="_blank" rel="noopener">${pdf?'阅读报告':'下载附件'} ↗</a>`:empty(result.uri?.startsWith('file:')?unavailableURI(result.uri):pdf?'阅读版暂不可用；未自动下载原始报告。':'未提供可访问的 HTTP 附件地址')}</div>`;
+    }
     return empty('该内容尚未声明受支持的展示格式');
   }
   function inlineMarkdown(text){
-    const token=/(`[^`]+`|\[[^\]]+\]\([^)]+\)|\*\*[^*]+\*\*)/g;let out='',last=0;for(const match of text.matchAll(token)){out+=esc(text.slice(last,match.index));const value=match[0];if(value.startsWith('`'))out+='<code>'+esc(value.slice(1,-1))+'</code>';else if(value.startsWith('**'))out+='<strong>'+esc(value.slice(2,-2))+'</strong>';else{const link=/^\[([^\]]+)\]\(([^)]+)\)$/.exec(value),url=A.safeURL(link[2]);out+=url?`<a href="${esc(url)}" target="_blank" rel="noopener">${esc(link[1])}</a>`:esc(link[1]+'（'+link[2]+'）');}last=match.index+value.length;}return out+esc(text.slice(last));
+    const token=/(`[^`]+`|!?\[[^\]]*\]\([^)]+\)|\*\*[^*]+\*\*)/g;let out='',last=0;for(const match of text.matchAll(token)){out+=esc(text.slice(last,match.index));const value=match[0];if(value.startsWith('`'))out+='<code>'+esc(value.slice(1,-1))+'</code>';else if(value.startsWith('**'))out+='<strong>'+esc(value.slice(2,-2))+'</strong>';else{const link=/^(!?)\[([^\]]*)\]\(([^)]+)\)$/.exec(value),isImage=link[1]||/\.(png|jpe?g|webp|gif|tiff?|bmp|svg|avif|heic|heif)(?:[?#]|$)/i.test(link[3]),isReport=/^\/materials\/.*\.pdf(?:[?#]|$)/i.test(link[3]),url=isImage||isReport?readingURL(link[3]):A.safeURL(link[3]);out+=link[1]?`<span class="report-reading-image">${readingMedia(link[3],link[2]||'报告阅读图')}</span>`:url?`<a href="${esc(url)}" target="_blank" rel="noopener">${esc(link[2])}</a>`:esc(link[2]+'（'+(isImage?'阅读图尚不可用':link[3])+'）');}last=match.index+value.length;}return out+esc(text.slice(last));
   }
   function markdown(text){
     const lines=String(text||'').replace(/\r\n?/g,'\n').split('\n');let out='',paragraph=[],list=null,code=null;
@@ -105,9 +140,9 @@
   function foundation(record){if(!record)return empty('报告未登记项目基础快照');const labels={goal:'目标与挑战',foundations:'模型、数据与基线',approach:'当前研究路线',resources:'实验与评估约定',consensus:'已确认的项目认识'};return `<p><strong>基础 v${esc(record.revision)}</strong></p><p class="column-config">${esc([record.at,record.origin].filter(Boolean).join(' · '))}</p><div class="foundation-document">${Object.entries(labels).filter(([key])=>record.fields?.[key]).map(([key,label])=>`<section><h3>${label}</h3><p>${esc(record.fields[key])}</p></section>`).join('')}</div>`;}
   function artifact(e){
     const r=e.effectiveRecord||e.record,run=get(r.producerRef),runRecord=run?.effectiveRecord||run?.record,code=get(runRecord?.codeRef),currentRun=!activeScope&&D.runs.find(x=>!x.isExternal&&A.sameRecord(x.ref,r.producerRef));
-    const content=r.content||((r.kind==='image'||r.kind==='image-set')&&r.uri?{kind:'image-set',items:[{uri:r.uri,sampleId:r.sampleId,caption:r.title}]}:r.uri?{kind:'attachment',uri:r.uri,mimeType:r.mimeType||'application/octet-stream'}:null);
+    const content=r.content||((r.kind==='image'||r.kind==='image-set')&&r.uri?{kind:'image-set',items:[{artifactRef:e.ref,uri:r.uri,sampleId:r.sampleId,caption:r.title,showSource:false}]}:r.uri?{kind:'attachment',uri:r.uri,mimeType:r.mimeType||'application/octet-stream'}:null);
     const source=!r.producerRef||r.provenance==='unresolved'?section('原始生产者未核定',readableList(r.description||'此材料保留原始来源记录；尚未绑定实际运行与代码。')+pre(r.source||{})):section('实际生产来源',refLink(r.producerRef,runRecord?.title)+' '+codeNavigation(runRecord?.codeRef,code?.effectiveRecord?.title||code?.record.title)+(currentRun&&currentRun.recordVersion!==r.producerRef.version?'<p>产物来源是运行记录 r'+r.producerRef.version+'；同一次运行的当前状态记录为 r'+currentRun.recordVersion+'。</p>':'')+facts([['样本',r.sampleId],['可用性',A.statusNames[r.availability]||r.availability]])+`<details><summary>实际配置</summary>${pre(r.config||{})}</details>`);
-    return facts([['产出语义',r.semantic],['编辑任务',r.taskKey],['观察步',r.observation?.step],['观察时刻',r.observation?.time]])+refs('输入身份',[r.datasetRef,...(r.inputRefs||[])].filter(Boolean))+source+section('登记内容',['unavailable','missing','unknown'].includes(r.availability)?empty('产物位置未确认或不可用；原始来源记录保留。')+(r.uri?pre(r.uri):''):r.source?.kind==='metric-history-snapshot'?(window.RWSProcess?.frozenPreview(r)||'')+`<details><summary>完整固定数值</summary>${typed(content)}</details>`:typed(content))+`<button class="button" data-studio="reuse-artifact" data-ref="${A.key(e.ref)}">引用到当前项目实验</button>`;
+    return facts([['产出语义',r.semantic],['编辑任务',r.taskKey],['观察步',r.observation?.step],['观察时刻',r.observation?.time]])+refs('输入身份',[r.datasetRef,...(r.inputRefs||[])].filter(Boolean))+source+section('登记内容',['unavailable','missing','unknown'].includes(r.availability)?empty('产物位置未确认或不可用；原始来源记录保留。')+(r.uri?pre(r.uri):''):r.source?.kind==='metric-history-snapshot'?(window.RWSProcess?.frozenPreview(r)||'')+`<details><summary>完整固定数值</summary>${typed(content)}</details>`:typed(content))+originalDownloads(r)+`<button class="button" data-studio="reuse-artifact" data-ref="${A.key(e.ref)}">引用到当前项目实验</button>`;
   }
   function render(type,id,context={}){
     if(type==='draft')return `<div class="evidence"><h2>准备研究对话</h2><p>从共享后端读取项目基础、当前位置与已登记材料。</p><button class="button primary" data-studio="context">生成当前上下文</button></div>`;
@@ -143,5 +178,6 @@
     });
   }
   if(typeof document!=='undefined')document.addEventListener('click',event=>{const b=event.target.closest('[data-collection-page]');if(!b)return;const c=collections.get(b.dataset.collectionPage),host=b.closest('.paged-collection');if(!c||!host)return;c.page+=Number(b.dataset.direction);const token=b.dataset.collectionPage,direction=b.dataset.direction;host.outerHTML=collectionMarkup(token);document.querySelector(`[data-collection="${token}"] [data-direction="${direction}"]:not([disabled])`)?.focus({preventScroll:true});});
-  window.RPEvidence={render,typed,refLink,provenance,resolve:env,scopeForReport,markdown,seriesSample,batch,codeSource,historicalReuse,clear:()=>{frozen.clear();scopes.clear();scopeFoundations.clear();collections.clear();}};
+  if(typeof document!=='undefined')document.addEventListener('error',event=>{const img=event.target;if(!img.matches?.('img[data-reading-image]'))return;const container=img.closest('.typed-image,.report-reading-image'),link=img.closest('.reading-image-link');if(link){link.hidden=true;link.removeAttribute('href');}const message=container?.querySelector('.reading-image-error');if(message)message.hidden=false;},true);
+  window.RPEvidence={render,typed,refLink,provenance,resolve:env,scopeForReport,markdown,seriesSample,batch,codeSource,historicalReuse,readingURL,clear:()=>{frozen.clear();scopes.clear();scopeFoundations.clear();collections.clear();}};
 })();

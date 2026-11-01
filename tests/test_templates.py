@@ -154,6 +154,70 @@ class TemplateTests(unittest.TestCase):
         self.assertEqual(output['artifacts'][0]['content']['availability'], 'available')
         self.assertNotEqual(subprocess.run(command, capture_output=True).returncode, 0)
 
+    def test_report_reading_body_is_bounded_but_fixed_evidence_is_complete(self):
+        folder = self.block('report')
+        request = self.request(folder)
+        request['cases'] = request['cases'][:1]
+        request['inputs'] = request['inputs'][:1]
+        curve = request['inputs'][0]
+        curve['content']['points'] = [[index, index * 7] for index in range(10000)]
+        table = copy.deepcopy(curve)
+        table.update(id='fixed-analysis/large-table', kind='table', semantic='signal-summary')
+        table['content'] = {'kind': 'table',
+                            'columns': [{'key': 'column-' + str(i)} for i in range(8)],
+                            'rows': [{'column-' + str(i): 'row-' + str(row) + '-value-' + str(i)
+                                      for i in range(8)} for row in range(100)]}
+        table['content']['rows'][0]['column-0'] = {'large-nested-array': list(range(10000))}
+        table['content']['rows'][0]['column-1'] = 'long-text-' * 1000
+        request['inputs'].append(table)
+        before = copy.deepcopy(request)
+        document = self.call(folder, request)['artifacts'][0]
+        text = document['markdown']
+        self.assertEqual(document['evidenceSnapshot'], before['inputs'])
+        self.assertEqual(document['inputIds'], [a['id'] for a in before['inputs']])
+        self.assertEqual(request, before)
+        self.assertLess(len(text), 5000)
+        self.assertIn('10000 points retained', text)
+        self.assertIn('100 rows, 8 columns', text)
+        self.assertIn('first 5 rows and 6 columns', text)
+        self.assertIn('row-4-value-5', text)
+        self.assertNotIn('row-5-value-0', text)
+        self.assertNotIn('row-0-value-6', text)
+        self.assertNotIn('large-nested-array', text)
+        self.assertIn('truncated', text)
+        self.assertNotIn('```json', text)
+        self.assertIn('No interpretation supplied.', text)
+
+    def test_report_limits_reading_sources_without_dropping_selection(self):
+        folder = self.block('report')
+        request = self.request(folder)
+        request['cases'] = request['cases'][:1]
+        source = request['inputs'][0]
+        request['inputs'] = []
+        for index in range(15):
+            item = copy.deepcopy(source)
+            item['id'] = 'fixed-evidence/source-' + str(index)
+            request['inputs'].append(item)
+        output = self.call(folder, request)['artifacts'][0]
+        self.assertEqual(len(output['evidenceSnapshot']), 15)
+        self.assertEqual(len(output['inputIds']), 15)
+        self.assertIn('3 additional selected artifacts', output['markdown'])
+        self.assertNotIn('fixed-evidence/source-12', output['markdown'])
+
+    def test_report_distinguishes_missing_metric_from_zero_and_preserves_note(self):
+        folder = self.block('report')
+        request = self.request(folder)
+        request['cases'][0]['note'] = 'The supplied comparison is inconclusive.'
+        source = request['inputs'][0]
+        source.update(kind='metric', semantic='evaluation-metric')
+        source['content'] = {'kind': 'metric', 'name': 'supplied-score', 'value': None,
+                             'status': 'missing', 'reason': 'No reference supplied.'}
+        output = self.call(folder, request)['artifacts'][0]
+        self.assertIn('not supplied (missing)', output['markdown'])
+        self.assertIn('No reference supplied.', output['markdown'])
+        self.assertIn(request['cases'][0]['note'], output['markdown'])
+        self.assertEqual(output['evidenceSnapshot'][0], source)
+
     def test_pipeline_reuses_saved_sources_and_creates_reports(self):
         folder = self.root / 'pipeline'
         manifest = run_pipeline(folder)

@@ -1,6 +1,6 @@
 # Local and private remote deployment
 
-Run the browser service and stdio MCP against the same absolute database path. The SQLite file and its sibling `materials/` directory are your data; the source checkout is the software. Back up the database with SQLite's backup API, and copy managed materials separately. Do not copy a live WAL database as a lone file.
+Run the browser service and stdio MCP against the same absolute database path. The SQLite file and managed originals (by default its sibling `materials/` directory) are your data; the source checkout is the software. Back up the database with SQLite's backup API, and copy managed materials separately. Do not copy a live WAL database as a lone file.
 
 ## Tailscale Serve
 
@@ -22,3 +22,9 @@ Set MCP's `--web-url` to the same private HTTPS origin so review links work on a
 This is a single-user service, not a security boundary against programs running as the same OS user. A model with separate shell/browser permissions must still follow user authorization. Studio's MCP itself does not offer those capabilities.
 
 Use your operating system's service manager if persistent startup is needed. No installer in this repository changes network routes or starts background services automatically.
+
+## Independent storage locations
+
+`serve --materials-root /absolute/originals --preview-cache-root /absolute/local-cache --preview-cache-mb 512` changes physical storage only. Existing `/materials/...` links and report references remain valid. No external drive is required. Install the optional `previews` extra for image conversion and `pdf-readings` for reading PDFs; the record service and MCP remain usable without them.
+
+Migration is explicit: copy originals, verify the copy, stop import writers, update the server configuration and restart, then verify old links before retiring the old copy. Back up the database separately. Do not point a cache directory at original data or a project folder. No service command automatically migrates or deletes originals. See [storage and reading](storage-and-reading.md).

@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.5.0 — 2026-11-01
+
+- Separate configurable managed originals and a bounded local reading cache without changing original URLs or fixed evidence records.
+- Use lightweight reading images for comparisons and enlargement; keep original downloads inside material details. Cached reading copies remain available when the original volume is offline.
+- Add optional image/PDF reading converters; never silently fall back to downloading an original when conversion is unavailable.
+- Generate concise report Markdown with selected summaries instead of embedding full input arrays. Preserve the complete selected evidence snapshot separately.
+- Include the previously accepted explicit method comparison groups and historical-source separation.
+
+Validation: 211 Python tests and 192 JavaScript tests passed locally; synthetic desktop browser checks covered comparison reading and enlargement.
+
 ## 0.4.2 — 2026-10-28
 
 - Keep research association highlights independent from the selected code, with an explicit show/cancel control and readable research source.

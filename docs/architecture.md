@@ -7,7 +7,8 @@ flowchart LR
   Web --> Store[Shared business service]
   MCP --> Store
   Store --> DB[(SQLite records and history)]
-  Web --> Materials[Managed materials directory]
+  Web --> Reading[Bounded derived reading cache]
+  Reading --> Materials[Configurable managed originals directory]
   AI --> Dev[User-authorized development tools]
   Dev --> Code[Git repository and executable blocks]
   Dev --> Results[Actual outputs and check evidence]
@@ -30,7 +31,7 @@ Research owns optional purpose links to exact specification/code revisions. A de
 
 Comparison selections are independent of production records. A saved view pins selected artifacts and comparison dimensions. Analyses state scope and limitations. Reports pin the complete referenced closure and the relevant foundation versions. Later results, revisions or audited corrections do not mutate an existing report.
 
-Managed material URLs serve only files under the `materials/` directory next to the database. Source paths in metadata do not grant arbitrary file access. Private imports are separate adapters: enumerate and review sources, preserve unknowns, copy only authorized materials, and use normal service operations.
+Managed material URLs retain their identity while their configured physical root may move. The default root remains `materials/` next to the database. Normal image/PDF reading goes through a separately bounded derived cache; explicit downloads retain access to originals. Cache files and its index are regenerable storage bookkeeping, not research records. Source paths in metadata do not grant arbitrary file access. Private imports are separate adapters: enumerate and review sources, preserve unknowns, copy only authorized materials, and use normal service operations.
 
 
 Process metrics live in appendable observation storage, keyed by a fixed run and its specification. Queries are bounded and keep incompatible dimensions separate. A selected metric-history snapshot becomes a normal immutable artifact; comparison/report flows reuse that artifact without pulling later live points into a historical report.

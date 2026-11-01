@@ -189,6 +189,15 @@ def copy_ui(destination):
     if len(lines) != 1:
         raise ValueError('Production source-link reader changed; review the static adaptation')
     evidence = evidence.replace(lines[0], "    const links=candidates.flatMap(([label,value])=>{const url=A.safeURL(value);if(!url||seen.has(url))return [];seen.add(url);return [{label,url}];});")
+    # The public demo has packaged fictional reading assets, never a storage API
+    # or an original-material download surface.
+    for name, replacement in (
+            ('readingURL', '  function readingURL(original){return A.safeURL(original);}\n'),
+            ('originalDownloads', "  function originalDownloads(){return '';}\n")):
+        pattern = r'  function ' + name + r'\([^\n]*\)\{.*?\n  \}\n'
+        evidence, count = re.subn(pattern, lambda match: replacement, evidence, flags=re.S)
+        if count != 1:
+            raise ValueError('Production reading helper changed; review the static adaptation: ' + name)
     evidence = evidence.replace('从共享后端读取项目基础、当前位置与已登记材料。', '读取构建时导出的虚构项目基础、当前位置与演示材料。').replace('<h2>准备研究对话</h2>', '<h2>查看演示上下文</h2>')
     (destination / 'evidence.js').write_text(evidence)
     (destination / 'docs').mkdir()

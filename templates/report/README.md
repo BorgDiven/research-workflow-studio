@@ -2,7 +2,9 @@
 
 A runnable Python standard-library example; all signals are synthetic and are not research results.
 
-Selected stored artifacts + optional per-case note → a Markdown document for each selected sample. It embeds existing values and their source IDs, and snapshots the selected evidence. It neither invents conclusions nor calculates additional metrics.
+Selected stored artifacts + optional per-case note → a compact Markdown document for each selected sample. It shows stored metric values, curve lengths and axes, and a small excerpt of existing analysis tables. It neither invents conclusions nor calculates additional metrics.
+
+The reading body summarizes at most 12 selected sources, 5 table rows and 6 columns per source. Scalar table cells and labels are limited to 160 characters; nested values are identified rather than expanded. Every omission is labeled. Curves keep all points in the evidence, without dumping them into Markdown. The case note remains the supplied interpretation; an absent note is explicitly marked as absent.
 
 ## Start from a contract
 
@@ -21,7 +23,7 @@ Edit `contract.json` first: purpose, typed ports, parameter schema and acceptanc
 
 ## Boundary and provenance
 
-The CLI writes document files beside the output manifest. A direct run(request) call returns Markdown and an unmaterialized attachment; the caller must persist it before marking it available. RWS reports can reuse these snapshots or compose them into a larger final report; report generation code belongs in the report code lane.
+The CLI writes document files beside the output manifest. A direct run(request) call returns Markdown and an unmaterialized attachment; the caller must persist it before marking it available. The portable output manifest still contains the complete `evidenceSnapshot` and `inputIds`, even where the reading body shows only an excerpt. It is not a compressed evidence archive. In RWS, reuse the registered originals through exact references instead of copying their files into each report. RWS reports can reuse these snapshots or compose them into a larger final report; report generation code belongs in the report code lane.
 
 Requests carry `requestId`, `datasetId`, `cases`, `config`, and exact `inputs`. Outputs carry stable artifact IDs, sample/task/dataset identity, semantic role, actual settings, producing request, input IDs and explicit sample status. A run is an execution fact; it is not a new method or a new research hypothesis. Keep files and source IDs when reusing evidence across hypotheses or reports.
 
